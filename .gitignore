@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+
+# Django / local runtime
+.env
+.env.*
+!.env.example
+staticfiles/
+media/
+quarantine/
+storage/
+
+# .NET
+bin/
+obj/
+TestResults/
+
+# IDE
+.vscode/
+.idea/
+.vs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets / certificates
+*.key
+*.pem
+*.pfx
+secrets/
+
+# Operational data
+backups/
+*.dump
+*.bak
+prometheus-data/
+grafana-data/
+logs/
+driver-packages/
