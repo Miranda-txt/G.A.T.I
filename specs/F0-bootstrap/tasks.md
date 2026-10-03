@@ -2,24 +2,25 @@
 
 ## DU-F0.1-02 — Baseline
 
-- [ ] Adicionar `docs/metodologia/GATI_Metodologia_Desenvolvimento.md`.
-- [ ] Adicionar o Documento Consolidado oficial em `docs/requisitos/`.
-- [ ] Atualizar `README.md`.
-- [ ] Substituir `spec.md` placeholder.
-- [ ] Substituir `plan.md` placeholder.
-- [ ] Substituir `tasks.md` placeholder.
-- [ ] Substituir `test-plan.md` placeholder.
-- [ ] Substituir `traceability.md` placeholder.
-- [ ] Adicionar `DU-F0.1-02_Baseline_Estado_Atual.md`.
-- [ ] Remover `.github/workflows/build-images.yml`.
-- [ ] Remover `.github/workflows/ci-backend.yml`.
-- [ ] Remover `.github/workflows/ci-endpoint.yml`.
-- [ ] Remover `.github/workflows/release.yml`.
-- [ ] Remover `.github/workflows/security.yml`.
+- [x] Adicionar `docs/metodologia/GATI_Metodologia_Desenvolvimento.md`.
+- [x] Adicionar o Documento Consolidado oficial em `docs/requisitos/`.
+- [x] Atualizar `README.md`.
+- [x] Substituir `spec.md` placeholder.
+- [x] Substituir `plan.md` placeholder.
+- [x] Substituir `tasks.md` placeholder.
+- [x] Substituir `test-plan.md` placeholder.
+- [x] Substituir `traceability.md` placeholder.
+- [x] Adicionar `DU-F0.1-02_Baseline_Estado_Atual.md`.
+- [x] Remover `.github/workflows/build-images.yml`.
+- [x] Remover `.github/workflows/ci-backend.yml`.
+- [x] Remover `.github/workflows/ci-endpoint.yml`.
+- [x] Remover `.github/workflows/release.yml`.
+- [x] Remover `.github/workflows/security.yml`.
 - [ ] Revisar diff no GitHub Desktop.
-- [ ] Confirmar que nenhum secret foi adicionado.
+- [x] Confirmar que nenhum secret foi adicionado.
 - [ ] Fazer commit/push manualmente.
-- [ ] Reler `main` após o push.
+- [x] Branch publicada relida e comparada com `main`.
+- [ ] Reler `main` após a integração manual da branch.
 - [ ] Registrar DU-F0.1-02 como concluída somente após a releitura.
 
 ## DU-F0.2-01 — Walking Skeleton Django

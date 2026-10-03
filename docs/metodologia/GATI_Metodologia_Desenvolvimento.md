@@ -2,7 +2,7 @@
 
 **Projeto:** Sistema de Gerenciamento de Ativos de TI — GATI  
 **Documento:** Metodologia oficial de desenvolvimento do GATI  
-**Status:** PROPOSTA PARA FORMALIZAÇÃO NO REPOSITÓRIO  
+**Status:** APROVADA PARA O PROJETO GATI
 **Aplicação:** MVP e evoluções posteriores  
 **Autoridade técnica:** subordinada aos requisitos e decisões arquiteturais oficiais do GATI.
 

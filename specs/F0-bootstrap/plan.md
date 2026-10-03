@@ -27,7 +27,7 @@ Resultado:
 Status:
 
 ```text
-EM REMEDIAÇÃO
+REMEDIAÇÕES CONCLUÍDAS NA BRANCH — aguardando revisão final e integração na main
 ```
 
 Ações:

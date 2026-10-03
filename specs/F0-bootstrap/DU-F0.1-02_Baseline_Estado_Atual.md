@@ -3,7 +3,7 @@
 **Fase:** F0 — Bootstrap e Walking Skeleton  
 **Subfase:** F0.1 — Inspeção / Baseline  
 **Development Unit:** DU-F0.1-02  
-**Status:** BASELINE REGISTRADA — REMEDIAÇÃO NECESSÁRIA ANTES DO WALKING SKELETON  
+**Status:** BASELINE REGISTRADA — REMEDIAÇÕES APLICADAS NA BRANCH; AGUARDANDO REVISÃO FINAL E INTEGRAÇÃO NA MAIN
 **Repositório consultado:** `Miranda-txt/G.A.T.I`  
 **Branch observada:** `main`  
 **Commit observado:** `d4e13500ce5fb36e4929849dfd98faea438424ad`
@@ -227,7 +227,7 @@ Isso não substitui secret scanning formal, que será configurado em uma DU futu
 
 ---
 
-## 10. Classificação
+## 10. Classificação na baseline inicial
 
 | Componente | Estado |
 |---|---|
@@ -258,7 +258,7 @@ Isso não substitui secret scanning formal, que será configurado em uma DU futu
 
 ---
 
-## 11. Remediações desta DU
+## 11. Remediações previstas para esta DU
 
 Aplicar:
 
@@ -287,14 +287,15 @@ Não aplicar nesta DU:
 A DU-F0.1-02 pode ser considerada concluída quando:
 
 ```text
-[ ] metodologia GATI registrada
-[ ] fonte normativa presente no repositório
-[ ] README corrigido
-[ ] F0 SPEC/PLAN/TASKS/TEST-PLAN/TRACEABILITY reais
-[ ] workflows-placeholder removidos
-[ ] nenhum secret adicionado
-[ ] diff revisado
-[ ] repositório relido após push manual
+[x] metodologia GATI registrada
+[x] fonte normativa presente no repositório
+[x] README corrigido
+[x] F0 SPEC/PLAN/TASKS/TEST-PLAN/TRACEABILITY reais
+[x] workflows-placeholder removidos
+[x] nenhum secret adicionado
+[x] diff revisado
+[x] branch publicada relida após push manual
+[ ] main relida após integração manual
 ```
 
 Após isso, o próximo passo é:
@@ -304,3 +305,36 @@ DU-F0.2-01 — Walking Skeleton Django
 ```
 
 A implementação dessa DU deve começar apenas após nova leitura do repositório.
+
+## 13. Revisão pós-publicação da remediação
+
+**Branch revisada:** `chore/f0-governanca-baseline`
+**Commit revisado:** `6d832e4d968bf67b94524436eaab4a81ebe19191`
+**Comparação com `main`:** 1 commit à frente e 0 commits atrás.
+
+### Evidências verificadas
+
+- metodologia própria do GATI presente;
+- Documento Consolidado oficial presente em `docs/requisitos/`;
+- README corrigido;
+- documentação da F0 substituída por conteúdo real;
+- cinco workflows-placeholder removidos;
+- nenhuma nova execução de workflow inválido na branch;
+- nenhuma credencial ou secret identificado no diff inspecionado;
+- estrutura macro do monorepo preservada.
+
+### Resultado
+
+A primeira revisão pós-publicação confirmou que as remediações estruturais planejadas para a DU-F0.1-02 foram aplicadas.
+
+Esta revisão identificou apenas ajustes documentais de encerramento e rastreabilidade, tratados no incremento atual.
+
+### Pendências antes da conclusão definitiva da DU
+
+- revisar o novo diff deste incremento;
+- realizar commit/push manual pelo responsável;
+- revisar novamente a branch publicada;
+- integrar manualmente a branch na `main`;
+- reler a `main` após a integração;
+- somente então registrar a DU-F0.1-02 como `CONCLUÍDA`;
+- liberar a DU-F0.2-01 — Walking Skeleton Django.

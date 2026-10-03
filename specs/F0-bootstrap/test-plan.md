@@ -7,18 +7,18 @@ Não há aplicação funcional para testes automatizados nesta DU.
 Validar:
 
 ```text
-[ ] Documento de metodologia existe
-[ ] Documento normativo oficial existe em docs/requisitos
-[ ] README não se refere ao repositório como ZIP
-[ ] SPEC F0 não é placeholder
-[ ] PLAN F0 não é placeholder
-[ ] TASKS F0 não é placeholder
-[ ] TEST-PLAN F0 não é placeholder
-[ ] TRACEABILITY F0 não é placeholder
-[ ] Cinco workflows-placeholder foram removidos
-[ ] Nenhum arquivo .env real foi adicionado
-[ ] Nenhuma chave/token/credencial foi adicionada
-[ ] Estrutura macro do monorepo permanece íntegra
+[x] Documento de metodologia existe
+[x] Documento normativo oficial existe em docs/requisitos
+[x] README não se refere ao repositório como ZIP
+[x] SPEC F0 não é placeholder
+[x] PLAN F0 não é placeholder
+[x] TASKS F0 não é placeholder
+[x] TEST-PLAN F0 não é placeholder
+[x] TRACEABILITY F0 não é placeholder
+[x] Cinco workflows-placeholder foram removidos
+[x] Nenhum arquivo .env real foi adicionado
+[x] Nenhuma chave/token/credencial foi adicionada
+[x] Estrutura macro do monorepo permanece íntegra
 ```
 
 ### CI
