@@ -3,7 +3,7 @@
 **Fase:** F0 — Bootstrap e Walking Skeleton  
 **Subfase:** F0.1 — Inspeção / Baseline  
 **Development Unit:** DU-F0.1-02  
-**Status:** BASELINE REGISTRADA — REMEDIAÇÕES APLICADAS NA BRANCH; AGUARDANDO REVISÃO FINAL E INTEGRAÇÃO NA MAIN
+**Status:** CONCLUÍDA — MAIN RELIDA APÓS INTEGRAÇÃO
 **Repositório consultado:** `Miranda-txt/G.A.T.I`  
 **Branch observada:** `main`  
 **Commit observado:** `d4e13500ce5fb36e4929849dfd98faea438424ad`
@@ -295,7 +295,7 @@ A DU-F0.1-02 pode ser considerada concluída quando:
 [x] nenhum secret adicionado
 [x] diff revisado
 [x] branch publicada relida após push manual
-[ ] main relida após integração manual
+[x] main relida após integração manual
 ```
 
 Após isso, o próximo passo é:
@@ -329,7 +329,7 @@ A primeira revisão pós-publicação confirmou que as remediações estruturais
 
 Esta revisão identificou apenas ajustes documentais de encerramento e rastreabilidade, tratados no incremento atual.
 
-### Pendências antes da conclusão definitiva da DU
+### Pendências registradas na primeira revisão
 
 - revisar o novo diff deste incremento;
 - realizar commit/push manual pelo responsável;
@@ -338,3 +338,61 @@ Esta revisão identificou apenas ajustes documentais de encerramento e rastreabi
 - reler a `main` após a integração;
 - somente então registrar a DU-F0.1-02 como `CONCLUÍDA`;
 - liberar a DU-F0.2-01 — Walking Skeleton Django.
+
+---
+
+## 14. Encerramento da DU-F0.1-02
+
+**Status final:** CONCLUÍDA
+
+**Main relida:** `7963fdc57340e6e9d4e97fb079fde7ae9c1baf98`
+
+**Merge verificado:** Pull Request #1, com `chore/f0-governanca-baseline` integrada à `main`.
+
+### Evidências de encerramento
+
+- metodologia própria do GATI presente e aprovada;
+- Documento Consolidado oficial presente em `docs/requisitos/`;
+- README sincronizado com o encerramento da baseline;
+- documentos SPEC, PLAN, TASKS, TEST-PLAN e TRACEABILITY da F0 presentes;
+- cinco workflows-placeholder permanecem removidos;
+- arquivo temporário de aplicação local permanece removido;
+- `main` relida depois do merge;
+- nenhuma implementação funcional foi antecipada nesta DU;
+- nenhuma dependência foi adicionada;
+- nenhuma alteração de banco ou contrato de API foi realizada;
+- nenhuma nova superfície de ataque foi introduzida.
+
+### Segurança
+
+A revisão estrutural não identificou secret, token, credencial ou chave privada introduzida pelo incremento.
+
+Secret scanning automatizado continua pendente para a DU responsável pela configuração real do CI e não é declarado como executado nesta etapa.
+
+### README
+
+README: ATUALIZADO.
+
+O estado do projeto passa a indicar a DU-F0.2-01 como próxima unidade pronta para início.
+
+### ADR
+
+ADR NECESSÁRIO: NÃO.
+
+Motivo: o encerramento desta DU não altera arquitetura, contrato, dependência estrutural ou decisão técnica permanente.
+
+### Próxima Development Unit
+
+```text
+DU-F0.2-01 — Walking Skeleton Django
+STATUS: READY
+IMPLEMENTAÇÃO: NÃO INICIADA
+```
+
+Antes da implementação, o repositório e as fontes oficiais devem ser consultados novamente.
+
+### Commit recomendado para este encerramento
+
+```text
+docs(f0): encerra baseline e libera walking skeleton
+```

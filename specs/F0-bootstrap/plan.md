@@ -27,7 +27,7 @@ Resultado:
 Status:
 
 ```text
-REMEDIAÇÕES CONCLUÍDAS NA BRANCH — aguardando revisão final e integração na main
+CONCLUÍDA
 ```
 
 Ações:
@@ -41,7 +41,9 @@ Ações:
 
 ### 3. DU-F0.2-01 — Walking Skeleton Django
 
-Executar somente depois da DU-F0.1-02.
+Status: READY — baseline concluída; implementação ainda não iniciada.
+
+A implementação começa somente após nova consulta ao repositório e às fontes aplicáveis.
 
 Resultado esperado:
 

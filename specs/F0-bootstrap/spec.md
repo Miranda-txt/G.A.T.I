@@ -38,8 +38,8 @@ DU-F0.5-01 — GitHub Actions inicial
 
 ```text
 DU-F0.1-01: CONCLUÍDA
-DU-F0.1-02: REMEDIAÇÕES CONCLUÍDAS NA BRANCH — aguardando revisão final e integração na main
-DU-F0.2-01: BLOQUEADA até integração da baseline na main e releitura do repositório
+DU-F0.1-02: CONCLUÍDA
+DU-F0.2-01: READY — baseline concluída; implementação ainda não iniciada
 DU-F0.2-02: NÃO INICIADA
 DU-F0.3-01: NÃO INICIADA
 DU-F0.4-01: NÃO INICIADA
