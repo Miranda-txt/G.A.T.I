@@ -6,8 +6,9 @@ O GATI é o sistema central do projeto para gerenciamento do parque de ativos de
 
 ```text
 FASE: F0 — Bootstrap e Walking Skeleton
-SUBFASE: F0.1 — Inspeção / Baseline
-DU ATUAL: DU-F0.1-02 — Baseline do estado atual
+SUBFASE: F0.2 — Walking Skeleton
+DU ATUAL: DU-F0.2-01 — Walking Skeleton Django
+STATUS: READY — implementação ainda não iniciada
 ```
 
 O repositório ainda **não contém uma aplicação funcional pronta para execução**.
@@ -84,14 +85,10 @@ Nunca versionar:
 
 ## Próximo passo
 
-Concluir:
-
-```text
-DU-F0.1-02 — Baseline do estado atual
-```
-
-Depois:
+Iniciar:
 
 ```text
 DU-F0.2-01 — Walking Skeleton Django
 ```
+
+A implementação deve começar somente após consultar novamente o repositório, as fontes oficiais e a documentação da DU.

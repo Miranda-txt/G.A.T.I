@@ -16,16 +16,16 @@
 - [x] Remover `.github/workflows/ci-endpoint.yml`.
 - [x] Remover `.github/workflows/release.yml`.
 - [x] Remover `.github/workflows/security.yml`.
-- [ ] Revisar diff no GitHub Desktop.
+- [x] Revisar diff no GitHub Desktop.
 - [x] Confirmar que nenhum secret foi adicionado.
-- [ ] Fazer commit/push manualmente.
+- [x] Fazer commit/push manualmente.
 - [x] Branch publicada relida e comparada com `main`.
-- [ ] Reler `main` após a integração manual da branch.
-- [ ] Registrar DU-F0.1-02 como concluída somente após a releitura.
+- [x] Reler `main` após a integração manual da branch.
+- [x] Registrar DU-F0.1-02 como concluída somente após a releitura.
 
 ## DU-F0.2-01 — Walking Skeleton Django
 
-- [ ] Não iniciar até a DU-F0.1-02 estar concluída.
+- [x] Pré-condição atendida: DU-F0.1-02 concluída antes do início.
 - [ ] Consultar novamente repositório e fontes.
 - [ ] Definir menor conjunto real de arquivos Django.
 - [ ] Avaliar dependências e tooling Python antes da instalação.
