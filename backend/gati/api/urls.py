@@ -33,4 +33,4 @@ for key, view in [
     ("arquivos", FileViewSet),
 ]:
     router.register(key, view, basename=key)
-urlpatterns = [path("schema/", SpectacularAPIView.as_view(), name="schema"), path("", include(router.urls))]
+urlpatterns = [path("schema/", SpectacularAPIView.as_view(api_version="v1"), name="schema"), path("", include(router.urls))]

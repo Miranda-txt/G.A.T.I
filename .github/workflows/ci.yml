@@ -42,7 +42,14 @@ jobs:
       - run: python manage.py migrate --noinput
       - run: python manage.py collectstatic --noinput
       - name: Gerar e validar OpenAPI
-        run: python manage.py spectacular --file ../docs/openapi.yml --validate --fail-on-warn
+        run: python manage.py spectacular --api-version v1 --file ../docs/openapi.yml --validate --fail-on-warn
+      - name: Impedir OpenAPI vazio ou sem endpoints da API v1
+        run: >-
+          python -c "from pathlib import Path; import yaml;
+          schema=yaml.safe_load(Path('../docs/openapi.yml').read_text(encoding='utf-8'));
+          paths=schema.get('paths', {});
+          assert paths and any(p.startswith('/api/v1/') and p != '/api/v1/schema/' for p in paths),
+          'OpenAPI sem endpoints da API v1'"
       - name: Publicar OpenAPI gerado como artefato
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
