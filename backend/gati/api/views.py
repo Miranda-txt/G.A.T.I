@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from django.core.exceptions import ValidationError
 from drf_spectacular.utils import extend_schema, inline_serializer
 from rest_framework import serializers, viewsets
@@ -37,7 +39,9 @@ class StrictSerializer(serializers.ModelSerializer):
         return super().to_internal_value(data)
 
 
-def serializer_for(config):
+@lru_cache(maxsize=None)
+def serializer_for(resource):
+    config = RESOURCES[resource]
     field_names = ["id", *config.fields, "versao", "criado_em", "atualizado_em"]
     if "ativo" not in field_names and hasattr(config.model, "ativo"):
         field_names.append("ativo")
@@ -83,7 +87,7 @@ class RecordViewSet(viewsets.ModelViewSet):
         return records(self.resource, RESOURCES[self.resource].model, self.request.query_params)
 
     def get_serializer_class(self):
-        return serializer_for(RESOURCES[self.resource])
+        return serializer_for(self.resource)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

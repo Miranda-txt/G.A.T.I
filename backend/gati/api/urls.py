@@ -20,7 +20,7 @@ for key, config in RESOURCES.items():
     view = type(
         config.model.__name__ + "ViewSet",
         (RecordViewSet,),
-        {"resource": key, "queryset": config.model.objects.all(), "serializer_class": serializer_for(config)},
+        {"resource": key, "queryset": config.model.objects.all(), "serializer_class": serializer_for(key)},
     )
     router.register(key, view, basename=key)
 for key, view in [
