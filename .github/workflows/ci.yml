@@ -41,6 +41,14 @@ jobs:
       - run: python manage.py makemigrations --check --dry-run
       - run: python manage.py migrate --noinput
       - run: python manage.py collectstatic --noinput
-      - run: python manage.py spectacular --file ../docs/openapi.yml --validate --fail-on-warn
+      - name: Gerar e validar OpenAPI
+        run: python manage.py spectacular --file ../docs/openapi.yml --validate --fail-on-warn
+      - name: Publicar OpenAPI gerado como artefato
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: gati-openapi
+          path: docs/openapi.yml
+          if-no-files-found: error
+          retention-days: 30
       - run: python -m pytest --cov=gati --cov-report=json:coverage.json --junitxml=test-results.xml
       - run: python ../scripts/check_coverage.py coverage.json

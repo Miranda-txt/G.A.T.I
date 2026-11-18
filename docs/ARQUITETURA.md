@@ -2,7 +2,7 @@
 
 ## Dependências e limites
 
-Python 3.14, Django 5.2 LTS, Django REST Framework 3.17, PostgreSQL 18. Views e API chamam os mesmos serviços de aplicação. Templates Django renderizam o HTML, HTMX atualiza a pesquisa, Bootstrap 5.3 e CSS local definem a apresentação. Não há SPA, JWT humano, SQLite operacional, coletor, agente Windows ou agendamento de drivers.
+Python 3.14, Django 5.2 LTS, Django REST Framework 3.18.2, PostgreSQL 18. Views e API chamam os mesmos serviços de aplicação. Templates Django renderizam o HTML, HTMX atualiza a pesquisa, Bootstrap 5.3 e CSS local definem a apresentação. Não há SPA, JWT humano, SQLite operacional, coletor, agente Windows ou agendamento de drivers.
 
 As versões instaladas ficam fixadas em `backend/requirements.lock`; `requirements.in` registra as famílias de dependências. `static/vendor` contém Bootstrap e HTMX com seus avisos de licença. As pastas `web`, `api` e `services` dos domínios preservam a organização proposta; a API usa um adaptador compartilhado em `gati/api` para os cadastros de comportamento equivalente, evitando duplicar regras de negócio.
 
@@ -42,4 +42,4 @@ CSRF protege as operações, inclusive aceite e logout. A interface escapa conte
 - [ClamAV — versões oficiais](https://www.clamav.net/downloads) e [configuração](https://docs.clamav.net/manual/Usage/Configuration.html).
 - [GitHub Actions checkout](https://github.com/actions/checkout) e [setup-python](https://github.com/actions/setup-python).
 
-O código entregue foi executado localmente no Windows. A configuração Docker/CI é fornecida como caminho reprodutível, com validação funcional local equivalente das dependências, sem afirmar execução desses dois ambientes.
+O código foi validado localmente no Windows. O GitHub Actions foi executado em Ubuntu com PostgreSQL 18 temporário: 67 testes passaram e 2 testes de ClamAV real foram ignorados no runner. A revisão local da publicação registrou 69 testes aprovados com ClamAV. O ambiente Docker local e a hospedagem de produção ainda não foram homologados; consulte `docs/PUBLICACAO_2026-11-17.md` e `docs/SEGURANCA_CI.md`.

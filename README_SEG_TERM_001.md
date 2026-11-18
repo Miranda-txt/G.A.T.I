@@ -16,12 +16,12 @@ A função `public.gati_term_guard()` original verifica transições apenas se `
 2. A migration é propositalmente **irreversível**, pois desfazê-la reintroduziria a vulnerabilidade. Planeje recuperação via novo ajuste/migration e backup.
 3. O script de isolamento altera **somente `gati_segterm_teste`**. A base `gati` permanece intocada. Não usa `postgres` superusuário, não altera `pg_hba.conf`, não concede `CREATEDB`.
 4. O teste isolado deve concluir sem erros e o executor `GATI_Autotestes.py` deve passar em `SEG-TERM-001` antes de discutir aplicação da migration na base principal.
-5. Os 67 testes `pytest` seguem pendentes sem uma conta separada com permissão de criar uma base exclusiva. Não conceda CREATEDB permanentemente à conta de aplicação.
+5. A suíte de regressão foi executada em banco temporário separado: no GitHub Actions, **67 testes aprovados e 2 ignorados** por exigirem ClamAV real; a revisão local documenta 69 testes aprovados. Não conceda CREATEDB permanentemente à conta de aplicação em produção.
 6. Um trigger bloqueia operações SQL normais, mas proprietário da tabela ou superusuário podem desabilitá-lo. Em produção, separe ownership/migrations da conta runtime e limite permissões.
 
 ## Uso
 
-Copie o conteúdo desta pasta para a raiz do projeto `C:\Users\rmdsilva\Projetos\gati` mantendo os caminhos. Primeiro confira se a migration `0004_seg_term_001.py` **não conflita** com outra `0004_*.py` presente no projeto.
+Os arquivos necessários já estão versionados no repositório: migration, testes e executores individuais. O antigo ZIP de distribuição foi removido por redundância. Para repetir a homologação em uma instalação local **compatível e com dados fictícios**, confira primeiro se a migration já foi aplicada; não a substitua e não rode o executor de promoção em bancos remotos.
 
 Execute no PowerShell, **sem elevar privilégios**:
 
@@ -35,4 +35,4 @@ Resultado esperado do primeiro script: `ISOLADO: MIGRACAO APLICADA`, com confirm
 
 Resultado esperado do segundo: `SEG-TERM-001` aprovado, sem outras falhas novas. Os avisos de servidor web desconectado e da indisponibilidade da suíte pytest são **separados** da correção SQL.
 
-**Não rode `manage.py migrate` diretamente ainda**: isso usaria por padrão o banco `gati`. Somente promova a mudança após validação isolada, revisão do código e backup atualizado.
+**Situação atual:** a migration `0004_seg_term_001` faz parte da versão publicada e foi aplicada na base local de homologação em 17/11/2026. Em instalações novas, aplique o plano de migrations Django em um banco vazio sob conta de migração autorizada. Em bancos existentes, faça backup, revise o plano e valide a migração em cópia isolada antes da promoção. Os scripts Windows deste documento não são destinados a ambientes cloud.

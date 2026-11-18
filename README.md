@@ -6,7 +6,7 @@ Aplicação funcional de inventário patrimonial, desenvolvida a partir dos cinc
 
 ## Versão revisada para publicação
 
-A revisão de 17/11/2026, as correções de segurança, os resultados dos testes e a referência de recuperação estão em [docs/PUBLICACAO_2026-11-17.md](docs/PUBLICACAO_2026-11-17.md).
+A revisão de 17/11/2026, as correções de segurança, os resultados dos testes e a referência de recuperação estão em [docs/PUBLICACAO_2026-11-17.md](docs/PUBLICACAO_2026-11-17.md). O [GitHub Actions](https://github.com/Miranda-txt/G.A.T.I/actions) executa testes com PostgreSQL temporário e verificações de segurança. Na execução inicial foram **67 testes aprovados e 2 ignorados** por exigirem ClamAV real; a execução local registrada na documentação teve 69 aprovados.
 
 ## Instalação em outro computador
 
@@ -97,4 +97,4 @@ Execute periodicamente `python manage.py cleanup_temporarios` para remover prév
 - `docs`: rastreabilidade, decisões, operação e evidências.
 - `infra/local`: apenas dependências locais; não provisiona Hostinger.
 
-Consulte [ARQUITETURA.md](docs/ARQUITETURA.md), [RASTREABILIDADE.md](docs/RASTREABILIDADE.md), [OPERACAO.md](docs/OPERACAO.md) e [OpenAPI](docs/openapi.yml). A documentação original foi mantida para comparação. As solicitações atuais de escopo e autonomia prevalecem sobre instruções históricas de aguardar autorização a cada fase.
+Consulte [ARQUITETURA.md](docs/ARQUITETURA.md), [RASTREABILIDADE.md](docs/RASTREABILIDADE.md), [OPERACAO.md](docs/OPERACAO.md) e [SEGURANCA_CI.md](docs/SEGURANCA_CI.md). O contrato OpenAPI real é gerado e validado pelo [workflow CI](https://github.com/Miranda-txt/G.A.T.I/actions/workflows/ci.yml) e disponibilizado como artefato **gati-openapi** (retenção de 30 dias); o placeholder `docs/openapi.yml` foi removido para não apresentar um esquema vazio como contrato público. A documentação original foi mantida para comparação. As solicitações atuais de escopo e autonomia prevalecem sobre instruções históricas de aguardar autorização a cada fase.

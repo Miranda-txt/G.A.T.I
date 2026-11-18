@@ -44,3 +44,11 @@ A migration `termos.0004_seg_term_001` é intencionalmente irreversível e refor
 O commit anterior à substituição é `4340fdcfaad786c9f129cac077f9eefa8f00747f`. A referência [backup/pre-publicacao-2026-11-17-4340fdc](https://github.com/Miranda-txt/G.A.T.I/tree/backup/pre-publicacao-2026-11-17-4340fdc) preserva esse estado. A nova versão deve ser um commit descendente desse commit, substituindo a árvore de arquivos, sem reescrever histórico ou usar force push. Para recuperar o código, use essa referência ou reverta o commit de publicação em um novo commit.
 
 A referência Git recupera código; recuperação de banco exige backup próprio. Não houve implantação de servidor, envio de e-mails, alteração de dados reais, restauração de banco produtivo, teste de carga ou nova validação visual no navegador. As capturas históricas incluídas foram inspecionadas e mostram somente demonstração.
+
+## Verificação pós-publicação e endurecimento do CI — 17/11/2026
+
+O [workflow CI da publicação](https://github.com/Miranda-txt/G.A.T.I/actions/runs/44210242819) concluiu com sucesso no GitHub: **67 testes aprovados, 2 ignorados (exigem ClamAV real) e 0 falhas**, incluindo regressão SEG-TERM-001. Esses números se referem ao runner GitHub e não substituem os 69 testes locais documentados acima.
+
+O CI agora exporta o **OpenAPI gerado** como artefato `gati-openapi`, com retenção de 30 dias, em vez de publicar o placeholder vazio `docs/openapi.yml`. Um workflow independente, [Segurança](https://github.com/Miranda-txt/G.A.T.I/actions/workflows/security.yml), verifica dependências com `pip-audit`, código Python com Bandit e segredos com Gitleaks v3; seu resultado deve ser consultado separadamente antes de promover a aplicação. Nenhum destes workflows executa deploy, migrations em bancos remotos ou publicação de dados.
+
+O ZIP redundante da correção foi retirado da árvore atual (os scripts permanecem individualmente disponíveis); o hostname do XML histórico foi mascarado. Por se tratar de repositório público, **a remoção atual não elimina cópias do histórico**. Para incidente real, rotacione credenciais expostas e trate o histórico de forma controlada. Veja `docs/SEGURANCA_CI.md`.

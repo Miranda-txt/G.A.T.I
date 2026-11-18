@@ -42,3 +42,11 @@ Painel conferido em desktop e viewport de tablet 768 × 1024, sem transbordament
 Não houve publicação, provisionamento Hostinger, execução de GitHub Actions, Docker nesta máquina, teste SMTP contra serviço externo, auditoria completa ASVS/ZAP, teste de carga representativo do RNF-009 ou recuperação de backup produtivo. São atividades de homologação/infraestrutura identificadas em `OPERACAO.md`. O teste local comprova os fluxos e invariantes exercitados, não disponibilidade ou capacidade de uma infraestrutura ainda não configurada.
 
 O código está acompanhado do esquema OpenAPI e de evidência estruturada em `evidencias/validacao.json` e `evidencias/testes.xml`. O pacote portátil exclui `.env`, banco, anexos, e-mails, credenciais de demonstração, ambientes Python e caches.
+
+## Atualização de publicação — 17/11/2026
+
+Este documento é a evidência **histórica de 27/10/2026** (67 testes). A revisão local publicada registra 69 aprovados e o primeiro CI da versão revisada, [execução 44210242819](https://github.com/Miranda-txt/G.A.T.I/actions/runs/44210242819), registrou **67 aprovados, 2 ignorados (ClamAV real) e nenhuma falha**. A cobertura mínima do projeto também foi aprovada no CI.
+
+O OpenAPI completo é **gerado durante o CI** com `manage.py spectacular --validate --fail-on-warn` e publicado como artefato `gati-openapi` no [workflow](https://github.com/Miranda-txt/G.A.T.I/actions/workflows/ci.yml). O arquivo versionado anterior continha apenas `paths: {}` e foi removido para evitar confusão. Os artefatos expiram após 30 dias.
+
+O hostname da evidência XML histórica foi mascarado por privacidade na versão corrente do repositório; versões anteriores podem continuar acessíveis no histórico Git. Essas verificações não comprovam SMTP real, disponibilidade em produção ou segurança integral.

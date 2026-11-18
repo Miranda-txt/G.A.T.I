@@ -23,3 +23,5 @@ staticfiles/
 *.db
 coverage.json
 test-results.xml
+GATI-relatorios/
+*.pgpass
