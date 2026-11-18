@@ -1,0 +1,33 @@
+name: gati-local
+services:
+  postgres:
+    image: postgres:18.6
+    environment:
+      POSTGRES_DB: ${PGDATABASE:?Defina PGDATABASE no backend/.env}
+      POSTGRES_USER: ${PGUSER:?Defina PGUSER no backend/.env}
+      POSTGRES_PASSWORD: ${PGPASSWORD:?Defina PGPASSWORD no backend/.env}
+    ports:
+      - "127.0.0.1:${PGPORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+  clamav:
+    image: clamav/clamav:1.4.6
+    ports:
+      - "127.0.0.1:${GATI_CLAMAV_PORT:-3310}:3310"
+    volumes:
+      - clamav_data:/var/lib/clamav
+      - ./clamd.conf:/etc/clamav/clamd.conf:ro
+    healthcheck:
+      test: ["CMD", "clamdscan", "--ping", "1"]
+      interval: 15s
+      timeout: 5s
+      retries: 30
+      start_period: 180s
+volumes:
+  postgres_data:
+  clamav_data:

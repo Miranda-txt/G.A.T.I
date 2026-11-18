@@ -1,1 +1,6 @@
-# Placeholder arquitetural. Implementar conforme a fase e os requisitos aplicáveis.
+from django.apps import AppConfig
+
+
+class ManutencoesConfig(AppConfig):
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "gati.apps.manutencoes"

@@ -1,0 +1,30 @@
+{
+  "data": "2026-10-27",
+  "python": "3.14.7",
+  "django": "5.2.18",
+  "postgresql": "18.6",
+  "clamav": "1.4.6",
+  "testes": 67,
+  "falhas": 0,
+  "erros": 0,
+  "ignorados": 0,
+  "segundos": 37.258,
+  "linhas_percentual": 87.97,
+  "ramificacoes_percentual": 72.58,
+  "cobertura": {
+    "covered_lines": 1938,
+    "num_statements": 2203,
+    "percent_covered": 84.59086078639744,
+    "percent_covered_display": "85",
+    "missing_lines": 265,
+    "excluded_lines": 0,
+    "percent_statements_covered": 87.97094870630957,
+    "percent_statements_covered_display": "88",
+    "num_branches": 620,
+    "num_partial_branches": 130,
+    "covered_branches": 450,
+    "missing_branches": 170,
+    "percent_branches_covered": 72.58064516129032,
+    "percent_branches_covered_display": "73"
+  }
+}

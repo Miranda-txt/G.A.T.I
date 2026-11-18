@@ -1,3 +1,24 @@
-# Placeholder arquitetural.
-# Dependências, tooling e versões devem ser definidos conforme a baseline do projeto
-# e o estado real do repositório durante a F0.
+[project]
+name = "gati"
+version = "1.0.0"
+requires-python = ">=3.14"
+description = "Núcleo de gerenciamento de ativos de TI"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.test"
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.ruff]
+line-length = 110
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]
+ignore = ["F403", "F405"]
+
+[tool.coverage.run]
+branch = true
+source = ["gati"]
+omit = ["*/migrations/*", "*/management/*", "*/apps.py"]

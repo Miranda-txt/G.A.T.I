@@ -1,7 +1,1 @@
-* text=auto
-*.sh text eol=lf
-*.py text eol=lf
-*.yml text eol=lf
-*.yaml text eol=lf
-*.cs text eol=crlf
-*.sln text eol=crlf
+backend/gati/apps/termos/migrations/0004_seg_term_001.py text eol=lf

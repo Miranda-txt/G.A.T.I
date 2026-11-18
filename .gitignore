@@ -1,46 +1,25 @@
-# Python
 __pycache__/
-*.py[cod]
-.pytest_cache/
-.coverage
-htmlcov/
+*.pyc
 .venv/
-venv/
-
-# Django / local runtime
 .env
 .env.*
 !.env.example
+runtime/
+.pytest_cache/
+.ruff_cache/
+htmlcov/
+.coverage*
 staticfiles/
-media/
-quarantine/
-storage/
+*.log
 
-# .NET
-bin/
-obj/
-TestResults/
-
-# IDE
-.vscode/
-.idea/
-.vs/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Secrets / certificates
-*.key
+# Credenciais, backups e resultados locais
 *.pem
+*.key
+*.p12
 *.pfx
-secrets/
-
-# Operational data
-backups/
-*.dump
 *.bak
-prometheus-data/
-grafana-data/
-logs/
-driver-packages/
+*.dump
+*.sqlite3
+*.db
+coverage.json
+test-results.xml

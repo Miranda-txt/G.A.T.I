@@ -1,0 +1,4 @@
+Um documento está disponível para seu aceite no GATI.
+Acesse o link em até 48 horas: {{ url }}
+Você precisará confirmar os quatro últimos dígitos do seu documento.
+Não compartilhe este convite.
