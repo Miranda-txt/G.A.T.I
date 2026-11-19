@@ -82,4 +82,3 @@ def test_cliente_rejeita_conexao_sem_objeto_libpq():
     conn.connection = SimpleNamespace()
     with pytest.raises(RuntimeError, match="nao usa TLS"):
         _check_client_tls(conn)
-
