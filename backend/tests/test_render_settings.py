@@ -4,11 +4,10 @@ import os
 import subprocess
 import sys
 
-from django.core.mail import EmailMessage
-from django.test import override_settings
-
 import pytest
 import yaml
+from django.core.mail import EmailMessage
+from django.test import override_settings
 
 
 
