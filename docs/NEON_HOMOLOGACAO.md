@@ -59,6 +59,39 @@ issue, pull request, log, captura de tela ou commit.
 7. Nao executar `seed_demo` ou `bootstrap_gati --admin` neste banco ate o ambiente
    e o acesso estarem homologados. Nao migrar dados reais do Windows nesta etapa.
 
+
+## Inicializacao por workflow manual GitHub Actions
+
+O arquivo `.github/workflows/neon-homologacao.yml` prepara e executa o Django real,
+sem converter migrations em SQL manual. Nao execute este workflow com uma base contendo
+dados reais, sem revisar o plano ou sem backup testado.
+
+1. No repositorio GitHub, abra **Settings → Secrets and variables → Actions**.
+2. Crie um segredo de repositorio chamado `GATI_NEON_MIGRATION_URL` e cole
+   **a string PostgreSQL direta (nao pooled)** obtida no painel Neon para o usuario
+   `gati_homologacao_owner`, banco `gati_homologacao` e endpoint da regiao Sao Paulo.
+   Nao copie a string para mensagens, capturas, codigo ou arquivos do projeto.
+3. Em **Actions → Neon - migrations de homologacao (manual) → Run workflow**,
+   selecione branch `main` e operacao `preflight`; nao preencha confirmacao.
+4. Confira nos logs o host/usuario/banco validado, transporte TLS ativo e plano
+   de migrations. O modo preflight somente consulta e lista o plano.
+5. Para aplicar as migrations em banco previamente conferido, selecione `apply`
+   e forneca a confirmacao exata `CONFIRMO_GATI_HOMOLOGACAO`. Essa operacao
+   altera o banco; a confirmacao nao substitui revisao e copia de recuperacao.
+6. A operacao `verify` verifica o registro das migrations, funcao e trigger
+   SEG-TERM-001, e os privilegios do usuario `gati_app`.
+7. Remova o segredo de migrations do GitHub Actions assim que a inicializacao
+   terminar, ou migre-o para um cofre dedicado com controles de acesso e rotacao.
+
+O codigo valida explicitamente banco, proprietario, endpoint, TLS e acesso DDL.
+O workflow roda somente na `main`, exige uma confirmacao no modo `apply`,
+e impede execucoes concorrentes do mesmo workflow. Nenhum workflow de push/PR
+acessa o Neon. O ambiente local Windows e o banco PostgreSQL local nao mudam.
+
+**Backups:** a branch `backup/antes-migrations-gati-2026-11-18` foi criada a
+partir do banco vazio antes da inicializacao e deve ser preservada ate a
+homologacao. E um ponto de restauracao do banco, nao contem anexos privados.
+
 ## Referencias
 
 - [PostgreSQL 18 — libpq, sslmode verify-full](https://www.postgresql.org/docs/18/libpq-connect.html)
