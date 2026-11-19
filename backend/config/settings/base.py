@@ -3,6 +3,8 @@ from pathlib import Path
 
 from django.core.exceptions import ImproperlyConfigured
 
+from .database import postgres_options
+
 BASE_DIR = Path(__file__).resolve().parents[2]
 RUNTIME = Path(os.environ.get("GATI_RUNTIME", BASE_DIR / "runtime"))
 SECRET_KEY = os.environ.get("GATI_SECRET_KEY", "")
@@ -66,16 +68,20 @@ TEMPLATES = [
         },
     }
 ]
+_PG_HOST = os.environ.get("PGHOST", "127.0.0.1")
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": os.environ.get("PGDATABASE", "gati"),
         "USER": os.environ.get("PGUSER", "gati"),
         "PASSWORD": os.environ.get("PGPASSWORD", ""),
-        "HOST": os.environ.get("PGHOST", "127.0.0.1"),
+        "HOST": _PG_HOST,
         "PORT": os.environ.get("PGPORT", "5432"),
         "CONN_MAX_AGE": 60,
-        "OPTIONS": {"connect_timeout": 5},
+        "CONN_HEALTH_CHECKS": True,
+        "OPTIONS": postgres_options(
+            _PG_HOST, os.environ.get("PGSSLMODE"), os.environ.get("PGSSLROOTCERT")
+        ),
     }
 }
 AUTH_USER_MODEL = "usuarios.UsuarioTI"
