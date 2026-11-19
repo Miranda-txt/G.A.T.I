@@ -9,7 +9,6 @@ import yaml
 from django.core.mail import EmailMessage
 from django.test import override_settings
 
-from gati.common.email import FailClosedEmailBackend
 
 
 def _render_env():
