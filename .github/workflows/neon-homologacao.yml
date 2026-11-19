@@ -1,0 +1,59 @@
+name: Neon - migrations de homologacao (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: "Operacao segura: preflight, apply ou verify"
+        type: choice
+        required: true
+        default: preflight
+        options:
+          - preflight
+          - apply
+          - verify
+      confirmation:
+        description: "Para apply digite CONFIRMO_GATI_HOMOLOGACAO"
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gati-neon-homologacao
+  cancel-in-progress: false
+
+jobs:
+  migrations:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Validar operacao e confirmacao
+        env:
+          OPERATION: ${{ inputs.operation }}
+          CONFIRMATION: ${{ inputs.confirmation }}
+        run: |
+          set -euo pipefail
+          if [[ "$OPERATION" == "apply" && "$CONFIRMATION" != "CONFIRMO_GATI_HOMOLOGACAO" ]]; then
+            echo "Confirmacao incorreta; nenhuma migration sera aplicada."
+            exit 1
+          fi
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+          cache: pip
+          cache-dependency-path: backend/requirements.lock
+      - name: Instalar dependencias fixadas
+        working-directory: backend
+        run: python -m pip install --disable-pip-version-check -r requirements.lock
+      - name: Conectar ao Neon e executar operacao controlada
+        working-directory: backend
+        env:
+          GATI_NEON_MIGRATION_URL: ${{ secrets.GATI_NEON_MIGRATION_URL }}
+          OPERATION: ${{ inputs.operation }}
+        run: python -m config.neon_migrate "$OPERATION"
