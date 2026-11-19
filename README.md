@@ -62,6 +62,9 @@ Limites: **10 MiB e 5.000 linhas por importação**, **25 MiB por anexo** (PDF, 
 
 ClamAV é obrigatório para importações e anexos. Se ficar indisponível, o arquivo é rejeitado sem ser disponibilizado. Os anexos ficam em armazenamento privado com nome UUID e hash, acessíveis somente por download autenticado. Nunca publique `backend/runtime` como conteúdo estático.
 
+A preparacao para PostgreSQL remoto Neon (TLS verificado, papeis de acesso e limites de homologacao)
+esta descrita em [docs/NEON_HOMOLOGACAO.md](docs/NEON_HOMOLOGACAO.md).
+
 ## E-mail e ambientes
 
 Em `development` e `staging`, mensagens são gravadas em `backend/runtime/emails`, sem envio externo. Essa pasta pode conter links de uso único e redefinição de senha; trate-a como privada. Para testar o convite local, use a URL da parte `text/plain` da mensagem, incluindo o fragmento após `#`.
