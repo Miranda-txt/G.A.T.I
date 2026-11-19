@@ -45,23 +45,33 @@ def parse_migration_url(value: str) -> dict[str, str]:
     }
 
 
+def _check_client_tls(connection) -> None:
+    """Verifica a sessao TLS do libpq, nao o canal interno do proxy Neon."""
+    options = connection.settings_dict.get("OPTIONS", {})
+    if options.get("sslmode") != "verify-full" or not options.get("sslrootcert"):
+        raise RuntimeError("Conexao remota exige TLS verify-full e CA confiavel.")
+
+    connection.ensure_connection()
+    native_connection = connection.connection
+    if not getattr(getattr(native_connection, "pgconn", None), "ssl_in_use", False):
+        raise RuntimeError("Conexao PostgreSQL do cliente nao usa TLS.")
+
+
 def _check_preflight(connection) -> None:
-    """Confere TLS, identidade, privilégio DDL e banco inicial vazio."""
+    """Confere TLS do cliente, identidade, privilegio DDL e banco inicial vazio."""
+    _check_client_tls(connection)
     with connection.cursor() as cursor:
         cursor.execute(
             """
             SELECT current_database(), current_user,
-                   (SELECT ssl FROM pg_stat_ssl WHERE pid = pg_backend_pid()),
                    has_schema_privilege(current_user, 'public', 'CREATE'),
                    (SELECT count(*) FROM information_schema.tables
                     WHERE table_schema = 'public' AND table_type = 'BASE TABLE')
             """
         )
-        db_name, db_user, tls_active, can_create, table_count = cursor.fetchone()
+        db_name, db_user, can_create, table_count = cursor.fetchone()
         if (db_name, db_user) != (EXPECTED_DATABASE, EXPECTED_USER):
             raise RuntimeError("Identidade do banco ou usuario divergente.")
-        if not tls_active:
-            raise RuntimeError("Conexao PostgreSQL nao usa TLS.")
         if not can_create:
             raise RuntimeError("O usuario de migrations nao pode criar objetos no schema public.")
         if table_count:
@@ -87,16 +97,12 @@ def _check_preflight(connection) -> None:
 
 def _check_applied(connection) -> None:
     """Verifica integridade estrutural apos migrations, sem inserir dados reais."""
+    _check_client_tls(connection)
     with connection.cursor() as cursor:
-        cursor.execute(
-            """
-            SELECT current_database(), current_user,
-                   (SELECT ssl FROM pg_stat_ssl WHERE pid = pg_backend_pid())
-            """
-        )
-        name, user, tls = cursor.fetchone()
-        if (name, user, tls) != (EXPECTED_DATABASE, EXPECTED_USER, True):
-            raise RuntimeError("Identidade ou transporte TLS divergente.")
+        cursor.execute("SELECT current_database(), current_user")
+        name, user = cursor.fetchone()
+        if (name, user) != (EXPECTED_DATABASE, EXPECTED_USER):
+            raise RuntimeError("Identidade do banco ou usuario divergente.")
         cursor.execute("SELECT count(*) FROM django_migrations")
         count = cursor.fetchone()[0]
         cursor.execute(
