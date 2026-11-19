@@ -10,4 +10,5 @@ defusedxml>=0.7,<0.8
 Pillow
 pypdf>=6.21.4,<7
 whitenoise
+gunicorn>=26.2,<27
 python-dotenv
