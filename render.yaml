@@ -1,0 +1,47 @@
+# Homologacao GATI: apenas um servico web gratuito, sem banco Render e sem disco.
+# Criar manualmente a Blueprint e conferir todos os campos antes do primeiro deploy.
+services:
+  - type: web
+    name: gati-homologacao
+    runtime: docker
+    plan: free
+    region: virginia
+    branch: main
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    autoDeployTrigger: off
+    healthCheckPath: /health/ready/
+    envVars:
+      - key: GATI_ENV
+        value: staging
+      - key: DJANGO_SETTINGS_MODULE
+        value: config.settings.render
+      - key: GATI_SECRET_KEY
+        sync: false
+      - key: GATI_ALLOWED_HOSTS
+        fromService:
+          name: gati-homologacao
+          type: web
+          envVarKey: RENDER_EXTERNAL_HOSTNAME
+      - key: GATI_CSRF_ORIGINS
+        fromService:
+          name: gati-homologacao
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: GATI_PUBLIC_URL
+        fromService:
+          name: gati-homologacao
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: PGDATABASE
+        value: gati_homologacao
+      - key: PGUSER
+        value: gati_app
+      - key: PGHOST
+        sync: false
+      - key: PGPASSWORD
+        sync: false
+      - key: PGPORT
+        value: "5432"
+      - key: PGSSLMODE
+        value: verify-full
