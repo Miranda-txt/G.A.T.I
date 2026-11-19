@@ -51,9 +51,13 @@ issue, pull request, log, captura de tela ou commit.
    e validar a estrategia de backup/rollback. Em particular, preserve `SEG-TERM-001`.
 4. Apos as migrations, valide `django_migrations`, conte tabelas, triggers e funcoes, teste
    SQL proibido como `gati_app`, e execute regressao usando dados **sinteticos**.
-5. A conexao ao servidor deve comprovar TLS por `pg_stat_ssl`, alem da configuracao
-   `verify-full` no cliente. Uma consulta por ferramenta administrativa nao valida
-   automaticamente o TLS usado pelo Django.
+5. A conexao Django/psycopg ao Neon deve comprovar TLS pela propriedade
+   `connection.connection.pgconn.ssl_in_use` do libpq, alem de exigir
+   `sslmode=verify-full` e CA confiavel. O proxy Neon pode encerrar o TLS antes
+   de encaminhar o trafego ao processo PostgreSQL; portanto, `pg_stat_ssl`
+   no backend nao comprova o TLS do cliente e nao e usado no preflight.
+   A propriedade do libpq confirma a negociacao TLS, enquanto `verify-full`
+   exige validacao da identidade e do certificado do endpoint remoto.
 6. Arquivos privados, antivirus ClamAV, SMTP, DNS, proxy HTTPS, logs e backup consistente
    ainda precisam de infraestrutura separada. Neon armazena somente PostgreSQL.
 7. Nao executar `seed_demo` ou `bootstrap_gati --admin` neste banco ate o ambiente
