@@ -77,7 +77,9 @@ def test_render_recusa_configuracoes_inseguras(overrides):
 @override_settings(EMAIL_BACKEND="gati.common.email.FailClosedEmailBackend")
 def test_render_nao_finge_enviar_email_com_token():
     with pytest.raises(RuntimeError, match="indisponivel"):
-        EmailMessage("Assinatura", "token-sintetico", "gati@example.invalid", ["teste@example.invalid"]).send()
+        EmailMessage(
+            "Assinatura", "token-sintetico", "gati@example.invalid", ["teste@example.invalid"]
+        ).send()
 
 
 def test_blueprint_nao_cria_servicos_pagos_ou_migra_banco():
