@@ -14,8 +14,7 @@ def postgres_options(
     mode = ssl_mode if ssl_mode is not None else ("disable" if is_local else "verify-full")
     if not is_local and mode != "verify-full":
         raise ImproperlyConfigured(
-            "PostgreSQL remoto exige PGSSLMODE=verify-full; "
-            "nao utilize require, prefer, allow ou disable."
+            "PostgreSQL remoto exige PGSSLMODE=verify-full; nao utilize require, prefer, allow ou disable."
         )
 
     options: dict[str, object] = {"connect_timeout": 5, "sslmode": mode}
