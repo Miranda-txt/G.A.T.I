@@ -8,6 +8,28 @@ Aplicação funcional de inventário patrimonial, desenvolvida a partir dos cinc
 
 A revisão de 17/11/2026, as correções de segurança, os resultados dos testes e a referência de recuperação estão em [docs/PUBLICACAO_2026-11-17.md](docs/PUBLICACAO_2026-11-17.md). O [GitHub Actions](https://github.com/Miranda-txt/G.A.T.I/actions) executa testes com PostgreSQL temporário e verificações de segurança. Na execução inicial foram **67 testes aprovados e 2 ignorados** por exigirem ClamAV real; a execução local registrada na documentação teve 69 aprovados.
 
+## Homologacao web no Render Free (preparacao)
+
+A Fase 1 de homologacao em nuvem prepara o Dockerfile de `backend/` e o
+Blueprint `render.yaml` para **um unico Web Service gratuito**, com deploy
+automatico desligado. O banco PostgreSQL permanece no Neon, e as migrations
+continuam exclusivas do workflow manual do GitHub Actions. **Nenhum servico
+Render foi criado automaticamente.**
+
+- O processo Django usa Gunicorn no contêiner e arquivos estaticos coletados no build.
+- `config.settings.render` aplica HTTPS na borda Render e conexao TLS verify-full
+  para o banco via conta de menor privilegio `gati_app`.
+- Nunca forneca ao servico web a senha de migrations do usuario proprietario.
+- O sistema nao envia e-mails neste ambiente enquanto nao houver API HTTPS
+  homologada; a tentativa falha explicitamente.
+- Uploads/importacoes ainda exigem ClamAV e falham sem scanner; R2 privado,
+  quarentena e scanner Windows separado pertencem as fases seguintes.
+- O plano gratuito pode suspender o servico e nao preserva arquivos locais.
+- A habilitacao no painel Render depende de revisao manual do plano e dos segredos.
+
+Consulte [docs/RENDER_HOMOLOGACAO.md](docs/RENDER_HOMOLOGACAO.md) para
+procedimento, riscos, testes e rollback. Nao use dados reais nesta fase.
+
 ## Instalação em outro computador
 
 Requisitos: Python 3.14, PostgreSQL 18 e ClamAV 1.4 LTS atualizado. Docker Desktop é uma alternativa para os dois serviços locais. Reserve memória para o banco e para o ClamAV.
