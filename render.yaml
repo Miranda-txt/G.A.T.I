@@ -9,7 +9,7 @@ services:
     branch: main
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
-    autoDeployTrigger: off
+    autoDeployTrigger: 'off'
     healthCheckPath: /health/ready/
     envVars:
       - key: GATI_ENV
