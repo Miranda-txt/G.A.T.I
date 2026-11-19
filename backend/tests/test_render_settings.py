@@ -10,7 +10,6 @@ from django.core.mail import EmailMessage
 from django.test import override_settings
 
 
-
 def _render_env():
     env = dict(os.environ)
     env.update(
