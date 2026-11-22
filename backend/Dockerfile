@@ -31,4 +31,4 @@ EXPOSE 10000
 
 # Um worker e duas threads reduzem o consumo inicial de memoria no plano Free.
 # A porta vem da variavel PORT disponibilizada pelo Render.
-CMD ["sh", "-c", "exec python -m gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-10000} --workers 1 --threads 2 --worker-class gthread --timeout 60 --error-logfile -"]
+CMD ["sh", "-c", "exec python -m gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-10000} --workers 1 --threads 2 --worker-class gthread --no-control-socket --timeout 60 --error-logfile -"]
