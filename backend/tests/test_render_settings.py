@@ -100,3 +100,12 @@ def test_blueprint_nao_cria_servicos_pagos_ou_migra_banco():
     assert values["PGHOST"]["sync"] is False
     assert values["PGUSER"]["value"] == "gati_app"
     assert values["DJANGO_SETTINGS_MODULE"]["value"] == "config.settings.render"
+
+
+def test_docker_desabilita_socket_de_controle_em_diretorio_sem_escrita():
+    from pathlib import Path
+
+    dockerfile = (Path(__file__).resolve().parents[1] / "Dockerfile").read_text()
+    assert "USER gati" in dockerfile
+    assert "--no-control-socket" in dockerfile
+    assert "chown -R gati:gati /app" not in dockerfile.replace("chown -R gati:gati /app/runtime", "")
