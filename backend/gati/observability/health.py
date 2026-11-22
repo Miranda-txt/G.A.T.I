@@ -1,7 +1,13 @@
+"""Endpoints de vida e prontidao da aplicacao."""
+
+import logging
+
 from django.db import connection
 from django.http import HttpResponse, JsonResponse
 
 from gati.apps.usuarios.permissions import authorize
+
+logger = logging.getLogger("gati.health")
 
 
 def live(request):
@@ -13,7 +19,10 @@ def ready(request):
         with connection.cursor() as cur:
             cur.execute("SELECT 1")
         return JsonResponse({"status": "ready"})
-    except Exception:
+    except Exception as exc:
+        # Registrar apenas o tipo da falha, nunca a mensagem do driver,
+        # que pode conter hostnames, nomes de usuarios ou dados sensiveis.
+        logger.warning("Health check do banco falhou (%s)", type(exc).__name__)
         return JsonResponse({"status": "unavailable"}, status=503)
 
 
