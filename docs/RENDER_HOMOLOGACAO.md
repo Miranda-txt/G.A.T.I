@@ -94,3 +94,26 @@ Desligar o Web Service se uma falha expuser a aplicacao; investigar logs sanitiz
 - https://render.com/docs/tls
 - https://render.com/docs/health-checks
 - https://docs.djangoproject.com/en/5.2/ref/settings/#secure-proxy-ssl-header
+
+## Diagnostico de timeout no health check (2026-11-22)
+
+O primeiro deploy Render Free abriu a porta 10000, mas nao confirmou
+`/health/ready/` durante os 15 minutos de tentativa e foi encerrado por timeout.
+O Gunicorn 26.2.0 tambem registrou recusa de permissao em `/app/.gunicorn`,
+socket administrativo opcional no diretorio de trabalho nao gravavel.
+
+A correcao desativa apenas esse socket opcional (`--no-control-socket`),
+preservando `USER gati`. O endpoint de prontidao permanece **fail-closed**,
+faz `SELECT 1` no Neon e retorna HTTP 503 se ocorrer qualquer erro. A aplicacao
+agora registra apenas a classe Python da excecao (sem mensagem, host, URL,
+senha ou query), facilitando identificar problemas com autenticacao, TLS
+ou rede sem expor credenciais.
+
+Depois que o CI e o scan de seguranca estiverem aprovados e a correcao for
+integrada a `main`, executar um unico **Manual Deploy > Deploy latest commit**
+no Web Service gratuito existente. Nao recriar Blueprint, banco ou servico.
+Conferir logs procurando o evento `Health check do banco falhou (<tipo>)`.
+Se houver 503, diagnosticar antes de qualquer nova mudanca, sem enfraquecer
+`PGSSLMODE=verify-full` ou trocar o health check por um endpoint apenas de vida.
+Se o health check nem chegar ao Django, investigar proxy e redirecionamento
+HTTPS (especialmente `X-Forwarded-Proto`) antes de alterar codigo.
