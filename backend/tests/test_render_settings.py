@@ -108,6 +108,4 @@ def test_docker_desabilita_socket_de_controle_em_diretorio_sem_escrita():
     dockerfile = (Path(__file__).resolve().parents[1] / "Dockerfile").read_text()
     assert "USER gati" in dockerfile
     assert "--no-control-socket" in dockerfile
-    assert "chown -R gati:gati /app" not in dockerfile.replace(
-        "chown -R gati:gati /app/runtime", ""
-    )
+    assert "chown -R gati:gati /app" not in dockerfile.replace("chown -R gati:gati /app/runtime", "")
