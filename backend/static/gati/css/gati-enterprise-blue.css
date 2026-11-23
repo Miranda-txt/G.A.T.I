@@ -1,0 +1,280 @@
+@charset "UTF-8";
+
+/*
+ * GATI Enterprise Blue — camada de identidade visual v1.0.0.
+ * Aplicada depois de gati.css para preservar o layout e os fluxos existentes.
+ * Fonte normativa: docs/design-system/GATI_Paleta_Cores_Enterprise_Blue_v1.0.0.md.
+ * Nao inserir aqui regras de autorizacao, comportamento de dominio ou recursos remotos.
+ */
+:root {
+  /* Identidade, navegacao e interacao. */
+  --sidebar: #0F253D;
+  --sidebar-hover: #183A59;
+  --sidebar-active: #244B70;
+  --sidebar-text: #CBD5E1;
+  --accent: #1D4ED8;
+  --accent-dark: #1E40AF;
+
+  /* Superficies, tipografia e divisorias. */
+  --surface: #FFFFFF;
+  --paper: #F8FAFC;
+  --line: #E2E8F0;
+  --ink: #0F172A;
+  --muted: #475569;
+  --primary-soft: #EFF6FF;
+
+  /* Cores de significado funcional, nao de decoracao. */
+  --success: #166534;
+  --warning: #92400E;
+  --danger: #B91C1C;
+
+  /* Ambiente de homologacao explicitamente identificavel. */
+  --environment-staging-bg: #FFF4CC;
+  --environment-staging-text: #78350F;
+
+  /* O Bootstrap permanece como framework aprovado da interface. */
+  --bs-primary: var(--accent);
+  --bs-link-color: var(--accent);
+  --bs-link-hover-color: var(--accent-dark);
+  --bs-body-color: var(--ink);
+  --bs-body-bg: var(--paper);
+  --bs-border-color: var(--line);
+}
+
+body { background: var(--paper); color: var(--ink); }
+a { color: var(--accent); }
+a:hover { color: var(--accent-dark); }
+
+/* O foco funciona independentemente do estado hover e da cor de fundo. */
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.skip-link:focus-visible { outline-color: var(--ink); }
+
+/* Shell administrativo, logomarca e navegacao. */
+.sidebar { background: var(--sidebar); color: var(--sidebar-text); }
+.brand, .brand:hover { color: var(--surface); }
+.brand small { color: var(--sidebar-text); font-size: 12px; }
+.brand-icon {
+  color: var(--surface);
+  background: var(--sidebar-hover);
+  border-color: var(--sidebar-text);
+}
+.brand-dot { color: var(--sidebar-text); }
+.nav-caption { color: var(--sidebar-text); font-size: 11px; }
+.sidebar nav > a { color: var(--sidebar-text); font-size: 13px; }
+.sidebar nav > a:hover { color: var(--surface); background: var(--sidebar-hover); }
+.sidebar nav > a.selected {
+  color: var(--surface);
+  background: var(--sidebar-active);
+  box-shadow: inset 3px 0 0 var(--surface);
+  font-weight: 600;
+}
+.sidebar nav > a.selected:hover { background: var(--sidebar-active); }
+.sidebar nav > a:focus-visible,
+.brand:focus-visible { outline-color: var(--surface); outline-offset: -2px; }
+.nav-icon { color: var(--sidebar-text); }
+.sidebar nav > a.selected .nav-icon,
+.sidebar nav > a:hover .nav-icon { color: var(--surface); }
+.sidebar-foot, .sidebar-foot small { color: var(--sidebar-text); font-size: 12px; }
+.sidebar .status-dot { background: var(--sidebar-text); }
+.topbar { background: var(--surface); border-bottom-color: var(--line); }
+.breadcrumb-label, .user-menu small { color: var(--muted); font-size: 12px; }
+.user-menu { font-size: 12px; }
+.breadcrumb-label span { color: var(--muted); }
+.avatar {
+  background: var(--primary-soft);
+  border-color: var(--line);
+  color: var(--accent-dark);
+}
+
+/* Acoes primarias, secundarias e estados de mouse/teclado. */
+.btn-primary {
+  color: var(--surface);
+  background: var(--accent);
+  border-color: var(--accent);
+  --bs-btn-color: var(--surface);
+  --bs-btn-bg: var(--accent);
+  --bs-btn-border-color: var(--accent);
+  --bs-btn-hover-color: var(--surface);
+  --bs-btn-hover-bg: var(--accent-dark);
+  --bs-btn-hover-border-color: var(--accent-dark);
+  --bs-btn-active-color: var(--surface);
+  --bs-btn-active-bg: var(--accent-dark);
+  --bs-btn-active-border-color: var(--accent-dark);
+  --bs-btn-disabled-bg: var(--accent);
+  --bs-btn-disabled-border-color: var(--accent);
+}
+.btn-primary:hover, .btn-primary:active {
+  color: var(--surface);
+  background: var(--accent-dark);
+  border-color: var(--accent-dark);
+}
+.btn-primary:focus-visible { outline-color: var(--ink); outline-offset: 3px; }
+.btn-outline-primary {
+  color: var(--accent-dark);
+  background: var(--surface);
+  border-color: var(--accent);
+  --bs-btn-color: var(--accent-dark);
+  --bs-btn-border-color: var(--accent);
+  --bs-btn-hover-color: var(--surface);
+  --bs-btn-hover-bg: var(--accent-dark);
+  --bs-btn-hover-border-color: var(--accent-dark);
+  --bs-btn-active-color: var(--surface);
+  --bs-btn-active-bg: var(--accent-dark);
+  --bs-btn-active-border-color: var(--accent-dark);
+}
+.btn-outline-primary:hover, .btn-outline-primary:active {
+  color: var(--surface);
+  background: var(--accent-dark);
+  border-color: var(--accent-dark);
+}
+.btn-outline-secondary, .btn-light {
+  color: var(--ink);
+  background: var(--paper);
+  border-color: var(--line);
+  --bs-btn-hover-color: var(--accent-dark);
+  --bs-btn-hover-bg: var(--primary-soft);
+  --bs-btn-hover-border-color: var(--accent);
+}
+.btn-dark { color: var(--surface); background: var(--sidebar); border-color: var(--sidebar); }
+.btn-dark:hover { color: var(--surface); background: var(--sidebar-hover); border-color: var(--sidebar-hover); }
+
+/* Dashboard: cartoes, paineis, historico e movimentacoes. */
+.eyebrow { color: var(--accent-dark); font-size: 11px; }
+.metric-card, .panel, .public-card { background: var(--surface); border-color: var(--line); }
+.metric-card, .metric-card:hover { color: var(--ink); }
+.metric-card:hover { border-color: var(--accent); }
+.metric-top { color: var(--muted); font-size: 12px; }
+.metric-card > strong { color: var(--ink); }
+.metric-card > small { color: var(--muted); font-size: 12px; }
+.metric-icon { background: var(--primary-soft); color: var(--accent-dark); }
+.metric-card.amber .metric-icon { color: var(--warning); background: var(--paper); }
+.panel-heading h2 { color: var(--ink); }
+.panel-heading p { color: var(--muted); font-size: 12px; }
+.panel-heading > a { font-size: 12px; }
+.soft-badge {
+  color: var(--accent-dark);
+  background: var(--primary-soft);
+  border-color: var(--line);
+  font-size: 11px;
+}
+.status-line { color: var(--ink); }
+.status-dot, .timeline-dot { background: var(--accent); }
+.status-list progress { background: var(--line); }
+.status-list progress::-webkit-progress-bar { background: var(--line); }
+.status-list progress::-webkit-progress-value { background: var(--accent); }
+.status-list progress::-moz-progress-bar { background: var(--accent); }
+.section-icon { color: var(--accent-dark); }
+.action-row { color: var(--ink); border-top-color: var(--line); }
+.action-row:hover { color: var(--ink); background: var(--paper); }
+.action-row small, .warranty-row small { color: var(--muted); font-size: 12px; }
+.action-row > span:last-child { color: var(--accent-dark); }
+.action-icon {
+  color: var(--accent-dark);
+  background: var(--primary-soft);
+  border-color: var(--line);
+}
+.action-icon.amber { color: var(--warning); background: var(--paper); border-color: var(--line); }
+.timeline-dot { outline-color: var(--primary-soft); }
+.timeline-item p, .timeline-item small { color: var(--muted); font-size: 12px; }
+.warranty-row { border-top-color: var(--line); }
+.warranty-row:hover { background: var(--paper); }
+.warranty-row strong { color: var(--ink); }
+.badge-status {
+  background: var(--primary-soft);
+  border-color: var(--line);
+  color: var(--accent-dark);
+  font-size: 11px;
+}
+.badge-status.amber { background: var(--surface); border-color: var(--warning); color: var(--warning); }
+.empty-state { color: var(--muted); font-size: 13px; }
+.empty-state small { color: var(--muted); font-size: 12px; }
+.empty-icon { color: var(--success); }
+
+/* Listagens, filtros, formularios e detalhes reutilizados. */
+.filter-bar, .pagination-bar, .form-actions, .detail-tabs, .file-list > div,
+.process-item, .signature-row { border-color: var(--line); }
+.form-control, .form-select {
+  color: var(--ink);
+  background-color: var(--surface);
+  border-color: var(--muted);
+}
+.form-control::placeholder { color: var(--muted); }
+.form-control:focus, .form-select:focus {
+  color: var(--ink);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+.form-label, .details-grid dd { color: var(--ink); }
+.form-text, .hint-panel { color: var(--muted); font-size: 12px; }
+.clear-filters, .back-link { color: var(--accent-dark); font-size: 12px; }
+.extra-filters { font-size: 12px; }
+.required, .field-error, .errorlist { color: var(--danger); }
+.hint-panel { background: var(--paper); border-color: var(--line); }
+.extra-filters > div { border-color: var(--line); box-shadow: none; }
+.table { color: var(--ink); }
+.table > :not(caption) > * > * { color: var(--ink); border-bottom-color: var(--line); }
+.table thead th { color: var(--muted); background: var(--paper); font-size: 11px; }
+.table tbody tr:hover td { background: var(--paper); }
+.record-primary, .table-open, .detail-tabs a { color: var(--accent-dark); }
+.table-footer, .pagination-bar, .details-grid dt { color: var(--muted); font-size: 12px; }
+.wizard-steps li { color: var(--muted); font-size: 12px; }
+.wizard-steps li span { color: var(--ink); border-color: var(--line); background: var(--surface); }
+.wizard-steps li.current { color: var(--accent-dark); }
+.wizard-steps li.current span { color: var(--surface); border-color: var(--accent); background: var(--accent); }
+.wizard-steps li.done span { color: var(--success); background: var(--paper); border-color: var(--success); }
+
+/* Cor semantica sempre acompanha a mensagem textual existente. */
+.alert-success {
+  --bs-alert-bg: var(--surface);
+  --bs-alert-color: var(--success);
+  --bs-alert-border-color: var(--success);
+}
+.alert-warning {
+  --bs-alert-bg: var(--surface);
+  --bs-alert-color: var(--warning);
+  --bs-alert-border-color: var(--warning);
+}
+.alert-danger {
+  --bs-alert-bg: var(--surface);
+  --bs-alert-color: var(--danger);
+  --bs-alert-border-color: var(--danger);
+}
+
+/* Documentos, assinatura externa e formulario de login. */
+.document-heading { border-bottom-color: var(--sidebar); font-size: 12px; }
+.term-text { color: var(--ink); }
+.hash-box { background: var(--paper); border-color: var(--line); color: var(--muted); font-size: 12px; }
+.hash-box code { color: var(--ink); font-size: 12px; }
+.signature-row small { color: var(--muted); font-size: 12px; }
+.signature-row details { font-size: 12px; }
+.accept-label input { accent-color: var(--accent); }
+.public-body { background: var(--paper); }
+.public-brand, .public-brand:hover { color: var(--ink); }
+.public-brand small { color: var(--muted); }
+.public-brand .brand-icon { color: var(--surface); background: var(--accent); border-color: var(--accent); }
+.public-card { box-shadow: none; }
+.subtle-link { color: var(--accent-dark); font-size: 12px; }
+.public-foot { color: var(--muted); font-size: 12px; }
+.public-brand .brand-dot { color: var(--accent); }
+.subtle-link:hover { color: var(--accent-dark); }
+.success-symbol { color: var(--success); }
+
+/* Homologacao e desenvolvimento preservam identificacao textual persistente. */
+.environment-banner {
+  color: var(--environment-staging-text);
+  background: var(--environment-staging-bg);
+  border-bottom: 1px solid var(--line);
+}
+.development-banner {
+  color: var(--accent-dark);
+  background: var(--primary-soft);
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+}
+.page-footer { color: var(--muted); border-top-color: var(--line); font-size: 12px; }
+
+/* Respeita preferencias de movimento sem alterar a navegacao. */
+@media (prefers-reduced-motion: reduce) {
+  .metric-card, .sidebar nav > a { transition: none; }
+  .metric-card:hover { transform: none; }
+}
