@@ -117,3 +117,23 @@ Se houver 503, diagnosticar antes de qualquer nova mudanca, sem enfraquecer
 `PGSSLMODE=verify-full` ou trocar o health check por um endpoint apenas de vida.
 Se o health check nem chegar ao Django, investigar proxy e redirecionamento
 HTTPS (especialmente `X-Forwarded-Proto`) antes de alterar codigo.
+
+### Diagnostico de conexao Render x Neon (2026-11-23)
+
+Teste isolado no Windows do usuario `gati_app` concluiu `SELECT 1` usando
+`PGSSLMODE=verify-full` e bundle `certifi`. Isso demonstra que a credencial
+digitada localmente e a conexao local estao validas, mas **nao** que o Render
+receba exatamente o mesmo segredo nem que sua rede consiga alcançá-lo.
+
+O readiness continua `fail-closed` (HTTP 503); so os logs internos passam a
+indicar `categoria=authentication|tls|dns|network|database_missing|permissions|unknown`,
+sem registrar mensagens/SQLSTATE de erro de libpq, senhas ou enderecos.
+Classificacao por mensagens e apenas diagnostica; `unknown` exige investigacao
+manual. Se `authentication`, conferir que o `PGPASSWORD` salvo no Render e
+a mesma senha validada localmente (sem colar aqui). Se `tls`, conferir cadeia
+e hostname sem afrouxar `verify-full`. Se `dns`/`network`, checar endpoint,
+resolucao e saida de rede do Render antes de qualquer alteracao em secrets.
+
+A atualizacao da aplicacao e exclusivamente por deploy manual autorizado.
+A correcao de diagnostico nao altera nenhuma senha, tabela, migracao, permissao,
+configuracao de DNS ou TLS.
