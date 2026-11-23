@@ -3,8 +3,8 @@
 import logging
 
 from django.db import connection
-from psycopg import OperationalError
 from django.http import HttpResponse, JsonResponse
+from psycopg import OperationalError
 
 from gati.apps.usuarios.permissions import authorize
 
