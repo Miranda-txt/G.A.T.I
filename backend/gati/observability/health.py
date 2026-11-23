@@ -43,7 +43,12 @@ def _database_failure_category(exc: Exception) -> str:
         return "dns"
     if any(
         x in detail
-        for x in ("password authentication failed", "authentication failed", "no password supplied", "fe_sendauth")
+        for x in (
+            "password authentication failed",
+            "authentication failed",
+            "no password supplied",
+            "fe_sendauth",
+        )
     ):
         return "authentication"
     if "database" in detail and "does not exist" in detail:
@@ -60,7 +65,6 @@ def _database_failure_category(exc: Exception) -> str:
     ):
         return "network"
     return "unknown"
-
 
 
 def live(request):
