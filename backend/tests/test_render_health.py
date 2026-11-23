@@ -67,7 +67,6 @@ def test_erro_operacional_nao_expoe_mensagem_no_log(caplog):
     assert segredo not in caplog.text
 
 
-
 @pytest.mark.parametrize(
     ("message", "expected"),
     [
