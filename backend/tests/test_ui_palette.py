@@ -7,7 +7,6 @@ import re
 import unittest
 from pathlib import Path
 
-
 BACKEND_ROOT = Path(__file__).resolve().parents[1]
 THEME_FILE = BACKEND_ROOT / "static/gati/css/gati-enterprise-blue.css"
 TEMPLATE_ROOT = BACKEND_ROOT / "templates"
