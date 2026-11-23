@@ -31,13 +31,33 @@ def _database_failure_category(exc: Exception) -> str:
     detail = str(exc).casefold()
     if any(x in detail for x in ("certificate verify failed", "certificate", "ssl", "tls")):
         return "tls"
-    if any(x in detail for x in ("could not translate host name", "name or service not known", "getaddrinfo failed", "nodename nor servname provided")):
+    if any(
+        x in detail
+        for x in (
+            "could not translate host name",
+            "name or service not known",
+            "getaddrinfo failed",
+            "nodename nor servname provided",
+        )
+    ):
         return "dns"
-    if any(x in detail for x in ("password authentication failed", "authentication failed", "no password supplied", "fe_sendauth")):
+    if any(
+        x in detail
+        for x in ("password authentication failed", "authentication failed", "no password supplied", "fe_sendauth")
+    ):
         return "authentication"
     if "database" in detail and "does not exist" in detail:
         return "database_missing"
-    if any(x in detail for x in ("connection timed out", "timeout expired", "connection refused", "network is unreachable", "no route to host")):
+    if any(
+        x in detail
+        for x in (
+            "connection timed out",
+            "timeout expired",
+            "connection refused",
+            "network is unreachable",
+            "no route to host",
+        )
+    ):
         return "network"
     return "unknown"
 
