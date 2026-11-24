@@ -109,7 +109,8 @@
     width: min(288px, 100%);
     transform: translateX(-100%);
     visibility: hidden;
-    transition: transform .18s ease, visibility .18s;
+    /* A visibilidade precisa mudar imediatamente para receber foco ao abrir. */
+    transition: transform .18s ease;
   }
   .nav-enhanced.nav-open .app-shell .sidebar { transform: none; visibility: visible; }
   .nav-enhanced .app-shell .sidebar-header { justify-content: space-between; }
