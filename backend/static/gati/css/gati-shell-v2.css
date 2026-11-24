@@ -1,0 +1,23 @@
+/* DU-UX-DASH-01: breadcrumb semanticamente navegavel no shell administrativo. */
+.topbar > div:first-child {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+.breadcrumb-label {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.breadcrumb-label a {
+  color: inherit;
+}
+.breadcrumb-label span[aria-current="page"] {
+  margin: 0;
+}
+/* Preserva a escolha responsiva do tema existente. */
+@media (max-width: 560px) {
+  .breadcrumb-label { display: none; }
+}
