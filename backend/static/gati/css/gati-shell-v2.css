@@ -3,6 +3,7 @@
   --shell-sidebar-width: 248px;
   --shell-gutter: clamp(16px, 3vw, 40px);
   min-height: 100vh;
+  font-size: 0.875rem;
 }
 .app-shell .sidebar {
   width: var(--shell-sidebar-width);
@@ -12,11 +13,12 @@
   z-index: 40;
   overscroll-behavior: contain;
 }
-.app-shell .sidebar-header { display: flex; align-items: center; gap: 8px; }
-.app-shell .brand { margin: 0 0 28px; padding: 0 8px; min-width: 0; }
+.app-shell .sidebar-header { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.app-shell .brand { margin: 0 0 28px; padding: 0 8px; min-width: 0; max-width: 100%; font-size: 2.125rem; }
+.app-shell .brand > span:last-child { min-width: 0; overflow-wrap: anywhere; }
 .app-shell .brand-icon { flex: 0 0 38px; }
-.app-shell .brand small { line-height: 1.4; letter-spacing: 0; }
-.app-shell .nav-caption { margin: 20px 12px 8px; letter-spacing: .08em; }
+.app-shell .brand small { font-size: 0.75rem; line-height: 1.4; letter-spacing: 0; }
+.app-shell .nav-caption { margin: 20px 12px 8px; font-size: 0.6875rem; letter-spacing: .08em; overflow-wrap: anywhere; }
 .app-shell .sidebar > .nav-caption { margin-top: 0; }
 .app-shell .sidebar nav > a {
   min-height: 44px;
@@ -24,12 +26,13 @@
   gap: 12px;
   border-radius: 8px;
   line-height: 1.45;
-  font-size: 14px;
+  font-size: 0.875rem;
   overflow-wrap: anywhere;
 }
 .app-shell .nav-icon { flex: 0 0 20px; display: inline-flex; }
 .app-shell .ui-icon { display: inline-block; flex-shrink: 0; vertical-align: middle; }
-.app-shell .sidebar-foot { padding: 24px 12px 0; line-height: 1.5; }
+.app-shell .sidebar-foot { padding: 24px 12px 0; line-height: 1.5; overflow-wrap: anywhere; }
+.app-shell .sidebar-foot, .app-shell .sidebar-foot small { font-size: 0.75rem; }
 .app-shell .workspace {
   display: flex;
   flex-direction: column;
@@ -52,24 +55,26 @@
   align-items: center;
   min-width: 0;
   gap: 6px 10px;
-  font-size: 13px;
+  font-size: 0.8125rem;
   line-height: 1.5;
   overflow-wrap: anywhere;
   white-space: normal;
 }
 .app-shell .breadcrumb-label a { color: var(--accent-dark); }
 .app-shell .breadcrumb-label a:hover { text-decoration: underline; }
+.app-shell .breadcrumb-label > * { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
 .app-shell .breadcrumb-label span { margin: 0; }
 .app-shell .breadcrumb-label [aria-current="page"] { color: var(--ink); font-weight: 600; }
-.app-shell .user-menu { min-width: 0; max-width: 100%; gap: 10px; flex-wrap: wrap; font-size: 13px; }
+.app-shell .user-menu { min-width: 0; max-width: 100%; gap: 10px; flex-wrap: wrap; font-size: 0.8125rem; }
 .app-shell .user-menu .avatar { flex: 0 0 36px; height: 36px; width: 36px; }
 .app-shell .user-menu .user-meta { min-width: 0; overflow-wrap: anywhere; }
-.app-shell .user-menu form { margin: 0; }
-.app-shell .user-menu .btn { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; }
+.app-shell .user-menu small { font-size: 0.75rem; }
+.app-shell .user-menu form { margin: 0; max-width: 100%; }
+.app-shell .user-menu .btn { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; max-width: 100%; font-size: 0.8125rem; overflow-wrap: anywhere; }
 .app-shell .user-menu .ui-icon { width: 16px; height: 16px; }
 .app-shell .environment-banner, .app-shell .development-banner {
   padding: 8px var(--shell-gutter);
-  font-size: 12px;
+  font-size: 0.75rem;
   line-height: 1.5;
   overflow-wrap: anywhere;
 }
@@ -81,8 +86,8 @@
   margin: 0 auto;
   padding: 28px var(--shell-gutter) 40px;
 }
-.app-shell .page-footer { padding: 16px var(--shell-gutter); gap: 12px; flex-wrap: wrap; }
-.app-shell .page-footer a { color: var(--accent-dark); }
+.app-shell .page-footer { padding: 16px var(--shell-gutter); gap: 12px; flex-wrap: wrap; font-size: 0.75rem; overflow-wrap: anywhere; }
+.app-shell .page-footer a { color: var(--accent-dark); min-height: 24px; display: inline-flex; align-items: center; }
 .app-shell .menu-button, .app-shell .shell-close, .app-shell .shell-backdrop { display: none; }
 .app-shell .sidebar .shell-close:focus-visible { outline-color: var(--surface); }
 @media (max-width: 1200px) {
