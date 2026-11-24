@@ -77,3 +77,33 @@ def test_unknown_direct_context_does_not_make_public_nav_links(domain):
     context = navigation(request)
     assert context["navigation_active"] is None
     assert context["navigation_breadcrumbs"] == (("Gestão patrimonial", None),)
+
+
+def test_shell_controls_and_decorative_icons_render_for_admin(domain, client):
+    client.force_login(domain.admin)
+    response = client.get("/")
+    assert response.status_code == 200
+    html = response.content.decode("utf-8")
+    nav = _navigation(html)
+    assert nav.count('<svg class="ui-icon"') == 10
+    assert nav.count('aria-hidden="true" focusable="false"') == 10
+    assert '<aside class="sidebar" id="app-sidebar">' in html
+    assert 'aria-controls="app-sidebar"' in html
+    assert 'aria-expanded="false"' in html
+    assert 'aria-label="Fechar navegação"' in html
+    assert '<main id="main" class="main-content" tabindex="-1">' in html
+    assert '<form method="post" action="/sair/">' in html
+    assert 'name="csrfmiddlewaretoken"' in html
+    assert 'href="/senha/alterar/"' in html
+    assert 'class="shell-backdrop" hidden aria-hidden="true"' in html
+
+
+def test_shell_is_not_loaded_in_public_or_htmx_partial_views(domain, client):
+    public = client.get("/entrar/")
+    assert public.status_code == 200
+    assert b"gati-shell-v2.css" not in public.content
+    assert b'id="app-sidebar"' not in public.content
+    client.force_login(domain.operator)
+    partial = client.get("/cadastros/ativos/", HTTP_HX_REQUEST="true")
+    assert partial.status_code == 200
+    assert b'id="app-sidebar"' not in partial.content
