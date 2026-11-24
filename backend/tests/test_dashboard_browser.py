@@ -100,7 +100,8 @@ def _inline_assets(html):
 
 
 def test_dashboard_chromium_reflow_font_scaling_and_keyboard(domain, client, tmp_path):
-    browser = shutil.which("chromium") or shutil.which("google-chrome") or shutil.which("chromium-browser")
+    # Chrome stable usa o perfil AppArmor do pacote oficial no runner Ubuntu.
+    browser = shutil.which("google-chrome") or shutil.which("chromium") or shutil.which("chromium-browser")
     if browser is None:
         if os.environ.get("GITHUB_ACTIONS") == "true":
             pytest.fail("Chromium/Chrome obrigatorio no CI de acessibilidade.")
@@ -129,7 +130,7 @@ def test_dashboard_chromium_reflow_font_scaling_and_keyboard(domain, client, tmp
         timeout=90,
         check=False,
     )
-    assert result.returncode == 0, result.stderr[-1200:]
+    assert result.returncode == 0, f"{browser}: {result.stderr[:3000]}"
     status = re.search(r'<pre id="result" data-state="([^"]+)">(.*?)</pre>', result.stdout, re.S)
     assert status is not None, "Resultado do navegador ausente."
     assert status[1] == "passed", unescape(status[2]) or "Smoke de navegador nao terminou."
