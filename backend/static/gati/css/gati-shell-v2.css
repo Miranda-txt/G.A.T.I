@@ -1,23 +1,160 @@
-/* DU-UX-DASH-01: breadcrumb semanticamente navegavel no shell administrativo. */
-.topbar > div:first-child {
+/* DU-UX-DASH-02: estrutura administrativa, sem alterar as telas publicas. */
+.app-shell {
+  --shell-sidebar-width: 248px;
+  --shell-gutter: clamp(16px, 3vw, 40px);
+  min-height: 100vh;
+}
+.app-shell .sidebar {
+  width: var(--shell-sidebar-width);
+  padding: 24px 16px 20px;
+  background: var(--sidebar);
+  color: var(--sidebar-text);
+  z-index: 40;
+  overscroll-behavior: contain;
+}
+.app-shell .sidebar-header { display: flex; align-items: center; gap: 8px; }
+.app-shell .brand { margin: 0 0 28px; padding: 0 8px; min-width: 0; }
+.app-shell .brand-icon { flex: 0 0 38px; }
+.app-shell .brand small { line-height: 1.4; letter-spacing: 0; }
+.app-shell .nav-caption { margin: 20px 12px 8px; letter-spacing: .08em; }
+.app-shell .sidebar > .nav-caption { margin-top: 0; }
+.app-shell .sidebar nav > a {
+  min-height: 44px;
+  padding: 9px 12px;
+  gap: 12px;
+  border-radius: 8px;
+  line-height: 1.45;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.app-shell .nav-icon { flex: 0 0 20px; display: inline-flex; }
+.app-shell .ui-icon { display: inline-block; flex-shrink: 0; vertical-align: middle; }
+.app-shell .sidebar-foot { padding: 24px 12px 0; line-height: 1.5; }
+.app-shell .workspace {
   display: flex;
+  flex-direction: column;
+  margin-left: var(--shell-sidebar-width);
+  min-width: 0;
+  flex: 1;
+}
+.app-shell .topbar {
+  height: auto;
+  min-height: 72px;
+  padding: 12px var(--shell-gutter);
+  gap: 16px;
+  flex-wrap: wrap;
+  background: var(--surface);
+}
+.app-shell .topbar > div:first-child { display: flex; align-items: center; min-width: 0; gap: 12px; flex: 1 1 220px; }
+.app-shell .breadcrumb-label {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   min-width: 0;
+  gap: 6px 10px;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
-.breadcrumb-label {
-  display: flex;
-  align-items: center;
-  min-width: 0;
-  overflow: hidden;
-  white-space: nowrap;
+.app-shell .breadcrumb-label a { color: var(--accent-dark); }
+.app-shell .breadcrumb-label a:hover { text-decoration: underline; }
+.app-shell .breadcrumb-label span { margin: 0; }
+.app-shell .breadcrumb-label [aria-current="page"] { color: var(--ink); font-weight: 600; }
+.app-shell .user-menu { min-width: 0; max-width: 100%; gap: 10px; flex-wrap: wrap; font-size: 13px; }
+.app-shell .user-menu .avatar { flex: 0 0 36px; height: 36px; width: 36px; }
+.app-shell .user-menu .user-meta { min-width: 0; overflow-wrap: anywhere; }
+.app-shell .user-menu form { margin: 0; }
+.app-shell .user-menu .btn { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; }
+.app-shell .user-menu .ui-icon { width: 16px; height: 16px; }
+.app-shell .environment-banner, .app-shell .development-banner {
+  padding: 8px var(--shell-gutter);
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
-.breadcrumb-label a {
-  color: inherit;
+.app-shell .main-content {
+  width: 100%;
+  max-width: 1760px;
+  flex: 1;
+  min-height: 0;
+  margin: 0 auto;
+  padding: 28px var(--shell-gutter) 40px;
 }
-.breadcrumb-label span[aria-current="page"] {
-  margin: 0;
+.app-shell .page-footer { padding: 16px var(--shell-gutter); gap: 12px; flex-wrap: wrap; }
+.app-shell .page-footer a { color: var(--accent-dark); }
+.app-shell .menu-button, .app-shell .shell-close, .app-shell .shell-backdrop { display: none; }
+.app-shell .sidebar .shell-close:focus-visible { outline-color: var(--surface); }
+@media (max-width: 1200px) {
+  .app-shell { --shell-sidebar-width: 224px; }
 }
-/* Preserva a escolha responsiva do tema existente. */
+@media (max-width: 900px) {
+  .app-shell { display: block; }
+  .app-shell .sidebar {
+    position: static;
+    width: 100%;
+    transform: none;
+    visibility: visible;
+    transition: none;
+  }
+  .app-shell .workspace { margin-left: 0; min-height: 100vh; }
+  .nav-enhanced .app-shell .sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: min(288px, 100%);
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition: transform .18s ease, visibility .18s;
+  }
+  .nav-enhanced.nav-open .app-shell .sidebar { transform: none; visibility: visible; }
+  .nav-enhanced .app-shell .sidebar-header { justify-content: space-between; }
+  .nav-enhanced .app-shell .sidebar-header .brand { margin-bottom: 20px; }
+  .nav-enhanced .app-shell .menu-button:not([hidden]),
+  .nav-enhanced .app-shell .shell-close:not([hidden]) {
+    display: inline-flex;
+    flex: 0 0 44px;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    margin: 0;
+    border: 1px solid var(--muted);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--accent-dark);
+    cursor: pointer;
+  }
+  .nav-enhanced .app-shell .shell-close:not([hidden]) {
+    align-self: flex-start;
+    border-color: var(--sidebar-text);
+    background: var(--sidebar-hover);
+    color: var(--surface);
+  }
+  .nav-enhanced.nav-open .app-shell .shell-backdrop:not([hidden]) {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 35;
+    background: var(--ink);
+    opacity: .48;
+  }
+  body.nav-enhanced.nav-open { overflow: hidden; }
+}
 @media (max-width: 560px) {
-  .breadcrumb-label { display: none; }
+  .app-shell .topbar { gap: 12px; }
+  .app-shell .topbar > div:first-child { flex-basis: 100%; }
+  .app-shell .user-menu { width: 100%; }
+  .app-shell .user-menu .avatar { display: grid; }
+  .app-shell .user-menu .user-meta { flex: 1 1 100px; }
+  .app-shell .main-content { padding-top: 24px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-enhanced .app-shell .sidebar { transition: none; }
+}
+@media print {
+  body.nav-enhanced.nav-open { overflow: visible; }
+  .app-shell, .app-shell .workspace { display: block; min-height: 0; margin: 0; }
+  .app-shell .main-content { max-width: none; padding: 0; }
+  .nav-enhanced.nav-open .app-shell .shell-backdrop:not([hidden]) { display: none; }
 }
