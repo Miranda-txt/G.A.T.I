@@ -59,6 +59,11 @@ def throttle_lock(ip):
 class ResetRequestView(PasswordResetView):
     html_email_template_name = "registration/password_reset_email_html.html"
 
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields["email"].widget.attrs["class"] = "form-control"
+        return form
+
     @transaction.atomic
     def form_valid(self, form):
         ip = self.request.META.get("REMOTE_ADDR", "127.0.0.1")
