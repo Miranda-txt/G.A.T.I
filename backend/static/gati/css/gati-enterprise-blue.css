@@ -47,6 +47,7 @@ a:hover { color: var(--accent-dark); }
 
 /* O foco funciona independentemente do estado hover e da cor de fundo. */
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.table-responsive[tabindex="0"]:focus-visible { outline-offset: -3px; }
 .skip-link:focus-visible { outline-color: var(--ink); }
 
 /* Shell administrativo, logomarca e navegacao. */
