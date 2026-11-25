@@ -18,6 +18,7 @@ HARNESS = """
 <script>
 const widths = [320, 375, 683, 768, 910, 1024, 1093, 1366, 1920];
 const errors = [];
+const diagnostics = [];
 const result = document.getElementById('result');
 const source = document.getElementById('fixture').value;
 let index = 0;
@@ -25,7 +26,7 @@ function check(ok, message) { if (!ok) errors.push(message); }
 function next() {
   if (index === widths.length) {
     result.dataset.state = errors.length ? 'failed' : 'passed';
-    result.textContent = errors.join('; ') || '9 larguras, escala de fonte e teclado';
+    result.textContent = JSON.stringify({errors, diagnostics});
     return;
   }
   const width = widths[index++];
@@ -37,6 +38,18 @@ function next() {
     if (!doc.querySelector('.dashboard-v2')) return;
     const win = frame.contentWindow;
     const root = doc.documentElement;
+    function snapshot(stage) {
+      const sidebar = doc.getElementById('app-sidebar');
+      const menu = doc.querySelector('.menu-button');
+      diagnostics.push({stage, requested: width, frameWidth: frame.clientWidth,
+        viewport: win.innerWidth, clientWidth: root.clientWidth,
+        mobile: win.matchMedia('(max-width: 900px)').matches,
+        inert: sidebar.inert, visibility: win.getComputedStyle(sidebar).visibility,
+        menuDisplay: win.getComputedStyle(menu).display,
+        navOpen: doc.body.classList.contains('nav-open'),
+        initial: win.__gatiTestInitial || null});
+    }
+    snapshot('load');
     const label = doc.querySelector('.metric-top > span:first-child');
     const main = doc.querySelector('main');
     root.style.fontSize = '16px';
@@ -47,10 +60,14 @@ function next() {
     check(large >= normal * 1.99, width + ': fonte nao dobrou');
     check(root.scrollWidth <= root.clientWidth + 1, width + ': overflow fonte 200%');
     root.style.fontSize = '16px';
+    snapshot('after-font-scaling');
     const menu = doc.querySelector('.menu-button');
     const close = doc.querySelector('.shell-close');
     const sidebar = doc.getElementById('app-sidebar');
     const workspace = doc.querySelector('.workspace');
+    check(Math.abs(win.innerWidth - width) <= 1, width + ': viewport incorreto');
+    check(win.matchMedia('(max-width: 900px)').matches === (width <= 900),
+      width + ': media query divergente');
     if (width <= 900) {
       check(sidebar.inert, width + ': sidebar fechada focavel');
       menu.focus();
@@ -96,7 +113,13 @@ def _inline_assets(html):
         return f"<script>{source}</script>"
 
     html = re.sub(r'<link rel="stylesheet" href="/static/([^"]+)">', stylesheet, html)
-    return re.sub(r'<script src="/static/([^"]+)" defer></script>', script, html)
+    html = re.sub(r'<script src="/static/([^"]+)" defer></script>', script, html)
+    # Captura a largura antes da inicializacao do shell, sem modificar o codigo real.
+    probe = """<script>document.addEventListener('DOMContentLoaded', () => {
+      window.__gatiTestInitial = {width: innerWidth,
+        mobile: matchMedia('(max-width: 900px)').matches};
+    });</script>"""
+    return html.replace("</title>", "</title>" + probe, 1)
 
 
 def test_dashboard_chromium_reflow_font_scaling_and_keyboard(domain, client, tmp_path):
