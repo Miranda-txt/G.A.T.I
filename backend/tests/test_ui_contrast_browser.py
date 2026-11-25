@@ -60,6 +60,9 @@ MEASURE = """(selector, mode) => {
     return {ratio: contrast(over(rgba(style.outlineColor), near), near), minimum: 3,
       focused: document.activeElement === el && el.matches(':focus-visible'),
       visible: el.contains(hit), outline: style.outlineStyle,
+      rect: {left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom},
+      hit: hit ? hit.tagName + '.' + hit.className : null,
+      scrollY: scrollY, viewport: [innerWidth, innerHeight],
       width: parseFloat(style.outlineWidth), foreground: style.outlineColor, background: near};
   }
   if (mode === 'border') {

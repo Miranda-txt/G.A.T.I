@@ -46,7 +46,11 @@ a { color: var(--accent); }
 a:hover { color: var(--accent-dark); }
 
 /* O foco funciona independentemente do estado hover e da cor de fundo. */
-:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+:focus-visible,
+.btn:focus-visible,
+.form-control:focus-visible,
+.form-select:focus-visible,
+.form-check-input:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 .table-responsive[tabindex="0"]:focus-visible { outline-offset: -3px; }
 .skip-link:focus-visible { outline-color: var(--ink); }
 
@@ -72,6 +76,7 @@ a:hover { color: var(--accent-dark); }
 .sidebar nav > a.selected:hover { background: var(--sidebar-active); }
 .sidebar nav > a:focus-visible,
 .brand:focus-visible { outline-color: var(--surface); outline-offset: -2px; }
+.public-brand:focus-visible { outline-color: var(--accent); outline-offset: 3px; }
 .nav-icon { color: var(--sidebar-text); }
 .sidebar nav > a.selected .nav-icon,
 .sidebar nav > a:hover .nav-icon { color: var(--surface); }
@@ -131,7 +136,8 @@ a:hover { color: var(--accent-dark); }
 .btn-outline-secondary, .btn-light {
   color: var(--ink);
   background: var(--paper);
-  border-color: var(--line);
+  border-color: var(--muted);
+  --bs-btn-border-color: var(--muted);
   --bs-btn-hover-color: var(--accent-dark);
   --bs-btn-hover-bg: var(--primary-soft);
   --bs-btn-hover-border-color: var(--accent);
@@ -200,6 +206,12 @@ a:hover { color: var(--accent-dark); }
   border-color: var(--muted);
 }
 .form-control::placeholder { color: var(--muted); }
+.form-check-input { border-color: var(--muted); }
+.form-check-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+.form-check-input:checked { background-color: var(--accent); border-color: var(--accent); }
 .form-control:focus, .form-select:focus {
   color: var(--ink);
   border-color: var(--accent);
