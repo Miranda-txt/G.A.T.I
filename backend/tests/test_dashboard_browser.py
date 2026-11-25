@@ -382,3 +382,102 @@ def test_shared_components_chromium(domain, client, tmp_path):
                     outcome = cdp.evaluate(session, f"({CHECK_SHARED})({json.dumps(kind)})")
                     errors.extend(f"{kind}/{width}: {error}" for error in outcome)
     assert not errors, errors
+
+
+# DASH05-05: mede a cascata real em telas publicas e administrativas.
+# A escala da fonte raiz simula a preferencia de tamanho de texto, nao zoom nativo.
+CHECK_LEGACY_SCALING = """(selectors) => {
+  const root = document.documentElement;
+  const errors = [];
+  const samples = selectors.map(selector => ({selector, element: document.querySelector(selector)}));
+  const missing = samples.filter(sample => !sample.element).map(sample => sample.selector);
+  if (missing.length) return ['seletores ausentes: ' + missing.join(', ')];
+  function measure(size) {
+    root.style.fontSize = size + 'px';
+    const label = 'fonte raiz ' + size;
+    const fonts = samples.map(sample => parseFloat(getComputedStyle(sample.element).fontSize));
+    if (root.scrollWidth > root.clientWidth + 1) {
+      errors.push(label + ': overflow documento ' + root.scrollWidth + '/' + root.clientWidth);
+    }
+    for (const element of document.querySelectorAll(
+      'main .panel, .public-card, .public-brand, .filter-bar, .wizard-steps, .form-actions, .button-group'
+    )) {
+      if (element.clientWidth && element.scrollWidth > element.clientWidth + 1) {
+        errors.push(label + ': overflow ' + element.className + ' '
+          + element.scrollWidth + '/' + element.clientWidth);
+      }
+    }
+    return fonts;
+  }
+  const normal = measure(16);
+  const large = measure(32);
+  for (const [index, sample] of samples.entries()) {
+    if (large[index] < normal[index] * 1.99) {
+      errors.push(sample.selector + ': fonte nao escala ' + normal[index] + ' -> ' + large[index]);
+    }
+  }
+  root.style.fontSize = '16px';
+  return errors;
+}"""
+
+
+def test_legacy_typography_reflows_at_double_root_font_size(domain, client, tmp_path):
+    browser = shutil.which("google-chrome") or shutil.which("chromium") or shutil.which("chromium-browser")
+    if browser is None:
+        if os.environ.get("GITHUB_ACTIONS") == "true":
+            pytest.fail("Chromium/Chrome obrigatorio no CI de acessibilidade.")
+        pytest.skip("Chromium/Chrome nao instalado no ambiente local.")
+
+    login = client.get("/entrar/")
+    client.force_login(domain.admin)
+    pages = [
+        (
+            "login",
+            login,
+            [".public-brand small", ".public-card h1", ".form-label", ".form-control", ".btn", ".public-foot"],
+        ),
+        (
+            "inventory",
+            client.get("/cadastros/ativos/"),
+            [
+                "main h1",
+                ".filter-bar .form-control",
+                ".filter-bar .btn",
+                ".table th",
+                ".table td",
+                ".table-footer",
+            ],
+        ),
+        (
+            "form",
+            client.post("/cadastros/ativos/novo/", {"versao": 1}),
+            ["main h1", ".form-label", ".form-control", ".field-error", ".form-actions .btn"],
+        ),
+        (
+            "detail",
+            client.get(f"/cadastros/ativos/{domain.asset.pk}/"),
+            ["main h1", ".detail-tabs a", ".details-grid dt", ".details-grid dd", ".detail-section h2"],
+        ),
+        (
+            "wizard",
+            client.get("/processos/novo/1/"),
+            [
+                "main h1",
+                ".wizard-steps li",
+                ".form-panel h2",
+                ".form-label",
+                ".form-select",
+                ".form-actions .btn",
+            ],
+        ),
+    ]
+    errors = []
+    with browser_session(browser, tmp_path / "typography-browser-profile") as cdp:
+        for kind, response, selectors in pages:
+            assert response.status_code == 200, kind
+            html = _inline_assets(response.content.decode())
+            for width in (320, 768, 900, 901, 1366, 1920):
+                with dashboard_page(cdp, html, width) as session:
+                    outcome = cdp.evaluate(session, f"({CHECK_LEGACY_SCALING})({json.dumps(selectors)})")
+                    errors.extend(f"{kind}/{width}: {error}" for error in outcome)
+    assert not errors, "\n".join(errors)
