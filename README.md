@@ -30,6 +30,13 @@ Render foi criado automaticamente.**
 Consulte [docs/RENDER_HOMOLOGACAO.md](docs/RENDER_HOMOLOGACAO.md) para
 procedimento, riscos, testes e rollback. Nao use dados reais nesta fase.
 
+## Modernização visual — estado em 25/11/2026
+
+A versão de homologação `6cde964` (PR #14) inclui DU-UX-DASH-01 a DU-UX-DASH-04 e está publicada no Render. O CI pós-merge registrou 176 testes aprovados, 2 ignorados (ClamAV real opcional), zero falhas; cobertura de 88,18% de linhas e 73,34% de ramificações. As seções anteriores registram o histórico de preparação, não o estado atual do deploy. A validação visual de todas as telas ainda está em andamento.
+
+- [Catálogo oficial Enterprise Blue](docs/design-system/GATI_Paleta_Cores_Enterprise_Blue_v1.0.0.md)
+- [DU-UX-DASH-05 — auditoria e matriz de homologação](docs/design-system/DU-UX-DASH-05_AUDITORIA_E_HOMOLOGACAO.md)
+
 ## Instalação em outro computador
 
 Requisitos: Python 3.14, PostgreSQL 18 e ClamAV 1.4 LTS atualizado. Docker Desktop é uma alternativa para os dois serviços locais. Reserve memória para o banco e para o ClamAV.
