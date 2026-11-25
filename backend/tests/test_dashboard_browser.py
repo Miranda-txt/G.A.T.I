@@ -16,13 +16,35 @@ HARNESS = """
 <!doctype html><meta charset="utf-8">
 <textarea id="fixture" hidden>FIXTURE</textarea><pre id="result" data-state="pending"></pre>
 <script>
-const widths = [320, 375, 683, 768, 910, 1024, 1093, 1366, 1920];
+const widths = [320, 375, 683, 768, 900, 901, 910, 1024, 1093, 1366, 1920];
 const errors = [];
 const diagnostics = [];
 const result = document.getElementById('result');
 const source = document.getElementById('fixture').value;
 let index = 0;
 function check(ok, message) { if (!ok) errors.push(message); }
+// O evento e emitido pelo navegador, nao pelo codigo testado. O timeout
+// impede que uma media query que nao muda produza um falso positivo.
+function resize(frame, width) {
+  const win = frame.contentWindow;
+  const media = win.matchMedia('(max-width: 900px)');
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      media.removeEventListener('change', changed);
+      reject(new Error('media query nao mudou para ' + width));
+    }, 2000);
+    function changed(event) {
+      clearTimeout(timeout);
+      // A proxima tarefa ocorre apos a entrega dos listeners do evento.
+      setTimeout(() => resolve(event.matches), 0);
+    }
+    media.addEventListener('change', changed, {once: true});
+    frame.width = width;
+    // Materializa a nova geometria do frame sem alterar o estado da aplicacao.
+    void frame.clientWidth;
+    void win.innerWidth;
+  });
+}
 function next() {
   if (index === widths.length) {
     result.dataset.state = errors.length ? 'failed' : 'passed';
@@ -33,7 +55,7 @@ function next() {
   const frame = document.createElement('iframe');
   frame.width = width;
   frame.height = 768;
-  frame.onload = () => {
+  frame.onload = async () => {
     const doc = frame.contentDocument;
     if (!doc.querySelector('.dashboard-v2')) return;
     const win = frame.contentWindow;
@@ -50,6 +72,8 @@ function next() {
         initial: win.__gatiTestInitial || null});
     }
     snapshot('load');
+    check(win.__gatiTestInitial?.width === width, width + ': viewport inicial incorreto');
+    check(win.__gatiTestInitial?.mobile === (width <= 900), width + ': media query inicial incorreta');
     const label = doc.querySelector('.metric-top > span:first-child');
     const main = doc.querySelector('main');
     root.style.fontSize = '16px';
@@ -91,11 +115,42 @@ function next() {
     }
     main.focus();
     check(doc.activeElement === main, width + ': destino do atalho de conteudo');
+    // Testa mudanca real de viewport com a aplicacao ja carregada.
+    if (width === 768) {
+      try {
+        menu.click();
+        check(workspace.inert && !sidebar.inert, 'resize: modal aberto antes de ampliar');
+        check(await resize(frame, 910) === false, 'resize: media desktop');
+        snapshot('resized-desktop');
+        check(win.innerWidth === 910, 'resize: viewport desktop');
+        check(!sidebar.inert && !workspace.inert, 'resize: desktop deve ser interativo');
+        check(!sidebar.hasAttribute('aria-modal') && menu.getAttribute('aria-expanded') === 'false',
+          'resize: modal deve ser encerrado ao ampliar');
+        const desktopLink = sidebar.querySelector('a.selected');
+        desktopLink.focus();
+        check(doc.activeElement === desktopLink, 'resize: link desktop focavel');
+        check(await resize(frame, 768) === true, 'resize: media mobile');
+        snapshot('resized-mobile');
+        check(win.innerWidth === 768, 'resize: viewport mobile');
+        check(sidebar.inert && !workspace.inert, 'resize: sidebar mobile deve fechar');
+        menu.focus();
+        menu.click();
+        check(doc.activeElement === close && workspace.inert, 'resize: reabertura mobile');
+        close.click();
+        check(doc.activeElement === menu && !workspace.inert, 'resize: fechamento e foco');
+      } catch (error) {
+        errors.push('resize: ' + error.message);
+      }
+    }
     frame.remove();
     next();
   };
-  frame.srcdoc = source;
+  // Inicializa o browsing context e confirma a geometria ANTES de carregar
+  // o HTML da aplicacao. Assim DOMContentLoaded nao observa um viewport provisorio.
   document.body.append(frame);
+  check(frame.clientWidth === width, width + ': geometria do iframe incorreta');
+  check(frame.contentWindow.innerWidth === width, width + ': viewport antes da carga incorreto');
+  frame.srcdoc = source;
 }
 next();
 </script>
