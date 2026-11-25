@@ -66,3 +66,33 @@ jobs:
       - name: Validar build Docker para Render sem segredos nem Neon
         working-directory: .
         run: docker build -f backend/Dockerfile backend
+      - name: Medir renderer T01 em processos isolados (Linux)
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          for scenario in minimo ativos_maximos signatarios_maximos maximo_combinado; do
+            python tests/fixtures/term_v2/benchmark_spike.py --case "$scenario" --output "$RUNNER_TEMP/term-v2" --repetitions 10
+          done
+      - name: Validar PDF/A-2b com veraPDF independente
+        timeout-minutes: 5
+        env:
+          VERAPDF_IMAGE: verapdf/cli:v1.30.4
+        run: |
+          set -euo pipefail
+          docker pull "$VERAPDF_IMAGE"
+          image_id="$(docker image inspect --format '{{.Id}}' "$VERAPDF_IMAGE")"
+          docker image inspect --format '{{json .RepoDigests}}' "$VERAPDF_IMAGE" | tee "$RUNNER_TEMP/term-v2/verapdf-image.json"
+          for scenario in minimo ativos_maximos signatarios_maximos maximo_combinado; do
+            code=0
+            docker run --rm --network none --cap-drop ALL --security-opt no-new-privileges --memory 512m --cpus 1 --pids-limit 256 -v "$RUNNER_TEMP/term-v2:/data:ro" "$image_id" --flavour 2b --format xml "$scenario.pdf" > "$RUNNER_TEMP/term-v2/$scenario.xml" 2> "$RUNNER_TEMP/term-v2/$scenario.stderr.log" || code=$?
+            status="$(python tests/fixtures/term_v2/verapdf_report.py "$RUNNER_TEMP/term-v2/$scenario.xml" "$code")"
+            printf '%s: %s (exit=%s)\n' "$scenario" "$status" "$code" | tee -a "$RUNNER_TEMP/term-v2/verapdf-status.txt"
+          done
+      - name: Publicar evidencias sinteticas T01
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: gati-term-v2-renderer-evidence
+          path: ${{ runner.temp }}/term-v2/
+          if-no-files-found: ignore
+          retention-days: 30

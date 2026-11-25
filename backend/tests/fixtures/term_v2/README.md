@@ -21,3 +21,11 @@ A partir de backend/, em ambiente de testes descartável Python 3.14:
     python -m pytest tests/test_term_v2_capabilities.py -v
 
 Não instalar no ambiente produtivo. O candidato ReportLab gera texto literal A4 em memória; não é o renderizador definitivo. O SCA do CI audita também o arquivo experimental. Não usar documentos ou credenciais reais. Resultados GREEN e medições ainda pendentes.
+
+## Benchmark Linux e avaliação PDF/A
+
+Em backend/, no ambiente descartável descrito acima, executar cada cenário separadamente:
+
+    python tests/fixtures/term_v2/benchmark_spike.py --case maximo_combinado --output /tmp/gati-term-v2 --repetitions 10
+
+Casos: minimo, ativos_maximos, signatarios_maximos, maximo_combinado. Um aquecimento antes das repetições; RSS em KiB do processo inteiro em Linux. Saídas PDF e JSON. CI usa veraPDF isolado, perfil 2b; preserva XML, stderr e digest da imagem no artefato gati-term-v2-renderer-evidence. Apenas arquivos sintéticos. Não conformidade não permite rotular PDF como PDF/A; falha operacional deve ser corrigida. Medições não são SLA de produção.
