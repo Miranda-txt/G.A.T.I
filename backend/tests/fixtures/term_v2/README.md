@@ -10,3 +10,14 @@ A prova deve evoluir para verificar saída real, paginação, integridade do tex
 rejeição de acesso arbitrário a arquivo e limites de recursos. O canary não prova sozinho isolamento completo de rede.
 Editor, storage e worker ainda exigem seus testes próprios; não simular aprovação ou usar R2/Neon reais.
 Nenhuma biblioteca nova é instalada por este commit. ADR continua em avaliação.
+
+## Executar candidato de laboratório
+
+A partir de backend/, em ambiente de testes descartável Python 3.14:
+
+    python -m pip install -r requirements.lock
+    python -m pip install --only-binary=:all: --no-deps -r tests/fixtures/term_v2/requirements-spike.txt
+    python -m pip check
+    python -m pytest tests/test_term_v2_capabilities.py -v
+
+Não instalar no ambiente produtivo. O candidato ReportLab gera texto literal A4 em memória; não é o renderizador definitivo. O SCA do CI audita também o arquivo experimental. Não usar documentos ou credenciais reais. Resultados GREEN e medições ainda pendentes.

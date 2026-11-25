@@ -1,0 +1,4 @@
+# Dependências exclusivamente do spike T01, não incluir no lock de produção.
+# Pillow==13.0.0 já está no requirements.lock do GATI.
+charset-normalizer==3.5.3
+reportlab==5.1.2

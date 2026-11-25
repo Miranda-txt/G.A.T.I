@@ -62,3 +62,12 @@ Ruling: isolamento por branch remota e verificação pelo CI, em vez de worktree
 **README:** sem alteração necessária neste incremento documental; avaliar novamente quando houver novas dependências, setup ou comandos operacionais.
 
 **Gate:** T01 em andamento. T02 permanece bloqueada até que as capacidades e o ADR sejam efetivamente validados.
+
+## Execução experimental do renderer — T01 (25/11/2026)
+
+- RED observado em [CI do commit bb91461](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45713873959/job/139554874717): 5 falhas por ausência de renderer_spike.py, 185 aprovados e 2 ignorados (192 coletados, 74,69 s). Ruff, Django check, migrations, OpenAPI e pipeline de segurança aprovados. Build e gate de cobertura não executados no RED.
+- O primeiro RED (326941d) foi interrompido pelo Ruff, corrigido em bb91461, sem alteração de assertions.
+- Candidato de laboratório: ReportLab 5.1.2 (BSD, Python >=3.10,<4, Pillow >=13.0.0 e charset-normalizer), conforme [metadados PyPI](https://pypi.org/pypi/reportlab/5.1.2/json). A versão está fixada apenas para o experimento; [notas de segurança 5.1](https://docs.reportlab.com/releases/notes/whats-new-51/) descrevem correções do avaliador de expressões. Evitar inteiramente a avaliação de código e markup. A ausência de advisories conhecidos não prova segurança.
+- Ruling: acrescentar dependências fixadas em requirements-spike.txt, instaladas somente no runner de testes e auditadas no SCA/SAST; não modificar requirements.in, requirements.lock nem Dockerfile. Necessário para testar o candidato sem escolher dependência produtiva. Custo residual: manter instalação adicional enquanto o spike existir e verificar compatibilidade real no CI.
+- Adapter experimental usa Canvas, texto literal, A4, quebra de linhas, paginação, bytes em memória, limite provisório de 20 páginas e 512 caracteres por campo; recusa qualquer recurso não vazio. Não aceita HTML/CSS, imagens, fonte fornecida por usuário ou caminho/URL de recurso. Helvetica WinAnsi permite testar pt-BR, mas não comprova fonte incorporada, PDF/A, acessibilidade, tabelas ricas nem isolamento completo de rede/arquivos. Limites são guardas do laboratório, não limites de produto aprovados.
+- GREEN do renderer, auditoria do candidato, medições de CPU/RSS, inspeção visual, fontes redistribuíveis, PDF/A independente, editor, storage e worker permanecem pendentes. Nenhum requisito de produção ou deploy alterado.
