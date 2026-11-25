@@ -27,8 +27,7 @@ def _document(case):
             for index in range(1, case["assets"] + 1)
         ],
         "signers": [
-            {"nome": f"{DATA['signer_prefix']} {index:02d}"}
-            for index in range(1, case["signers"] + 1)
+            {"nome": f"{DATA['signer_prefix']} {index:02d}"} for index in range(1, case["signers"] + 1)
         ],
         "resources": [],
     }
