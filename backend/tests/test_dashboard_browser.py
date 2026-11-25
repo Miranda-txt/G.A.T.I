@@ -397,7 +397,15 @@ CHECK_LEGACY_SCALING = """(selectors) => {
     const label = 'fonte raiz ' + size;
     const fonts = samples.map(sample => parseFloat(getComputedStyle(sample.element).fontSize));
     if (root.scrollWidth > root.clientWidth + 1) {
-      errors.push(label + ': overflow documento ' + root.scrollWidth + '/' + root.clientWidth);
+      const offenders = [...document.querySelectorAll('body *')].filter(element => {
+        const container = element.closest('.table-responsive, .detail-tabs');
+        if (container && container !== element) return false;
+        const rect = element.getBoundingClientRect();
+        return rect.width > 0 && rect.right > root.clientWidth + 1
+          && getComputedStyle(element).visibility === 'visible';
+      }).slice(0, 10).map(element => element.tagName + '.' + element.className);
+      errors.push(label + ': overflow documento ' + root.scrollWidth + '/' + root.clientWidth
+        + ' [' + offenders.join(', ') + ']');
     }
     for (const element of document.querySelectorAll(
       'main .panel, .public-card, .public-brand, .filter-bar, .wizard-steps, .form-actions, .button-group'

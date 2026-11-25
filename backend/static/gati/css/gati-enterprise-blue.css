@@ -53,15 +53,15 @@ a:hover { color: var(--accent-dark); }
 /* Shell administrativo, logomarca e navegacao. */
 .sidebar { background: var(--sidebar); color: var(--sidebar-text); }
 .brand, .brand:hover { color: var(--surface); }
-.brand small { color: var(--sidebar-text); font-size: 12px; }
+.brand small { color: var(--sidebar-text); font-size: 0.75rem; }
 .brand-icon {
   color: var(--surface);
   background: var(--sidebar-hover);
   border-color: var(--sidebar-text);
 }
 .brand-dot { color: var(--sidebar-text); }
-.nav-caption { color: var(--sidebar-text); font-size: 11px; }
-.sidebar nav > a { color: var(--sidebar-text); font-size: 13px; }
+.nav-caption { color: var(--sidebar-text); font-size: 0.6875rem; }
+.sidebar nav > a { color: var(--sidebar-text); font-size: 0.8125rem; }
 .sidebar nav > a:hover { color: var(--surface); background: var(--sidebar-hover); }
 .sidebar nav > a.selected {
   color: var(--surface);
@@ -75,11 +75,11 @@ a:hover { color: var(--accent-dark); }
 .nav-icon { color: var(--sidebar-text); }
 .sidebar nav > a.selected .nav-icon,
 .sidebar nav > a:hover .nav-icon { color: var(--surface); }
-.sidebar-foot, .sidebar-foot small { color: var(--sidebar-text); font-size: 12px; }
+.sidebar-foot, .sidebar-foot small { color: var(--sidebar-text); font-size: 0.75rem; }
 .sidebar .status-dot { background: var(--sidebar-text); }
 .topbar { background: var(--surface); border-bottom-color: var(--line); }
-.breadcrumb-label, .user-menu small { color: var(--muted); font-size: 12px; }
-.user-menu { font-size: 12px; }
+.breadcrumb-label, .user-menu small { color: var(--muted); font-size: 0.75rem; }
+.user-menu { font-size: 0.75rem; }
 .breadcrumb-label span { color: var(--muted); }
 .avatar {
   background: var(--primary-soft);
@@ -140,23 +140,23 @@ a:hover { color: var(--accent-dark); }
 .btn-dark:hover { color: var(--surface); background: var(--sidebar-hover); border-color: var(--sidebar-hover); }
 
 /* Dashboard: cartoes, paineis, historico e movimentacoes. */
-.eyebrow { color: var(--accent-dark); font-size: 11px; }
+.eyebrow { color: var(--accent-dark); font-size: 0.75rem; }
 .metric-card, .panel, .public-card { background: var(--surface); border-color: var(--line); }
 .metric-card, .metric-card:hover { color: var(--ink); }
 .metric-card:hover { border-color: var(--accent); }
-.metric-top { color: var(--muted); font-size: 12px; }
+.metric-top { color: var(--muted); font-size: 0.75rem; }
 .metric-card > strong { color: var(--ink); }
-.metric-card > small { color: var(--muted); font-size: 12px; }
+.metric-card > small { color: var(--muted); font-size: 0.75rem; }
 .metric-icon { background: var(--primary-soft); color: var(--accent-dark); }
 .metric-card.amber .metric-icon { color: var(--warning); background: var(--paper); }
 .panel-heading h2 { color: var(--ink); }
-.panel-heading p { color: var(--muted); font-size: 12px; }
-.panel-heading > a { font-size: 12px; }
+.panel-heading p { color: var(--muted); font-size: 0.75rem; }
+.panel-heading > a { font-size: 0.75rem; }
 .soft-badge {
   color: var(--accent-dark);
   background: var(--primary-soft);
   border-color: var(--line);
-  font-size: 11px;
+  font-size: 0.6875rem;
 }
 .status-line { color: var(--ink); }
 .status-dot, .timeline-dot { background: var(--accent); }
@@ -167,7 +167,7 @@ a:hover { color: var(--accent-dark); }
 .section-icon { color: var(--accent-dark); }
 .action-row { color: var(--ink); border-top-color: var(--line); }
 .action-row:hover { color: var(--ink); background: var(--paper); }
-.action-row small, .warranty-row small { color: var(--muted); font-size: 12px; }
+.action-row small, .warranty-row small { color: var(--muted); font-size: 0.75rem; }
 .action-row > span:last-child { color: var(--accent-dark); }
 .action-icon {
   color: var(--accent-dark);
@@ -176,7 +176,7 @@ a:hover { color: var(--accent-dark); }
 }
 .action-icon.amber { color: var(--warning); background: var(--paper); border-color: var(--line); }
 .timeline-dot { outline-color: var(--primary-soft); }
-.timeline-item p, .timeline-item small { color: var(--muted); font-size: 12px; }
+.timeline-item p, .timeline-item small { color: var(--muted); font-size: 0.75rem; }
 .warranty-row { border-top-color: var(--line); }
 .warranty-row:hover { background: var(--paper); }
 .warranty-row strong { color: var(--ink); }
@@ -184,11 +184,11 @@ a:hover { color: var(--accent-dark); }
   background: var(--primary-soft);
   border-color: var(--line);
   color: var(--accent-dark);
-  font-size: 11px;
+  font-size: 0.6875rem;
 }
 .badge-status.amber { background: var(--surface); border-color: var(--warning); color: var(--warning); }
-.empty-state { color: var(--muted); font-size: 13px; }
-.empty-state small { color: var(--muted); font-size: 12px; }
+.empty-state { color: var(--muted); font-size: 0.8125rem; }
+.empty-state small { color: var(--muted); font-size: 0.75rem; }
 .empty-icon { color: var(--success); }
 
 /* Listagens, filtros, formularios e detalhes reutilizados. */
@@ -206,19 +206,19 @@ a:hover { color: var(--accent-dark); }
   box-shadow: 0 0 0 3px var(--primary-soft);
 }
 .form-label, .details-grid dd { color: var(--ink); }
-.form-text, .hint-panel { color: var(--muted); font-size: 12px; }
-.clear-filters, .back-link { color: var(--accent-dark); font-size: 12px; }
-.extra-filters { font-size: 12px; }
+.form-text, .hint-panel { color: var(--muted); font-size: 0.75rem; }
+.clear-filters, .back-link { color: var(--accent-dark); font-size: 0.75rem; }
+.extra-filters { font-size: 0.75rem; }
 .required, .field-error, .errorlist { color: var(--danger); }
 .hint-panel { background: var(--paper); border-color: var(--line); }
 .extra-filters > div { border-color: var(--line); box-shadow: none; }
 .table { color: var(--ink); }
 .table > :not(caption) > * > * { color: var(--ink); border-bottom-color: var(--line); }
-.table thead th { color: var(--muted); background: var(--paper); font-size: 11px; }
+.table thead th { color: var(--muted); background: var(--paper); font-size: 0.75rem; }
 .table tbody tr:hover td { background: var(--paper); }
 .record-primary, .table-open, .detail-tabs a { color: var(--accent-dark); }
-.table-footer, .pagination-bar, .details-grid dt { color: var(--muted); font-size: 12px; }
-.wizard-steps li { color: var(--muted); font-size: 12px; }
+.table-footer, .pagination-bar, .details-grid dt { color: var(--muted); font-size: 0.75rem; }
+.wizard-steps li { color: var(--muted); font-size: 0.75rem; }
 .wizard-steps li span { color: var(--ink); border-color: var(--line); background: var(--surface); }
 .wizard-steps li.current { color: var(--accent-dark); }
 .wizard-steps li.current span { color: var(--surface); border-color: var(--accent); background: var(--accent); }
@@ -242,20 +242,20 @@ a:hover { color: var(--accent-dark); }
 }
 
 /* Documentos, assinatura externa e formulario de login. */
-.document-heading { border-bottom-color: var(--sidebar); font-size: 12px; }
+.document-heading { border-bottom-color: var(--sidebar); font-size: 0.75rem; }
 .term-text { color: var(--ink); }
-.hash-box { background: var(--paper); border-color: var(--line); color: var(--muted); font-size: 12px; }
-.hash-box code { color: var(--ink); font-size: 12px; }
-.signature-row small { color: var(--muted); font-size: 12px; }
-.signature-row details { font-size: 12px; }
+.hash-box { background: var(--paper); border-color: var(--line); color: var(--muted); font-size: 0.75rem; }
+.hash-box code { color: var(--ink); font-size: 0.75rem; }
+.signature-row small { color: var(--muted); font-size: 0.75rem; }
+.signature-row details { font-size: 0.75rem; }
 .accept-label input { accent-color: var(--accent); }
 .public-body { background: var(--paper); }
 .public-brand, .public-brand:hover { color: var(--ink); }
 .public-brand small { color: var(--muted); }
 .public-brand .brand-icon { color: var(--surface); background: var(--accent); border-color: var(--accent); }
 .public-card { box-shadow: none; }
-.subtle-link { color: var(--accent-dark); font-size: 12px; }
-.public-foot { color: var(--muted); font-size: 12px; }
+.subtle-link { color: var(--accent-dark); font-size: 0.75rem; }
+.public-foot { color: var(--muted); font-size: 0.75rem; }
 .public-brand .brand-dot { color: var(--accent); }
 .subtle-link:hover { color: var(--accent-dark); }
 .success-symbol { color: var(--success); }
@@ -270,9 +270,9 @@ a:hover { color: var(--accent-dark); }
   color: var(--accent-dark);
   background: var(--primary-soft);
   border-bottom: 1px solid var(--line);
-  font-size: 12px;
+  font-size: 0.75rem;
 }
-.page-footer { color: var(--muted); border-top-color: var(--line); font-size: 12px; }
+.page-footer { color: var(--muted); border-top-color: var(--line); font-size: 0.75rem; }
 
 /* Respeita preferencias de movimento sem alterar a navegacao. */
 @media (prefers-reduced-motion: reduce) {
