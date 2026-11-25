@@ -74,3 +74,21 @@ Matriz mínima proposta: 320, 768, 900/901, 1366 e 1920 px para telas representa
 6. Atualizar registro de implementação e README com escopo real e riscos; preservar catálogo original. Revisar e obter autorização separada para merge/deploy, CI pós-merge e health checks.
 
 **Limites e decisão:** o plano detalhado original DU-UX-DASH-05 não foi localizado na árvore do repositório consultada; esta matriz é uma proposta operacional para a solicitação atual, não reprodução literal daquele plano. O levantamento estático não cobre toda a cascata CSS computada nem todos os templates. Não houve revisão independente nem acesso visual autenticado a staging nesta revisão. Não foram alterados CSS, HTML, dependências, dados, configurações ou workflows. O relatório não fecha o incremento.
+
+## 6. Atualização de situação — 25/11/2026
+
+Baseline de código validada: `5be66ddc483fb0a656eca470b5eb3b878a2e0425` na branch de consolidação. As evidências iniciais acima são históricas. DU-UX-DASH-05.5 aprovado no escopo automatizado em duas rodadas: 187 coletados, 185 aprovados, 2 ignorados (ClamAV real opcional), zero falhas; cobertura 88,77% de linhas e 74,40% de ramificações. Docker, SAST, SCA e segredos aprovados. Consultar [parecer e ressalvas do DU05.5](DU-UX-DASH-05.5_CONTRASTE_E_HOMOLOGACAO.md).
+
+DASH05-08 (P1): encerrado quanto às 28 violações reproduzidas e às amostras automatizadas; a homologação manual e os estados não cobertos permanecem pendentes. Não equivale a conformidade integral WCAG 2.2 AA. Não houve dispensa do aceite manual nem autorização de merge/deploy.
+
+| Subetapa | Situação |
+|---|---|
+| DU-UX-DASH-05.1 — Auditoria e baseline | Concluída |
+| DU-UX-DASH-05.2 — Componentes compartilhados | Concluída |
+| DU-UX-DASH-05.3 — Tipografia e responsividade | Concluída no escopo automatizado |
+| DU-UX-DASH-05.4 — Expansão CDP | Concluída no escopo automatizado; DASH05-06 encerrado nesse escopo |
+| DU-UX-DASH-05.5 — Homologação visual e contraste | Automação aprovada; homologação manual pendente |
+| DU-UX-DASH-05.6 — Documentação final e revisão técnica | Próxima etapa; consolidar evidências, DASH05-07 e riscos residuais |
+| DU-UX-DASH-05.7 — Merge, CI e publicação | Pendente de revisão, decisão sobre homologação manual e autorização separada |
+
+Progresso de execução técnica: 5/7 (71,4%), contando DU05.5 apenas no escopo automatizado, sem ponderação por esforço. Homologação completa de DU05.5 ainda não concluída. A atualização documental não modifica o código validado e não substitui o CI do novo commit de documentação.

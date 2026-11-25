@@ -1,6 +1,6 @@
 # DU-UX-DASH-05.5 — Contraste e homologação visual
 
-Data: 25/11/2026. Estado: RED funcional confirmado; validação GREEN pendente.
+Data: 25/11/2026. Estado: GREEN confirmado em duas rodadas; aprovado no escopo automatizado. Homologação manual pendente.
 
 ## Escopo e método
 
@@ -30,3 +30,12 @@ Encerramento de DASH05-08 exige CI GREEN, registro dos limites e decisão de hom
 [CI de qualidade](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45667477387): 184 aprovados, 1 falha, 2 ignorados; 26 das 28 violações originais não reapareceram. Os dois resíduos correspondem ao checkbox focado fora do viewport (top 902,61/844,61 px; scrollY 0; altura 768 px). Outline sólido 3 px, contraste 6,70:1 e focus-visible verdadeiro em ambos. O teste anterior da Visão Geral passou; não houve timeout CDP nessa rodada. [Segurança](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45667477390) aprovada.
 
 Investigação: o Bootstrap define scroll-behavior: smooth na raiz quando não há preferência por movimento reduzido. Fixture local reduzida, Chrome 144.0.7559.96, pipes e sandbox ativo, reproduziu a corrida nas duas larguras: foco verdadeiro/top 929/scrollY 0 antes da animação e foco verdadeiro/top 444/scrollY 485 após scrollend. Não é evidência de homologação da página real. Ajuste exclusivamente no teste: registrar scrollend antes de focus(), aguardar evento ou limite de 1500 ms para amostra inicialmente fora do viewport e dois frames de pintura; nenhuma rolagem é forçada. Mantidas todas as asserções de contraste, outline, foco e hit-test. Se o controle continuar oculto após a espera, permanece RED. Novo CI necessário. Timeout de inicialização CDP anterior é intermitente e não teve causa raiz demonstrada; não ampliar prazo, ignorar falhas nem desativar sandbox por hipótese.
+
+## Parecer definitivo no escopo automatizado — 25/11/2026
+
+Commit de código aprovado: `5be66ddc483fb0a656eca470b5eb3b878a2e0425`. As duas rodadas completas de CI passaram: 185 aprovados, 0 falhas, 2 ignorados (ClamAV real opcional); duração 73,12 s e 57,77 s; cobertura de linhas 88,77% e de ramificações 74,40%. Ruff (169 arquivos), Django, migrations, collectstatic, OpenAPI, Pytest/CDP, cobertura, Docker e segurança aprovados. Cinco testes CDP passaram em ambas as rodadas. As 28 violações originais não reapareceram, inclusive foco/visibilidade do checkbox em 320 e 1366 px após rolagem nativa. Resultado agregado do teste, não log por amostra. As asserções e os 17 tokens oficiais foram preservados.
+
+- Qualidade: [rodada 1](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45669016137/attempts/1), [rodada 2](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45669016137/attempts/2).
+- Segurança: [rodada 1](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45669016144/attempts/1), [reexecuções individuais](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45669016144/attempts/3). Auditoria [job 139426569328](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45669016144/job/139426569328), segredos [job 139426951994](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45669016144/job/139426951994).
+
+DASH05-08 encerrado no escopo das amostras automatizadas; aceite visual manual permanece pendente, conforme roteiro acima. A causa do timeout intermitente de inicialização CDP não foi determinada; ele não ocorreu nas duas rodadas GREEN. Não houve avaliação humana de capturas autenticadas, leitores de tela, zoom nativo, outros navegadores ou revisão independente. Critérios e estados não testados não são declarados conformes. A revisão documental DU05.6 pode prosseguir; publicação/merge dependem de decisão explícita sobre a homologação manual, revisão e autorização separada. Esta atualização registra as evidências da baseline de código, sem alegar que seu próprio commit documental já foi validado.
