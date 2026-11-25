@@ -3,6 +3,7 @@
 import io
 import json
 import runpy
+from hashlib import sha256
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from threading import Thread
@@ -97,3 +98,81 @@ def test_renderer_no_network():
             server.shutdown()
             thread.join(timeout=5)
     assert outbound_requests == []
+
+
+@pytest.mark.parametrize("case", DATA["cases"], ids=[case["id"] for case in DATA["cases"]])
+def test_renderer_binary_determinism(case):
+    document = _document(case)
+    render = _renderer()
+    first = render(document)
+    assert sha256(first).digest() == sha256(render(document)).digest()
+    document["title"] += " revisado"
+    assert sha256(first).digest() != sha256(render(document)).digest()
+
+
+def test_renderer_maximum_pagination():
+    document = _document(DATA["cases"][-1])
+    reader = PdfReader(io.BytesIO(_renderer()(document)), strict=True)
+    assert 2 <= len(reader.pages) <= 20
+    for page in reader.pages:
+        assert float(page.mediabox.width) == pytest.approx(595.28, abs=0.1)
+        assert float(page.mediabox.height) == pytest.approx(841.89, abs=0.1)
+    text = " ".join(page.extract_text() for page in reader.pages)
+    assert text.count("GATI-SINT-") == 100
+    assert text.count("Signatário sintético") == 10
+
+
+def test_renderer_embeds_fonts():
+    reader = PdfReader(io.BytesIO(_renderer()(_document(DATA["cases"][-1]))), strict=True)
+    for page in reader.pages:
+        fonts = page["/Resources"]["/Font"]
+        assert fonts
+        for ref in fonts.values():
+            font = ref.get_object()
+            descriptor = font.get("/FontDescriptor")
+            assert descriptor is not None, "Fonte sem descritor incorporado"
+            descriptor = descriptor.get_object()
+            assert any(key in descriptor for key in ("/FontFile", "/FontFile2", "/FontFile3"))
+            assert "/ToUnicode" in font
+
+
+@pytest.mark.parametrize(
+    "patch",
+    [
+        {"resources": ["file:///tmp/gati-synthetic-canary.txt"]},
+        {"resources": ["data:text/plain,synthetic"]},
+        {"resources": ["../gati-synthetic-canary.txt"]},
+        {"resources": None},
+        {"assets": []},
+        {"assets": [{"patrimonio": "SINT", "descricao": "Teste"}] * 101},
+        {"signers": []},
+        {"signers": [{"nome": "Sintético"}] * 11},
+        {"title": "a" * 513},
+        {"paragraph": "texto\x00inválido"},
+        {"title": "😀"},
+        {"unexpected": "campo não autorizado"},
+        {"assets": [{"patrimonio": "SINT"}]},
+        {"signers": [{"nome": "Sintético", "extra": "não permitido"}]},
+    ],
+)
+def test_renderer_rejects_invalid_document(patch):
+    document = _document(DATA["cases"][0])
+    document.update(patch)
+    with pytest.raises(ValueError):
+        _renderer()(document)
+
+
+def test_renderer_rejects_missing_field():
+    document = _document(DATA["cases"][0])
+    del document["resources"]
+    with pytest.raises(ValueError):
+        _renderer()(document)
+
+
+def test_renderer_rejects_page_limit():
+    document = _document(DATA["cases"][-1])
+    for asset in document["assets"]:
+        asset["patrimonio"] = ("WW " * 170).strip()
+        asset["descricao"] = ("WW " * 170).strip()
+    with pytest.raises(ValueError, match="páginas"):
+        _renderer()(document)
