@@ -92,3 +92,7 @@ DASH05-08 (P1): encerrado quanto às 28 violações reproduzidas e às amostras 
 | DU-UX-DASH-05.7 — Merge, CI e publicação | Pendente de revisão, decisão sobre homologação manual e autorização separada |
 
 Progresso de execução técnica: 5/7 (71,4%), contando DU05.5 apenas no escopo automatizado, sem ponderação por esforço. Homologação completa de DU05.5 ainda não concluída. A atualização documental não modifica o código validado e não substitui o CI do novo commit de documentação.
+
+## 7. DU-UX-DASH-05.6 — revisão técnica e documentação (25/11/2026)
+
+O CI de `b1d6d59` foi aprovado (185 aprovados, 2 ignorados, zero falhas, 63,29 s). A revisão acumulada desde `6cde964` e a atualização de README, VALIDACAO e registro de implementação estão em [DU05.6](DU-UX-DASH-05.6_REVISAO_TECNICA_FINAL.md). DASH05-07: atualização documental implementada, aguardando CI do próprio commit. DU05.6: revisão primária e documentação concluídas, validação CI pendente. DU05.7: não iniciado. A homologação manual de DU05.5 e a revisão independente não foram dispensadas. Progressão da execução técnica depende da confirmação do novo CI; não confundir com aceite integral do produto.
