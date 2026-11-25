@@ -54,9 +54,7 @@ def render_document(document):
         raise ValueError("Limite de signatários do spike")
 
     blocks = [_plain_text(document["title"]), _plain_text(document["paragraph"])]
-    blocks.extend(
-        f"{_plain_text(asset['patrimonio'])} {_plain_text(asset['descricao'])}" for asset in assets
-    )
+    blocks.extend(f"{_plain_text(asset['patrimonio'])} {_plain_text(asset['descricao'])}" for asset in assets)
     blocks.extend(_plain_text(signer["nome"]) for signer in signers)
 
     width, height = A4
