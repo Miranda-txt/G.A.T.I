@@ -12,6 +12,7 @@ from contextlib import contextmanager
 from pathlib import Path
 
 import pytest
+from django.utils import timezone
 
 STATIC = Path(__file__).resolve().parents[1] / "static"
 WIDTHS = (320, 375, 683, 768, 900, 901, 910, 1024, 1093, 1366, 1920)
@@ -306,3 +307,71 @@ def test_dashboard_chromium_reflow_font_scaling_and_keyboard(domain, client, tmp
 
         with dashboard_page(cdp, html, 768) as session:
             check_bidirectional_resize(cdp, session)
+
+
+# Testa o HTML real dos componentes sem enviar requisicoes ao ambiente publicado.
+CHECK_SHARED = """(kind) => {
+  const errors = [];
+  const check = (ok, message) => { if (!ok) errors.push(message); };
+  if (kind === 'users') {
+    const table = document.querySelector('main table');
+    const wrapper = table.closest('.table-responsive');
+    check(!!wrapper, 'tabela sem regiao responsiva');
+    if (wrapper) {
+      check(wrapper.getAttribute('role') === 'region' && !!wrapper.getAttribute('aria-label'),
+        'regiao de tabela sem nome acessivel');
+      wrapper.focus();
+      check(document.activeElement === wrapper, 'regiao de tabela nao focavel');
+      if (wrapper.scrollWidth > wrapper.clientWidth) {
+        wrapper.scrollLeft = 40;
+        check(wrapper.scrollLeft > 0, 'rolagem horizontal interna indisponivel');
+      }
+    }
+    check(document.documentElement.scrollWidth <= innerWidth + 1, 'overflow do documento');
+  } else if (kind === 'empty') {
+    const table = document.querySelector('#records table');
+    check(table.tBodies[0].rows[0].cells[0].colSpan === table.tHead.rows[0].cells.length,
+      'colspan da linha vazia diverge do cabecalho');
+  } else if (kind === 'wizard') {
+    const current = document.querySelectorAll('.wizard-steps [aria-current="step"]');
+    check(current.length === 1 && current[0].classList.contains('current'),
+      'etapa atual sem semantica');
+    const field = document.querySelector('[name="ativos"]');
+    const ids = (field.getAttribute('aria-describedby') || '').split(/\\s+/).filter(Boolean);
+    check(field.getAttribute('aria-invalid') === 'true', 'campo invalido sem estado');
+    check(ids.length === 2 && ids.every(id => !!document.getElementById(id)),
+      'ajuda ou erro sem destino');
+  }
+  return errors;
+}"""
+
+
+def test_shared_components_chromium(domain, client, tmp_path):
+    browser = shutil.which("google-chrome") or shutil.which("chromium") or shutil.which("chromium-browser")
+    if browser is None:
+        if os.environ.get("GITHUB_ACTIONS") == "true":
+            pytest.fail("Chromium/Chrome obrigatorio no CI de acessibilidade.")
+        pytest.skip("Chromium/Chrome nao instalado no ambiente local.")
+    client.force_login(domain.admin)
+    domain.outsider.username = "u" * 150
+    domain.outsider.first_name = "N" * 150
+    domain.outsider.save(update_fields=["username", "first_name"])
+    users = client.get("/usuarios/")
+    empty = client.get("/cadastros/ativos/?q=SEM-REGISTROS-TESTE-05")
+    assert client.post(
+        "/processos/novo/1/",
+        {"tipo": "ENTREGA", "localizacao": domain.destination.pk, "data": timezone.localdate().isoformat()},
+    ).status_code == 302
+    assert client.post("/processos/novo/2/", {"responsavel": domain.person.pk}).status_code == 302
+    wizard = client.post("/processos/novo/3/", {})
+    pages = [("users", users), ("empty", empty), ("wizard", wizard)]
+    errors = []
+    with browser_session(browser, tmp_path / "shared-browser-profile") as cdp:
+        for kind, response in pages:
+            assert response.status_code == 200, kind
+            html = _inline_assets(response.content.decode())
+            for width in (320, 768, 1366):
+                with dashboard_page(cdp, html, width) as session:
+                    outcome = cdp.evaluate(session, f"({CHECK_SHARED})({json.dumps(kind)})")
+                    errors.extend(f"{kind}/{width}: {error}" for error in outcome)
+    assert not errors, errors
