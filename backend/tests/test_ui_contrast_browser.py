@@ -97,6 +97,31 @@ def verify(cdp, session, selector, mode, errors):
         errors.append(f"{selector} [{mode}]: {result}")
 
 
+# Aguarda a rolagem nativa iniciada por focus(), sem mover o viewport pelo teste.
+# O prazo e independente do resultado: se o elemento continuar oculto, verify falha.
+FOCUS_AFTER_SCROLL = """async (selector) => {
+  const el = document.querySelector(selector);
+  const rect = el.getBoundingClientRect();
+  const outside = rect.top < 0 || rect.bottom > innerHeight ||
+    rect.left < 0 || rect.right > innerWidth;
+  let settled = Promise.resolve();
+  if (outside) {
+    settled = new Promise(resolve => {
+      const finish = () => {
+        clearTimeout(timer);
+        document.removeEventListener('scrollend', finish, true);
+        resolve();
+      };
+      const timer = setTimeout(finish, 1500);
+      document.addEventListener('scrollend', finish, true);
+    });
+  }
+  el.focus();
+  await settled;
+  await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+}"""
+
+
 def key_tab(cdp, session):
     for event in ("keyDown", "keyUp"):
         cdp.call(
@@ -209,7 +234,7 @@ def test_rendered_contrast_and_focus(domain, client, tmp_path):
                     for selector in focuses:
                         if width == 320 and selector.startswith(".sidebar"):
                             continue
-                        cdp.evaluate(session, f"document.querySelector({json.dumps(selector)}).focus()")
+                        cdp.evaluate(session, f"({FOCUS_AFTER_SCROLL})({json.dumps(selector)})")
                         verify(cdp, session, selector, "focus", failures)
                     for selector in states:
                         if width == 320 and selector.startswith(".sidebar"):

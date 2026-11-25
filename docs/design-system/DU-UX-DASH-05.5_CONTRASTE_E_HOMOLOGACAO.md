@@ -24,3 +24,9 @@ Não houve acesso visual autenticado à homologação nem inspeção humana de s
 - Revisar impressões dos termos, imagens/gradientes, ícones significativos e contraste de todos os estados não representados nos testes. Não usar dados reais, documentos, hashes de produção ou credenciais nas evidências.
 
 Encerramento de DASH05-08 exige CI GREEN, registro dos limites e decisão de homologação manual. A publicação e merge em main permanecem sujeitos a autorização separada.
+
+## Revalidação de f74a039 e sincronização do CDP
+
+[CI de qualidade](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45667477387): 184 aprovados, 1 falha, 2 ignorados; 26 das 28 violações originais não reapareceram. Os dois resíduos correspondem ao checkbox focado fora do viewport (top 902,61/844,61 px; scrollY 0; altura 768 px). Outline sólido 3 px, contraste 6,70:1 e focus-visible verdadeiro em ambos. O teste anterior da Visão Geral passou; não houve timeout CDP nessa rodada. [Segurança](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45667477390) aprovada.
+
+Investigação: o Bootstrap define scroll-behavior: smooth na raiz quando não há preferência por movimento reduzido. Fixture local reduzida, Chrome 144.0.7559.96, pipes e sandbox ativo, reproduziu a corrida nas duas larguras: foco verdadeiro/top 929/scrollY 0 antes da animação e foco verdadeiro/top 444/scrollY 485 após scrollend. Não é evidência de homologação da página real. Ajuste exclusivamente no teste: registrar scrollend antes de focus(), aguardar evento ou limite de 1500 ms para amostra inicialmente fora do viewport e dois frames de pintura; nenhuma rolagem é forçada. Mantidas todas as asserções de contraste, outline, foco e hit-test. Se o controle continuar oculto após a espera, permanece RED. Novo CI necessário. Timeout de inicialização CDP anterior é intermitente e não teve causa raiz demonstrada; não ampliar prazo, ignorar falhas nem desativar sandbox por hipótese.
