@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static l10n %}
 {% block extra_css %}<link rel="stylesheet" href="{% static 'gati/css/gati-dashboard-v2.css' %}">{% endblock %}
 {% block content %}
 <div class="dashboard-v2">
@@ -48,11 +48,11 @@
         <span class="soft-badge">{{ total }} ativo{{ total|pluralize }}</span>
       </div>
       {% if statuses %}
-        <ul class="status-list">
+        <ul class="status-list" role="list">
           {% for status in statuses %}
             <li>
               <div class="status-line"><span>{{ status.status__nome }}</span><strong>{{ status.total }}</strong></div>
-              <progress value="{{ status.total }}" max="{{ total|default:1 }}" aria-label="{{ status.status__nome }}"></progress>
+              <progress value="{{ status.total|unlocalize }}" max="{{ total|default:1|unlocalize }}" aria-label="{{ status.status__nome }}" aria-valuetext="{{ status.total }} de {{ total }} ativo{{ total|pluralize }}"></progress>
             </li>
           {% endfor %}
         </ul>
@@ -95,7 +95,7 @@
         <a class="dashboard-text-link" href="/processos/">Ver operações {% include 'components/ui_icon.html' with name='arrow-right' only %}</a>
       </div>
       {% if history %}
-        <ul class="timeline">
+        <ul class="timeline" role="list">
           {% for event in history %}
             <li class="timeline-item">
               <span class="timeline-dot" aria-hidden="true"></span>
