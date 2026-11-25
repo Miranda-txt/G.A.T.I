@@ -358,10 +358,17 @@ def test_shared_components_chromium(domain, client, tmp_path):
     domain.outsider.save(update_fields=["username", "first_name"])
     users = client.get("/usuarios/")
     empty = client.get("/cadastros/ativos/?q=SEM-REGISTROS-TESTE-05")
-    assert client.post(
-        "/processos/novo/1/",
-        {"tipo": "ENTREGA", "localizacao": domain.destination.pk, "data": timezone.localdate().isoformat()},
-    ).status_code == 302
+    assert (
+        client.post(
+            "/processos/novo/1/",
+            {
+                "tipo": "ENTREGA",
+                "localizacao": domain.destination.pk,
+                "data": timezone.localdate().isoformat(),
+            },
+        ).status_code
+        == 302
+    )
     assert client.post("/processos/novo/2/", {"responsavel": domain.person.pk}).status_code == 302
     wizard = client.post("/processos/novo/3/", {})
     pages = [("users", users), ("empty", empty), ("wizard", wizard)]
