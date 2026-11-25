@@ -53,3 +53,17 @@ A mudança não introduz API, execução de JavaScript, armazenamento, autentica
 **Status do commit:** autorizado explicitamente pelo responsável em 23/11/2026, com a publicação no repositório separada da homologação e do deploy. Eventuais correções seguirão em branches `fix/...`.
 
 **Mensagem do commit autorizado:** `style(ui): aplica paleta corporativa Enterprise Blue`.
+
+## Evolução consolidada — 25/11/2026
+
+O registro de 23/11 acima descreve a decisão original, inclusive a ausência de alterações em gati.css e README naquela etapa. Desde então DU01–DU04 foram publicados na versão `6cde964`; DU05.1–DU05.5 estão na branch de consolidação, não publicados. A baseline `b1d6d59` passou no [CI de qualidade](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45677419470) e [segurança](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45677419565): 185 aprovados, 2 ignorados, zero falhas.
+
+- A ordem de assets permanece Bootstrap local, gati.css, Enterprise Blue e, nas páginas aplicáveis, shell/dashboard específicos.
+- Os 17 tokens e seus valores oficiais foram preservados; a lista de cores literais de gati.css é idêntica à de 6cde964. O legado agora usa fontes relativas e reflow seletivo; filtros avançados abertos integram o fluxo normal; regiões de tabelas contêm o overflow e recebem foco.
+- O tema usa tokens existentes para bordas essenciais e foco visível. Foco branco permanece em superfície escura e azul na área pública; divisórias decorativas conservam line. A correção de contraste não introduz nova cor de catálogo.
+- Templates compartilhados associam ajuda/erros, calculam colspan conforme colunas e expõem aria-current no wizard. O widget de recuperação de senha recebe classe form-control sem alterar o fluxo de validação/throttle.
+- Os testes CDP ampliados abrangem amostras representativas e medição de contraste computado. O catálogo original permanece histórico e inalterado; a homologação visual humana continua pendente.
+
+O rollback histórico dos dois templates não é o procedimento do DU05: agora o incremento inclui CSS legado, templates, widget e testes. Em caso de futura publicação autorizada, usar a referência publicada anterior e procedimento de deploy/rollback validado, sem reescrever histórico; DU05.7 deve confirmar o SHA e a prontidão. Nenhuma migration nova neste diff. Não realizar rollback de banco por uma alteração visual sem necessidade demonstrada.
+
+Consultar [auditoria e roadmap](DU-UX-DASH-05_AUDITORIA_E_HOMOLOGACAO.md), [parecer de contraste](DU-UX-DASH-05.5_CONTRASTE_E_HOMOLOGACAO.md) e [revisão final](DU-UX-DASH-05.6_REVISAO_TECNICA_FINAL.md). README e VALIDACAO foram atualizados no DU05.6, preservando as evidências iniciais.

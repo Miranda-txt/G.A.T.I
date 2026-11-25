@@ -30,6 +30,26 @@ Render foi criado automaticamente.**
 Consulte [docs/RENDER_HOMOLOGACAO.md](docs/RENDER_HOMOLOGACAO.md) para
 procedimento, riscos, testes e rollback. Nao use dados reais nesta fase.
 
+## Modernização visual — estado em 25/11/2026
+
+A versão de homologação `6cde964` (PR #14) inclui DU-UX-DASH-01 a DU-UX-DASH-04 e está publicada no Render. O CI pós-merge registrou 176 testes aprovados, 2 ignorados (ClamAV real opcional), zero falhas; cobertura de 88,18% de linhas e 73,34% de ramificações. As seções anteriores registram o histórico de preparação, não o estado atual do deploy. A validação visual de todas as telas ainda está em andamento.
+
+- [Catálogo oficial Enterprise Blue](docs/design-system/GATI_Paleta_Cores_Enterprise_Blue_v1.0.0.md)
+- [DU-UX-DASH-05 — auditoria e matriz de homologação](docs/design-system/DU-UX-DASH-05_AUDITORIA_E_HOMOLOGACAO.md)
+
+### Consolidação DU-UX-DASH-05 — atualização de 25/11/2026
+
+A versão publicada continua sendo `6cde964`. A branch `feat/gati-dashboard-consolidation` contém os incrementos DU05.1 a DU05.5, com baseline de código `5be66dd` (duas rodadas GREEN) e revisão documental `b1d6d59` (CI GREEN: 185 aprovados, zero falhas, 2 ignorados por ClamAV real opcional; cobertura 88,77% de linhas e 74,40% de ramificações). Os 17 tokens oficiais continuam inalterados. O DU05.6 consolida os registros; o CI desta atualização ainda deve ser confirmado.
+
+Foram adicionadas regressões CDP de componentes compartilhados, fontes relativas, reflow, filtros avançados, fluxos administrativos/públicos e contraste/foco. A homologação manual (zoom nativo, teclado real, leitor de tela, outros navegadores e impressão) permanece pendente. Não há declaração integral de conformidade WCAG 2.2 AA nem autorização de publicação do DU05.
+
+- [Validação atual e histórico](docs/VALIDACAO.md)
+- [Registro de implementação Enterprise Blue](docs/design-system/IMPLEMENTACAO_ENTERPRISE_BLUE.md)
+- [Parecer de contraste](docs/design-system/DU-UX-DASH-05.5_CONTRASTE_E_HOMOLOGACAO.md)
+- [Revisão técnica final e riscos residuais DU05.6](docs/design-system/DU-UX-DASH-05.6_REVISAO_TECNICA_FINAL.md)
+
+Para reprodução local dos testes CDP, o harness atual utiliza Chromium/Chrome, bash e pipes POSIX. Execute em ambiente Linux compatível; no CI, a ausência de navegador é erro. A portabilidade nativa Windows desse harness não foi validada. Não use credenciais/dados de homologação nos testes nem desative o sandbox.
+
 ## Instalação em outro computador
 
 Requisitos: Python 3.14, PostgreSQL 18 e ClamAV 1.4 LTS atualizado. Docker Desktop é uma alternativa para os dois serviços locais. Reserve memória para o banco e para o ClamAV.

@@ -12,6 +12,7 @@ from contextlib import contextmanager
 from pathlib import Path
 
 import pytest
+from django.utils import timezone
 
 STATIC = Path(__file__).resolve().parents[1] / "static"
 WIDTHS = (320, 375, 683, 768, 900, 901, 910, 1024, 1093, 1366, 1920)
@@ -306,3 +307,290 @@ def test_dashboard_chromium_reflow_font_scaling_and_keyboard(domain, client, tmp
 
         with dashboard_page(cdp, html, 768) as session:
             check_bidirectional_resize(cdp, session)
+
+
+# Testa o HTML real dos componentes sem enviar requisicoes ao ambiente publicado.
+CHECK_SHARED = """(kind) => {
+  const errors = [];
+  const check = (ok, message) => { if (!ok) errors.push(message); };
+  if (kind === 'users') {
+    const table = document.querySelector('main table');
+    const wrapper = table.closest('.table-responsive');
+    check(!!wrapper, 'tabela sem regiao responsiva');
+    if (wrapper) {
+      check(wrapper.getAttribute('role') === 'region' && !!wrapper.getAttribute('aria-label'),
+        'regiao de tabela sem nome acessivel');
+      wrapper.focus();
+      check(document.activeElement === wrapper, 'regiao de tabela nao focavel');
+      if (wrapper.scrollWidth > wrapper.clientWidth) {
+        wrapper.scrollLeft = 40;
+        check(wrapper.scrollLeft > 0, 'rolagem horizontal interna indisponivel');
+      }
+    }
+    check(document.documentElement.scrollWidth <= innerWidth + 1, 'overflow do documento');
+  } else if (kind === 'empty') {
+    const table = document.querySelector('#records table');
+    check(table.tBodies[0].rows[0].cells[0].colSpan === table.tHead.rows[0].cells.length,
+      'colspan da linha vazia diverge do cabecalho');
+  } else if (kind === 'wizard') {
+    const current = document.querySelectorAll('.wizard-steps [aria-current="step"]');
+    check(current.length === 1 && current[0].classList.contains('current'),
+      'etapa atual sem semantica');
+    const field = document.querySelector('[name="ativos"]');
+    const ids = (field.getAttribute('aria-describedby') || '').split(/\\s+/).filter(Boolean);
+    check(field.getAttribute('aria-invalid') === 'true', 'campo invalido sem estado');
+    check(ids.length === 2 && ids.every(id => !!document.getElementById(id)),
+      'ajuda ou erro sem destino');
+  }
+  return errors;
+}"""
+
+
+def test_shared_components_chromium(domain, client, tmp_path):
+    browser = shutil.which("google-chrome") or shutil.which("chromium") or shutil.which("chromium-browser")
+    if browser is None:
+        if os.environ.get("GITHUB_ACTIONS") == "true":
+            pytest.fail("Chromium/Chrome obrigatorio no CI de acessibilidade.")
+        pytest.skip("Chromium/Chrome nao instalado no ambiente local.")
+    client.force_login(domain.admin)
+    domain.outsider.username = "u" * 150
+    domain.outsider.first_name = "N" * 150
+    domain.outsider.save(update_fields=["username", "first_name"])
+    users = client.get("/usuarios/")
+    empty = client.get("/cadastros/ativos/?q=SEM-REGISTROS-TESTE-05")
+    assert (
+        client.post(
+            "/processos/novo/1/",
+            {
+                "tipo": "ENTREGA",
+                "localizacao": domain.destination.pk,
+                "data": timezone.localdate().isoformat(),
+            },
+        ).status_code
+        == 302
+    )
+    assert client.post("/processos/novo/2/", {"responsavel": domain.person.pk}).status_code == 302
+    wizard = client.post("/processos/novo/3/", {})
+    pages = [("users", users), ("empty", empty), ("wizard", wizard)]
+    errors = []
+    with browser_session(browser, tmp_path / "shared-browser-profile") as cdp:
+        for kind, response in pages:
+            assert response.status_code == 200, kind
+            html = _inline_assets(response.content.decode())
+            for width in (320, 768, 1366):
+                with dashboard_page(cdp, html, width) as session:
+                    outcome = cdp.evaluate(session, f"({CHECK_SHARED})({json.dumps(kind)})")
+                    errors.extend(f"{kind}/{width}: {error}" for error in outcome)
+    assert not errors, errors
+
+
+# DASH05-05: mede a cascata real em telas publicas e administrativas.
+# A escala da fonte raiz simula a preferencia de tamanho de texto, nao zoom nativo.
+CHECK_LEGACY_SCALING = """(selectors) => {
+  const root = document.documentElement;
+  const errors = [];
+  const samples = selectors.map(selector => ({selector, element: document.querySelector(selector)}));
+  const missing = samples.filter(sample => !sample.element).map(sample => sample.selector);
+  if (missing.length) return ['seletores ausentes: ' + missing.join(', ')];
+  function measure(size) {
+    root.style.fontSize = size + 'px';
+    const label = 'fonte raiz ' + size;
+    const fonts = samples.map(sample => parseFloat(getComputedStyle(sample.element).fontSize));
+    if (root.scrollWidth > root.clientWidth + 1) {
+      const offenders = [...document.querySelectorAll('body *')].filter(element => {
+        const container = element.closest('.table-responsive, .detail-tabs');
+        if (container && container !== element) return false;
+        const rect = element.getBoundingClientRect();
+        return rect.width > 0 && rect.right > root.clientWidth + 1
+          && getComputedStyle(element).visibility === 'visible';
+      }).slice(0, 10).map(element => element.tagName + '.' + element.className);
+      errors.push(label + ': overflow documento ' + root.scrollWidth + '/' + root.clientWidth
+        + ' [' + offenders.join(', ') + ']');
+    }
+    for (const element of document.querySelectorAll(
+      'main .panel, .public-card, .public-brand, .filter-bar, .wizard-steps, .form-actions, .button-group'
+    )) {
+      if (element.clientWidth && element.scrollWidth > element.clientWidth + 1) {
+        errors.push(label + ': overflow ' + element.className + ' '
+          + element.scrollWidth + '/' + element.clientWidth);
+      }
+    }
+    return fonts;
+  }
+  const normal = measure(16);
+  const large = measure(32);
+  for (const [index, sample] of samples.entries()) {
+    if (large[index] < normal[index] * 1.99) {
+      errors.push(sample.selector + ': fonte nao escala ' + normal[index] + ' -> ' + large[index]);
+    }
+  }
+  root.style.fontSize = '16px';
+  return errors;
+}"""
+
+
+# DASH05-05: valida o disclosure nativo de filtros e isola a origem de overflow.
+CHECK_INVENTORY_FILTERS = """() => {
+  const root = document.documentElement;
+  const form = document.querySelector('.filter-bar');
+  const details = form.querySelector('.extra-filters');
+  const summary = details.querySelector('summary');
+  const panel = details.querySelector('div');
+  const selects = [...panel.querySelectorAll('select')];
+  const errors = [];
+  const diagnostics = [];
+  function box(element) {
+    const rect = element.getBoundingClientRect();
+    return {left: Math.round(rect.left), right: Math.round(rect.right),
+      top: Math.round(rect.top), bottom: Math.round(rect.bottom),
+      width: element.clientWidth, scroll: element.scrollWidth,
+      position: getComputedStyle(element).position};
+  }
+  function snapshot(size, state) {
+    const data = {size, state, width: root.clientWidth, scroll: root.scrollWidth,
+      form: box(form), details: box(details), panel: box(panel)};
+    diagnostics.push(data);
+    if (root.scrollWidth > root.clientWidth + 1) errors.push(size + '/' + state + ': overflow documento');
+    if (form.scrollWidth > form.clientWidth + 1) errors.push(size + '/' + state + ': overflow filtros');
+    if (details.open) {
+      const bounds = form.getBoundingClientRect();
+      for (const element of [panel, ...selects]) {
+        const rect = element.getBoundingClientRect();
+        if (rect.width <= 0 || rect.height <= 0 || rect.left < bounds.left - 1
+            || rect.right > bounds.right + 1 || rect.top < bounds.top - 1
+            || rect.bottom > bounds.bottom + 1) {
+          errors.push(size + '/' + state + ': controle fora dos filtros: ' + (element.name || 'painel'));
+        }
+      }
+    }
+    return data;
+  }
+  function isolate(element, property, value) {
+    const previous = element.style.getPropertyValue(property);
+    const priority = element.style.getPropertyPriority(property);
+    element.style.setProperty(property, value, 'important');
+    const scroll = root.scrollWidth;
+    if (previous) element.style.setProperty(property, previous, priority);
+    else element.style.removeProperty(property);
+    return scroll;
+  }
+  for (const size of [16, 32]) {
+    root.style.fontSize = size + 'px';
+    if (details.open) summary.click();
+    summary.focus({preventScroll: true});
+    if (document.activeElement !== summary) errors.push(size + ': summary nao focavel');
+    const initial = errors.length;
+    const closed = snapshot(size, 'closed');
+    selects[0].focus({preventScroll: true});
+    if (document.activeElement === selects[0]) errors.push(size + ': filtro fechado focavel');
+    summary.focus({preventScroll: true});
+    summary.click();
+    if (!details.open) errors.push(size + ': summary nao abriu filtros');
+    const opened = snapshot(size, 'open');
+    for (const select of selects) {
+      select.focus({preventScroll: true});
+      if (document.activeElement !== select) errors.push(size + ': filtro nao focavel: ' + select.name);
+    }
+    const guarantee = selects.find(select => select.name === 'garantia');
+    guarantee.value = '30';
+    if (new FormData(form).get('garantia') !== '30') errors.push(size + ': filtro nao enviado no form');
+    summary.focus({preventScroll: true});
+    summary.click();
+    if (details.open) errors.push(size + ': summary nao fechou filtros');
+    snapshot(size, 'reclosed');
+    if (new FormData(form).get('garantia') !== '30') errors.push(size + ': filtro perdido ao fechar');
+    guarantee.value = '';
+    if (errors.length > initial) {
+      // Ablacoes temporarias APENAS para diagnostico, depois das assercoes reais.
+      // Nenhuma delas pode transformar um resultado reprovado em aprovado.
+      const probe = () => ({
+        withoutDetails: isolate(details, 'display', 'none'),
+        withoutPanel: isolate(panel, 'display', 'none'),
+        staticPanel: isolate(panel, 'position', 'static'),
+        withoutRecords: isolate(document.getElementById('records'), 'display', 'none'),
+        withoutSearchLabel: isolate(form.querySelector('.search-field label'), 'display', 'none')
+      });
+      const closedProbe = probe();
+      summary.click();
+      const openProbe = probe();
+      summary.click();
+      errors.push(size + ': DIAGNOSTICO ' + JSON.stringify({
+        closed, opened, closedProbe, openProbe, closedAfterRestore: root.scrollWidth
+      }));
+    }
+  }
+  root.style.fontSize = '16px';
+  return errors;
+}"""
+
+
+def test_legacy_typography_reflows_at_double_root_font_size(domain, client, tmp_path):
+    browser = shutil.which("google-chrome") or shutil.which("chromium") or shutil.which("chromium-browser")
+    if browser is None:
+        if os.environ.get("GITHUB_ACTIONS") == "true":
+            pytest.fail("Chromium/Chrome obrigatorio no CI de acessibilidade.")
+        pytest.skip("Chromium/Chrome nao instalado no ambiente local.")
+
+    login = client.get("/entrar/")
+    client.force_login(domain.admin)
+    pages = [
+        (
+            "login",
+            login,
+            [
+                ".public-brand small",
+                ".public-card h1",
+                ".form-label",
+                ".form-control",
+                ".btn",
+                ".public-foot",
+            ],
+        ),
+        (
+            "inventory",
+            client.get("/cadastros/ativos/"),
+            [
+                "main h1",
+                ".filter-bar .form-control",
+                ".filter-bar .btn",
+                ".table th",
+                ".table td",
+                ".table-footer",
+            ],
+        ),
+        (
+            "form",
+            client.post("/cadastros/ativos/novo/", {"versao": 1}),
+            ["main h1", ".form-label", ".form-control", ".field-error", ".form-actions .btn"],
+        ),
+        (
+            "detail",
+            client.get(f"/cadastros/ativos/{domain.asset.pk}/"),
+            ["main h1", ".detail-tabs a", ".details-grid dt", ".details-grid dd", ".detail-section h2"],
+        ),
+        (
+            "wizard",
+            client.get("/processos/novo/1/"),
+            [
+                "main h1",
+                ".wizard-steps li",
+                ".form-panel h2",
+                ".form-label",
+                ".form-select",
+                ".form-actions .btn",
+            ],
+        ),
+    ]
+    errors = []
+    with browser_session(browser, tmp_path / "typography-browser-profile") as cdp:
+        for kind, response, selectors in pages:
+            assert response.status_code == 200, kind
+            html = _inline_assets(response.content.decode())
+            for width in (320, 768, 900, 901, 1366, 1920):
+                with dashboard_page(cdp, html, width) as session:
+                    outcome = cdp.evaluate(session, f"({CHECK_LEGACY_SCALING})({json.dumps(selectors)})")
+                    errors.extend(f"{kind}/{width}: {error}" for error in outcome)
+                    if kind == "inventory":
+                        outcome = cdp.evaluate(session, f"({CHECK_INVENTORY_FILTERS})()")
+                        errors.extend(f"{kind}/{width}: {error}" for error in outcome)
+    assert not errors, "\n".join(errors)
