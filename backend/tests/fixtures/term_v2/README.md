@@ -1,0 +1,12 @@
+# Fixtures e provas experimentais — T01
+
+Dados sintéticos exclusivamente destinados a testes, sem CPF, e-mail, credenciais ou documentos reais.
+As quatro combinações cobrem 1/100 ativos e 1/10 signatários, incluindo o máximo combinado.
+
+O arquivo `test_term_v2_capabilities.py` inicia o gate de renderização em português e rejeição de recurso remoto.
+O contrato de laboratório `renderer_spike.py: render_document(document) -> bytes` é provisório, não a API de produção.
+A ausência do candidato é uma falha explícita de capacidade (não uma prova de segurança nem falha comportamental do candidato).
+A prova deve evoluir para verificar saída real, paginação, integridade do texto, ausência de requisições ao canary de loopback,
+rejeição de acesso arbitrário a arquivo e limites de recursos. O canary não prova sozinho isolamento completo de rede.
+Editor, storage e worker ainda exigem seus testes próprios; não simular aprovação ou usar R2/Neon reais.
+Nenhuma biblioteca nova é instalada por este commit. ADR continua em avaliação.

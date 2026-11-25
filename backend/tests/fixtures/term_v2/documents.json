@@ -1,0 +1,30 @@
+{
+  "description": "Dados integralmente sintéticos. Estrutura exclusiva dos spikes da T01, não é schema de autoria definitivo.",
+  "title": "Termo de responsabilidade — homologação",
+  "paragraph": "Conferência de patrimônio, condições e acessórios. Informação sintética para validação de acentuação, ç e ã.",
+  "cases": [
+    {
+      "id": "minimo",
+      "assets": 1,
+      "signers": 1
+    },
+    {
+      "id": "ativos_maximos",
+      "assets": 100,
+      "signers": 1
+    },
+    {
+      "id": "signatarios_maximos",
+      "assets": 1,
+      "signers": 10
+    },
+    {
+      "id": "maximo_combinado",
+      "assets": 100,
+      "signers": 10
+    }
+  ],
+  "asset_prefix": "GATI-SINT",
+  "asset_description": "Equipamento de teste — condição regular",
+  "signer_prefix": "Signatário sintético"
+}
