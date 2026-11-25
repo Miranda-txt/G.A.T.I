@@ -434,7 +434,14 @@ def test_legacy_typography_reflows_at_double_root_font_size(domain, client, tmp_
         (
             "login",
             login,
-            [".public-brand small", ".public-card h1", ".form-label", ".form-control", ".btn", ".public-foot"],
+            [
+                ".public-brand small",
+                ".public-card h1",
+                ".form-label",
+                ".form-control",
+                ".btn",
+                ".public-foot",
+            ],
         ),
         (
             "inventory",
