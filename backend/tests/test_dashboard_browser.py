@@ -429,6 +429,101 @@ CHECK_LEGACY_SCALING = """(selectors) => {
 }"""
 
 
+# DASH05-05: valida o disclosure nativo de filtros e isola a origem de overflow.
+CHECK_INVENTORY_FILTERS = """() => {
+  const root = document.documentElement;
+  const form = document.querySelector('.filter-bar');
+  const details = form.querySelector('.extra-filters');
+  const summary = details.querySelector('summary');
+  const panel = details.querySelector('div');
+  const selects = [...panel.querySelectorAll('select')];
+  const errors = [];
+  const diagnostics = [];
+  function box(element) {
+    const rect = element.getBoundingClientRect();
+    return {left: Math.round(rect.left), right: Math.round(rect.right),
+      top: Math.round(rect.top), bottom: Math.round(rect.bottom),
+      width: element.clientWidth, scroll: element.scrollWidth,
+      position: getComputedStyle(element).position};
+  }
+  function snapshot(size, state) {
+    const data = {size, state, width: root.clientWidth, scroll: root.scrollWidth,
+      form: box(form), details: box(details), panel: box(panel)};
+    diagnostics.push(data);
+    if (root.scrollWidth > root.clientWidth + 1) errors.push(size + '/' + state + ': overflow documento');
+    if (form.scrollWidth > form.clientWidth + 1) errors.push(size + '/' + state + ': overflow filtros');
+    if (details.open) {
+      const bounds = form.getBoundingClientRect();
+      for (const element of [panel, ...selects]) {
+        const rect = element.getBoundingClientRect();
+        if (rect.width <= 0 || rect.height <= 0 || rect.left < bounds.left - 1
+            || rect.right > bounds.right + 1 || rect.top < bounds.top - 1
+            || rect.bottom > bounds.bottom + 1) {
+          errors.push(size + '/' + state + ': controle fora dos filtros: ' + (element.name || 'painel'));
+        }
+      }
+    }
+    return data;
+  }
+  function isolate(element, property, value) {
+    const previous = element.style.getPropertyValue(property);
+    const priority = element.style.getPropertyPriority(property);
+    element.style.setProperty(property, value, 'important');
+    const scroll = root.scrollWidth;
+    if (previous) element.style.setProperty(property, previous, priority);
+    else element.style.removeProperty(property);
+    return scroll;
+  }
+  for (const size of [16, 32]) {
+    root.style.fontSize = size + 'px';
+    if (details.open) summary.click();
+    summary.focus({preventScroll: true});
+    if (document.activeElement !== summary) errors.push(size + ': summary nao focavel');
+    const initial = errors.length;
+    const closed = snapshot(size, 'closed');
+    selects[0].focus({preventScroll: true});
+    if (document.activeElement === selects[0]) errors.push(size + ': filtro fechado focavel');
+    summary.focus({preventScroll: true});
+    summary.click();
+    if (!details.open) errors.push(size + ': summary nao abriu filtros');
+    const opened = snapshot(size, 'open');
+    for (const select of selects) {
+      select.focus({preventScroll: true});
+      if (document.activeElement !== select) errors.push(size + ': filtro nao focavel: ' + select.name);
+    }
+    const guarantee = selects.find(select => select.name === 'garantia');
+    guarantee.value = '30';
+    if (new FormData(form).get('garantia') !== '30') errors.push(size + ': filtro nao enviado no form');
+    summary.focus({preventScroll: true});
+    summary.click();
+    if (details.open) errors.push(size + ': summary nao fechou filtros');
+    snapshot(size, 'reclosed');
+    if (new FormData(form).get('garantia') !== '30') errors.push(size + ': filtro perdido ao fechar');
+    guarantee.value = '';
+    if (errors.length > initial) {
+      // Ablacoes temporarias APENAS para diagnostico, depois das assercoes reais.
+      // Nenhuma delas pode transformar um resultado reprovado em aprovado.
+      const probe = () => ({
+        withoutDetails: isolate(details, 'display', 'none'),
+        withoutPanel: isolate(panel, 'display', 'none'),
+        staticPanel: isolate(panel, 'position', 'static'),
+        withoutRecords: isolate(document.getElementById('records'), 'display', 'none'),
+        withoutSearchLabel: isolate(form.querySelector('.search-field label'), 'display', 'none')
+      });
+      const closedProbe = probe();
+      summary.click();
+      const openProbe = probe();
+      summary.click();
+      errors.push(size + ': DIAGNOSTICO ' + JSON.stringify({
+        closed, opened, closedProbe, openProbe, closedAfterRestore: root.scrollWidth
+      }));
+    }
+  }
+  root.style.fontSize = '16px';
+  return errors;
+}"""
+
+
 def test_legacy_typography_reflows_at_double_root_font_size(domain, client, tmp_path):
     browser = shutil.which("google-chrome") or shutil.which("chromium") or shutil.which("chromium-browser")
     if browser is None:
@@ -495,4 +590,7 @@ def test_legacy_typography_reflows_at_double_root_font_size(domain, client, tmp_
                 with dashboard_page(cdp, html, width) as session:
                     outcome = cdp.evaluate(session, f"({CHECK_LEGACY_SCALING})({json.dumps(selectors)})")
                     errors.extend(f"{kind}/{width}: {error}" for error in outcome)
+                    if kind == "inventory":
+                        outcome = cdp.evaluate(session, f"({CHECK_INVENTORY_FILTERS})()")
+                        errors.extend(f"{kind}/{width}: {error}" for error in outcome)
     assert not errors, "\n".join(errors)
