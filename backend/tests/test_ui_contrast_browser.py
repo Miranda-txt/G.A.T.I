@@ -27,7 +27,10 @@ MEASURE = """(selector, mode) => {
   function background(node) {
     if (!node) return [255, 255, 255, 1];
     const css = getComputedStyle(node);
-    if (css.backgroundImage !== 'none' || Number(css.opacity) !== 1) {
+    // O SVG nativo de seta/marca nao altera a superficie solida medida na borda.
+    const nativeMark = node.matches('.form-select, .form-check-input') &&
+      css.backgroundImage.startsWith('url(');
+    if ((!nativeMark && css.backgroundImage !== 'none') || Number(css.opacity) !== 1) {
       throw new Error('Superficie requer revisao visual: ' + node.tagName);
     }
     const color = rgba(css.backgroundColor);
@@ -194,6 +197,9 @@ def test_rendered_contrast_and_focus(domain, client, tmp_path):
                         verify(cdp, session, selector, "border", failures)
                     if kind == "inventory":
                         verify(cdp, session, "#search", "placeholder", failures)
+                    if kind == "user_form":
+                        cdp.evaluate(session, "document.querySelector('.form-check-input').checked = false")
+                        verify(cdp, session, ".form-check-input", "border", failures)
                     # Tab real estabelece modalidade teclado; focus() seleciona a amostra,
                     # sem afirmar que foi auditada toda a ordem de tabulacao.
                     key_tab(cdp, session)
