@@ -121,7 +121,7 @@ function canonical(node) {
   if (node.type === 'tableCell' || node.type === 'tableHeader') {
     const a = node.attrs || {};
     const defaults = { colspan: 1, rowspan: 1, colwidth: null,
-      background: null, backgroundColor: null };
+      background: null, backgroundColor: null, align: null };
     const invalid = Object.entries(a).filter(([k, v]) =>
       !Object.hasOwn(defaults, k) || v !== defaults[k]);
     if (invalid.length) {
