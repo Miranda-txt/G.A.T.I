@@ -44,6 +44,18 @@ SMOKE = r"""(() => {
   assert(document.querySelector('#variable').options.length === 8, 'catálogo entrega incorreto');
   assert(root.scrollWidth <= root.clientWidth + 1, 'overflow horizontal normal');
   root.style.fontSize = '32px';
+  const overflow200 = [...document.querySelectorAll('body *')].map((element) => {
+    const rect = element.getBoundingClientRect();
+    const style = getComputedStyle(element);
+    return {selector: element.tagName.toLowerCase() +
+        (element.id ? '#' + element.id : '') +
+        (typeof element.className === 'string' && element.className ?
+          '.' + element.className.trim().replaceAll(' ', '.') : ''),
+      right: Math.round(rect.right), left: Math.round(rect.left),
+      width: Math.round(rect.width), scrollWidth: element.scrollWidth,
+      display: style.display, minWidth: style.minWidth};
+  }).filter((element) => element.right > root.clientWidth + 1 || element.left < -1).slice(0, 20);
+  const pageWidth200 = {client: root.clientWidth, scroll: root.scrollWidth};
   assert(root.scrollWidth <= root.clientWidth + 1, 'overflow horizontal a 200%');
   root.style.fontSize = '16px';
   const title = document.getElementById('document-title');
@@ -53,7 +65,8 @@ SMOKE = r"""(() => {
   exportButton.click();
   const raw = document.getElementById('json-output').value;
   assert(!!raw, 'exportação de JSON indisponível');
-  return {errors, raw, width: innerWidth, protectedEditable: document.querySelector('.protected').isContentEditable};
+  return {errors, raw, width: innerWidth, overflow200, pageWidth200,
+    protectedEditable: document.querySelector('.protected').isContentEditable};
 })()"""
 
 
