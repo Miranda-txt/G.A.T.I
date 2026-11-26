@@ -73,8 +73,14 @@ def restricted_fetcher(url, approved):
 def _reportlab(doc, resource):
     buffer = io.BytesIO()
     pdf = SimpleDocTemplate(
-        buffer, pagesize=A4, rightMargin=36, leftMargin=36,
-        topMargin=48, bottomMargin=48, title=doc["title"], invariant=1,
+        buffer,
+        pagesize=A4,
+        rightMargin=36,
+        leftMargin=36,
+        topMargin=48,
+        bottomMargin=48,
+        title=doc["title"],
+        invariant=1,
     )
     style = getSampleStyleSheet()
     rowstyle = style["BodyText"]
@@ -89,23 +95,32 @@ def _reportlab(doc, resource):
         for a in doc["assets"]
     )
     table = LongTable(
-        data, colWidths=[105, A4[0] - 72 - 105], repeatRows=1,
-        splitByRow=1, hAlign="LEFT",
+        data,
+        colWidths=[105, A4[0] - 72 - 105],
+        repeatRows=1,
+        splitByRow=1,
+        hAlign="LEFT",
     )
-    table.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#0F253D")),
-        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-        ("VALIGN", (0, 0), (-1, -1), "TOP"),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
-        ("TOPPADDING", (0, 0), (-1, -1), 8),
-        ("LINEBELOW", (0, 0), (-1, -1), 0.25, colors.HexColor("#CBD5E1")),
-    ]))
+    table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#0F253D")),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+                ("TOPPADDING", (0, 0), (-1, -1), 8),
+                ("LINEBELOW", (0, 0), (-1, -1), 0.25, colors.HexColor("#CBD5E1")),
+            ]
+        )
+    )
     story = [
         Paragraph(html.escape(doc["title"]), style["Heading1"]),
         Paragraph(html.escape(doc["paragraph"]), style["Normal"]),
         Spacer(1, 12),
         Image(io.BytesIO(resource), width=40, height=40),
-        Spacer(1, 12), table, Spacer(1, 16),
+        Spacer(1, 12),
+        table,
+        Spacer(1, 16),
         Paragraph("Signatários", style["Heading2"]),
     ]
     story.extend(Paragraph(html.escape(s), style["Normal"]) for s in doc["signers"])
@@ -126,8 +141,7 @@ def _weasyprint(doc, resource):
     fetcher = partial(restricted_fetcher, approved={uri: resource})
     escape = html.escape
     rows = "".join(
-        f"<tr><td>{escape(a['patrimonio'])}</td><td>{escape(a['descricao'])}</td></tr>"
-        for a in doc["assets"]
+        f"<tr><td>{escape(a['patrimonio'])}</td><td>{escape(a['descricao'])}</td></tr>" for a in doc["assets"]
     )
     signers = "".join(f"<p>{escape(s)}</p>" for s in doc["signers"])
     markup = f"""<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
@@ -140,8 +154,8 @@ def _weasyprint(doc, resource):
     td,th {{border-bottom:0.3pt solid #CBD5E1;padding:9pt 5pt;text-align:left}}
     thead {{display:table-header-group}} tr {{break-inside:avoid}}
     img {{width:40px;height:40px}}
-    </style></head><body><h1>{escape(doc['title'])}</h1>
-    <p>{escape(doc['paragraph'])}</p><img alt="Etiqueta sintética" src="{uri}">
+    </style></head><body><h1>{escape(doc["title"])}</h1>
+    <p>{escape(doc["paragraph"])}</p><img alt="Etiqueta sintética" src="{uri}">
     <table><thead><tr><th>Patrimônio</th><th>Descrição</th></tr></thead>
     <tbody>{rows}</tbody></table><h2>Signatários</h2>{signers}</body></html>"""
     return HTML(string=markup, url_fetcher=fetcher).write_pdf()
