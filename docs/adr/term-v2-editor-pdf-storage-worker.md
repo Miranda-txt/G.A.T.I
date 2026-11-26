@@ -129,3 +129,11 @@ Cada cenário foi executado em **processo Linux isolado**, com uma geração de 
 - Coleta numérica e diagnóstico PDF/A: concluídos e vinculados acima.
 - **T01 NÃO concluída:** continuam pendentes spikes e testes de editor visual, storage privado e worker/outbox; validação da licença e fontes, decisão tecnológica do ADR e aceite final.
 - **T02 NÃO liberada.** Não houve aprovação de PDF/A nem alteração da configuração de produção, de dependências definitivas, merge ou deploy.
+
+## Spike do editor visual — contrato inicial (26/11/2026)
+
+- [RED remoto do editor, commit da5799b](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45819746738): 25 falhas esperadas por ausência de schema.py, 216 testes anteriores aprovados e 2 ignorados. Segurança aprovada. O commit RED original 8cbd6b exigiu correção de formatação em da5799b antes da confirmação funcional.
+- Contrato experimental: JSON `schema_version=1`, classificação ENTREGA/DEVOLUCAO/EMPRESTIMO, layout A4, orientação portrait/landscape, margem 10–30 mm; texto/heading/listas, quatro marcas simples, variáveis do catálogo de classificação e um bloco patrimonial obrigatório não editável. Limites provisórios: 800 nós, profundidade 8, 65.536 bytes JSON, 4.096 caracteres por nó de texto. São guardas de experimento, **não** limites aprovados para produção.
+- Fail closed: rejeitar atributos/nós não permitidos, imagens e referências de arquivo/URL (não há recursos aprovados neste laboratório), links, scripts, iframes, CSS livre, formatos desconhecidos ou remoção/duplicação do bloco patrimonial. O texto literal que contém `<script>` permanece texto JSON, nunca HTML executável.
+- Ruling: validar primeiro o contrato em Python independente do Django e manter o editor como prova local sem rota, persistência, servidor de prévia, upload, autenticação nem integração com modelos do GATI. Isso reduz risco sobre o domínio legado. Custo residual: ergonomia, browser real, recursos ricos, compatibilidade e tecnologia definitiva ainda não validados. Tiptap/ProseMirror permanecem candidatos; não declarar escolha definitiva nem fidelidade Word com este spike.
+- **Gate:** GREEN do schema Python e evidências de UI/teclado dependem de CI e ensaio; T01 e T02 permanecem em seus estados anteriores.
