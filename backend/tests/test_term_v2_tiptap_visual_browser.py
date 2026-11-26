@@ -64,7 +64,18 @@ LAYOUT = r"""(() => {
   add(document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1,
       'transbordamento horizontal normal');
   document.documentElement.style.fontSize = '32px';
-  add(document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1,
+  const root = document.documentElement;
+  const overflow200 = {client: root.clientWidth, scroll: root.scrollWidth,
+    offenders: [...document.querySelectorAll('body *')]
+      .filter(el => {
+        const rect = el.getBoundingClientRect();
+        return rect.width > 0 && rect.right > root.clientWidth + 1 &&
+          !el.closest('table, .ProseMirror table');
+      }).slice(0, 20).map(el => ({tag: el.tagName, id: el.id,
+        className: typeof el.className === 'string' ? el.className : '',
+        right: Math.round(el.getBoundingClientRect().right),
+        scrollWidth: el.scrollWidth, clientWidth: el.clientWidth}))};
+  add(root.scrollWidth <= root.clientWidth + 1,
       'transbordamento horizontal com fonte 200%');
   document.documentElement.style.fontSize = '16px';
   const title = document.querySelector('h1');
@@ -72,7 +83,8 @@ LAYOUT = r"""(() => {
   document.querySelector('.ProseMirror').focus();
   add(document.activeElement?.classList.contains('ProseMirror'), 'foco no editor indisponível');
   add(getComputedStyle(document.activeElement).outlineStyle !== 'none', 'foco invisível');
-  return {errors, width: innerWidth, tables: document.querySelectorAll('.ProseMirror table').length};
+  return {errors, width: innerWidth, overflow200,
+    tables: document.querySelectorAll('.ProseMirror table').length};
 })()"""
 
 

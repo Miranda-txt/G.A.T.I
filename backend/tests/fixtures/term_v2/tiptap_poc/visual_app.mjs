@@ -142,7 +142,7 @@ const actions = {
   undo: () => undo(editor.state, editor.view.dispatch),
   redo: () => redo(editor.state, editor.view.dispatch),
   table: () => editor.chain().focus().insertTable({ rows: 2, cols: 2, withHeaderRow: true }).run(),
-  image: () => editor.chain().focus().insertContent({
+  image: () => editor.chain().focus().insertContentAt(editor.state.doc.content.size, {
     type: 'resourceImage',
     attrs: { resourceId: RESOURCE, alt: 'Etiqueta patrimonial sintética', width: 240, height: 180 },
   }).run(),
