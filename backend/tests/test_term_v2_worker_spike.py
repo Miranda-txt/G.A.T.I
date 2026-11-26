@@ -4,6 +4,7 @@ import runpy
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from datetime import timedelta
+from functools import lru_cache
 from pathlib import Path
 
 import pytest
@@ -46,6 +47,7 @@ def postgres_spike_table():
             cur.execute("DROP TABLE IF EXISTS gati_t01_worker_spike")
 
 
+@lru_cache(maxsize=1)
 def _api():
     assert SPIKE.is_file(), "T01: PostgreSQL worker spike not implemented"
     return runpy.run_path(str(SPIKE))
