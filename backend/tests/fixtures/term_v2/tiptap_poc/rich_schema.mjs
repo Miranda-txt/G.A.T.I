@@ -29,7 +29,7 @@ const exact = (obj, required, optional = []) => {
   if (obj === null || typeof obj !== 'object' || Array.isArray(obj) ||
       required.some(key => !Object.hasOwn(obj, key)) ||
       Object.keys(obj).some(key => !required.includes(key) && !optional.includes(key))) {
-    throw new Error('Campos ou atributos desconhecidos');
+    throw new Error('Atributos ou campos não permitidos');
   }
 };
 const strictText = value => {
@@ -209,7 +209,7 @@ export function protectTransaction(transaction, state) {
   const blocks = doc => {
     const found = [];
     doc.descendants((node, pos) => {
-      if (node.type.name === 'patrimonialBlock') found.push({ pos, json: node.toJSON() });
+      if (node.type.name === 'patrimonialBlock') found.push(node.toJSON());
     });
     return found;
   };
