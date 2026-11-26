@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { EditorState } from '@tiptap/pm/state';
 import { createRichSchema, normalizeRichDocument, protectTransaction } from './rich_schema.mjs';
 
@@ -137,3 +138,17 @@ test('enforces provisional size and schema limits without mutating input', () =>
   }]);
   assert.throws(() => normalize(oversized), /texto|limite/i);
 });
+
+const sharedCases = JSON.parse(readFileSync(new URL('./schema_contract_cases.json', import.meta.url), 'utf8'));
+for (const entry of sharedCases) {
+  test('shared contract: ' + entry.id, () => {
+    const source = structuredClone(entry.document);
+    const execute = () => normalize(entry.document, entry.allowed_resource_ids);
+    if (entry.accept) {
+      assert.deepEqual(execute(), source);
+    } else {
+      assert.throws(execute, Error);
+    }
+    assert.deepEqual(entry.document, source);
+  });
+}
