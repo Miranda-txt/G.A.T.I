@@ -117,6 +117,26 @@ jobs:
             status="$(python tests/fixtures/term_v2/verapdf_report.py "$RUNNER_TEMP/term-v2/$scenario.xml" "$code")"
             printf '%s: %s (exit=%s)\n' "$scenario" "$status" "$code" | tee -a "$RUNNER_TEMP/term-v2/verapdf-status.txt"
           done
+      - name: Medir PDF rico T01 com dois motores em processos separados
+        timeout-minutes: 4
+        run: |
+          set -euo pipefail
+          for motor in reportlab weasyprint; do
+            python tests/fixtures/term_v2/rich_pdf_benchmark.py --engine "$motor" --repetitions 5 --output "$RUNNER_TEMP/term-v2"
+          done
+      - name: Classificar PDF/A-2b dos PDFs ricos usando veraPDF independente
+        timeout-minutes: 5
+        env:
+          VERAPDF_IMAGE: verapdf/cli:v1.30.4
+        run: |
+          set -euo pipefail
+          image_id="$(docker image inspect --format '{{.Id}}' "$VERAPDF_IMAGE")"
+          for motor in reportlab weasyprint; do
+            code=0
+            docker run --rm --network none --cap-drop ALL --security-opt no-new-privileges --memory 512m --cpus 1 --pids-limit 256 -v "$RUNNER_TEMP/term-v2:/data:ro" "$image_id" --flavour 2b --format xml "rico-$motor.pdf" > "$RUNNER_TEMP/term-v2/rico-$motor.xml" 2> "$RUNNER_TEMP/term-v2/rico-$motor.stderr.log" || code=$?
+            status="$(python tests/fixtures/term_v2/verapdf_report.py "$RUNNER_TEMP/term-v2/rico-$motor.xml" "$code")"
+            printf 'rico-%s: %s (exit=%s)\n' "$motor" "$status" "$code" | tee -a "$RUNNER_TEMP/term-v2/verapdf-status.txt"
+          done
       - name: Publicar evidencias sinteticas T01
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

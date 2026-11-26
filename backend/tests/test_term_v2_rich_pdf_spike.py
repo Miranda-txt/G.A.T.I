@@ -39,6 +39,7 @@ def test_rich_paginated_pdf_with_long_table(engine):
     reader = PdfReader(io.BytesIO(pdf), strict=True)
     assert not reader.is_encrypted
     assert len(reader.pages) >= 3
+    assert sum(len(page.images) for page in reader.pages) >= 1
     assert all(abs(float(p.mediabox.width) - 595.28) < 1 for p in reader.pages)
     assert all(abs(float(p.mediabox.height) - 841.89) < 1 for p in reader.pages)
     content = "\n".join(p.extract_text() or "" for p in reader.pages)
