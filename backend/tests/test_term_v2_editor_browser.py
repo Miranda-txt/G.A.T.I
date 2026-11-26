@@ -2,7 +2,6 @@
 
 import json
 import os
-import re
 import runpy
 import shutil
 from pathlib import Path
