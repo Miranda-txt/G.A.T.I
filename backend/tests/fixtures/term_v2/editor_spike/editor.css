@@ -40,3 +40,14 @@ footer{text-align:center;padding:1.35rem;font-size:.74rem;color:var(--muted);bor
 @media(max-width:1050px){.layout{grid-template-columns:minmax(0,1fr)}.side{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:620px){.heading{display:block}.chip{display:inline-block;margin-top:.8rem}.paper{min-height:630px;padding:1.3rem}.side{grid-template-columns:minmax(0,1fr)}.environment{font-size:.6rem}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* Reflow para zoom de texto a 200% em telas estreitas (WCAG 1.4.4 e 1.4.10).
+   Permitir que o aviso e os campos patrimoniais ocupem linhas independentes,
+   sem ocultar conteúdo nem criar scroll horizontal no documento. */
+@media(max-width:620px){
+  .header,.protected-heading,.protected-row,.paper-overline{flex-wrap:wrap}
+  .header>*,.protected-heading>*,.protected-row>*,.paper-overline>*{
+    min-width:0;max-width:100%;overflow-wrap:anywhere
+  }
+  .protected-row span:last-child{text-align:left}
+}
