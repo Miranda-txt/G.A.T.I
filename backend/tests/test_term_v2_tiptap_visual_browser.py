@@ -3,6 +3,7 @@
 Não utiliza HTTP, CDNs, assets produtivos nem dados pessoais reais.
 """
 
+import base64
 import json
 import os
 import runpy
@@ -10,7 +11,6 @@ import shutil
 from pathlib import Path
 
 import pytest
-
 from test_dashboard_browser import browser_session, dashboard_page
 
 POC = Path(__file__).parent / "fixtures" / "term_v2" / "tiptap_poc"
@@ -134,8 +134,6 @@ def test_tiptap_visual_accessibility_and_reflow(tmp_path, width):
             if os.environ.get("GITHUB_ACTIONS") == "true" and width in (375, 1366):
                 shot = cdp.call("Page.captureScreenshot", {"format": "png"}, session)
                 if "data" in shot:
-                    import base64
-
                     artifact = Path(os.environ["RUNNER_TEMP"]) / "term-v2"
                     artifact.mkdir(parents=True, exist_ok=True)
                     (artifact / f"tiptap-visual-{width}.png").write_bytes(
