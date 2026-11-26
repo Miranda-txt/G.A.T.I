@@ -9,6 +9,44 @@
   const status = document.getElementById('editor-status');
   let savedRange = null;
 
+  // Título é um único nó textual no schema: não aceitar markup, quebras ou drop.
+  title.addEventListener('paste', (event) => {
+    event.preventDefault();
+    const clipboard = event.clipboardData;
+    const plain = clipboard ? clipboard.getData('text/plain') : '';
+    const normalized = plain.replace(/\s*[\r\n]+\s*/g, ' ').slice(0, 4096);
+    const selection = window.getSelection();
+    if (!selection || !selection.rangeCount) return;
+    const range = selection.getRangeAt(0);
+    if (!title.contains(range.commonAncestorContainer) && range.commonAncestorContainer !== title) {
+      announce('Selecione o título antes de colar.', true);
+      return;
+    }
+    range.deleteContents();
+    const inserted = document.createTextNode(normalized);
+    range.insertNode(inserted);
+    range.setStartAfter(inserted);
+    range.collapse(true);
+    selection.removeAllRanges();
+    selection.addRange(range);
+    announce('Título colado como texto simples, sem quebra de linha.');
+  });
+  title.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      announce('O título deve ocupar uma única linha.');
+    }
+  });
+  title.addEventListener('beforeinput', (event) => {
+    if (event.inputType === 'insertParagraph' || event.inputType === 'insertLineBreak') {
+      event.preventDefault();
+    }
+  });
+  title.addEventListener('drop', (event) => {
+    event.preventDefault();
+    announce('Arrastar conteúdo para o título não está disponível.', true);
+  });
+
   function announce(message, error = false) {
     status.textContent = message;
     status.classList.toggle('error', error);
