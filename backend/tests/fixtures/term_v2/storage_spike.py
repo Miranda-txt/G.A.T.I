@@ -132,7 +132,7 @@ class StorageSpike:
         for attempt in range(2):
             try:
                 self._client.put_object(**request)
-            except (ConnectionError, TimeoutError):
+            except ConnectionError, TimeoutError:
                 if attempt == 0:
                     continue
                 raise StorageUnavailable("Write status unknown; reconcile manually") from None
