@@ -66,6 +66,12 @@ LAYOUT = r"""(() => {
   document.documentElement.style.fontSize = '32px';
   const root = document.documentElement;
   const overflow200 = {client: root.clientWidth, scroll: root.scrollWidth,
+    scrollables: [...document.querySelectorAll('body, body *')]
+      .filter(el => el.scrollWidth > el.clientWidth + 1)
+      .slice(0, 22).map(el => ({tag: el.tagName, id: el.id,
+        className: typeof el.className === 'string' ? el.className : '',
+        scrollWidth: el.scrollWidth, clientWidth: el.clientWidth,
+        overflowX: getComputedStyle(el).overflowX})),
     offenders: [...document.querySelectorAll('body *')]
       .filter(el => {
         const rect = el.getBoundingClientRect();
@@ -164,7 +170,7 @@ def test_tiptap_visual_toolbar_undo_redo_protection_and_python_roundtrip(tmp_pat
     assert result["images"][0]["attrs"]["resourceId"] == RESOURCE
     assert result["noExternalSrc"] is True, result
     assert result["protectedBefore"] == result["protectedAfter"] == 1, result
-    assert result["output"], result
+    assert result["output"], result["status"]
     data = json.loads(result["output"])
     verified = _python_validator()(data, allowed_resource_ids={RESOURCE})
     assert verified == data
