@@ -7,6 +7,10 @@
 - Branch: `feature/termos-emprestimos-v2`
 - Base: `30536d343c456e791c230ab3f01b2f43b0d0cb8c`
 
+## Estado consolidado do gate T01 (26/11/2026)
+
+**T01: EM AVALIAÇÃO, NÃO APROVADA. T02: BLOQUEADA.** Os quatro spikes possuem evidência no CI do SHA `af04340` (285 testes aprovados, 2 ignorados, zero falhas), mas editor rico, renderer com tabelas/imagens, R2 real, runtime contínuo do worker e aprovação de licenças permanecem sem ateste. A diferença entre viabilidade em laboratório e prontidão de integração é detalhada na [matriz de decisão e critérios de desbloqueio](term-v2-t01-gate-review.md). Esta síntese prevalece sobre estados históricos registrados nas seções cronológicas abaixo; não altera as evidências originais.
+
 ## Contexto e evidências
 
 A evolução mantém o monólito modular Django, PostgreSQL, templates, HTMX e Bootstrap, preservando os controles existentes de integridade patrimonial e o Enterprise Blue. O PR #15 foi integrado à main; sua consolidação visual integra a baseline.
