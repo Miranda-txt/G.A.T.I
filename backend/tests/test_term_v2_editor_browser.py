@@ -114,8 +114,7 @@ def test_editor_browser_layout_and_backend_roundtrip(tmp_path, width):
         with dashboard_page(cdp, _html(), width) as session:
             state = cdp.evaluate(session, SMOKE)
     if state["errors"]:
-        print(json.dumps({"errors": state["errors"], "pageWidth200": state["pageWidth200"],
-            "overflow200": state["overflow200"]}, ensure_ascii=False, indent=2))
+        print("OVERFLOW:", state["pageWidth200"], state["overflow200"])
     assert not state["errors"], {"errors": state["errors"], "pageWidth200": state["pageWidth200"]}
     assert state["width"] == width
     document = NORMALIZE(json.loads(state["raw"]))
