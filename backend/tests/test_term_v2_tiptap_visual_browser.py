@@ -153,7 +153,13 @@ def test_tiptap_visual_accessibility_and_reflow(tmp_path, width):
                     artifact.mkdir(parents=True, exist_ok=True)
                     (artifact / f"tiptap-visual-{width}.png").write_bytes(base64.b64decode(shot["data"]))
     assert result["width"] == width
-    assert not result["errors"], result
+    if result["errors"]:
+        print("OVERFLOW_WIDTHS", result["overflow200"]["scrollables"])
+    assert not result["errors"], {
+        "errors": result["errors"],
+        "client": result["overflow200"]["client"],
+        "scroll": result["overflow200"]["scroll"],
+    }
 
 
 def test_tiptap_visual_toolbar_undo_redo_protection_and_python_roundtrip(tmp_path):

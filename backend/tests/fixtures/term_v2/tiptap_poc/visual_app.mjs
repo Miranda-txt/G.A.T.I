@@ -120,10 +120,13 @@ function canonical(node) {
   }
   if (node.type === 'tableCell' || node.type === 'tableHeader') {
     const a = node.attrs || {};
-    if (a.colspan !== 1 || a.rowspan !== 1 || a.colwidth != null ||
-      (a.background !== undefined && a.background !== null) ||
-      Object.keys(a).some(k => !['colspan', 'rowspan', 'colwidth', 'background'].includes(k))) {
-      throw new Error('Célula contém atributos fora do contrato do GATI');
+    const defaults = { colspan: 1, rowspan: 1, colwidth: null,
+      background: null, backgroundColor: null };
+    const invalid = Object.entries(a).filter(([k, v]) =>
+      !Object.hasOwn(defaults, k) || v !== defaults[k]);
+    if (invalid.length) {
+      throw new Error('Célula contém atributos fora do contrato do GATI: ' +
+        invalid.map(([k, v]) => k + '=' + JSON.stringify(v)).join(', '));
     }
   } else if (!['heading', 'variable', 'resourceImage'].includes(node.type) &&
       node.attrs && Object.values(node.attrs).some(x => x != null)) {
