@@ -1,7 +1,7 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const model = require('./model.cjs');
+const model = require('./model.js');
 
 test('JSON contém layout A4, variável e bloco patrimonial', () => {
   const doc = model.createDocument({title: 'Termo', blocks: [
