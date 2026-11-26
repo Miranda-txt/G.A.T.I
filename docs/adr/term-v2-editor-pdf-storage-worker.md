@@ -190,3 +190,33 @@ O protótipo aceita um cliente com interface compatível com `put_object/head_ob
 - Ruling: PostgreSQL e objetos R2 não têm transação comum; T02/T05/T07/T13 deverão registrar intenção, confirmar objeto/hash antes de marcar DISPONIVEL, reconciliar objeto órfão/metadata sem objeto e testar replay/backups. O fake não exercita essas transações. **Custo residual**: consistência transacional e recuperação ainda pendentes.
 
 Nenhuma dependência, configuração de nuvem, modelo de banco, rota, migração, arquivo produtivo ou lock foi alterado. O limite de 25 MiB e o schema `StoredArtifact` pertencem ao **laboratório**, não a uma política final de PDFs. O SDK S3/boto3 permanece **candidato não escolhido**; antes de fixar versão verificar licença, advisories, Python 3.14, suporte a cabeçalhos condicionais e auditoria SCA. T01 continua **EM AVALIAÇÃO**; T02 não liberada.
+
+## Spike do worker/outbox PostgreSQL — T01 (26/11/2026)
+
+**Escopo:** proof-of-capability em PostgreSQL 18 de teste, usando exclusivamente a tabela temporária de ensaio `gati_t01_worker_spike` criada e descartada pelo fixture (somente nome de banco `test_*`). O módulo é `backend/tests/fixtures/term_v2/worker_spike.py` e **não é** o worker produtivo T02, não cria migrations persistentes, não registra handlers reais, não opera rede/SMTP/PDF/R2 nem cria um processo contínuo ou scheduler.
+
+### Evidências RED → GREEN
+
+- [RED commit 8632032, Núcleo Patrimonial](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45834510453): **287 coletados**, **275 passaram, 10 falharam** por ausência de `worker_spike.py`, **2 ignorados**; Ruff e checks preliminares aprovados.
+- [GREEN parcial commit 7409e7e](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45834942199): 284 passaram, 1 falhou, 2 ignorados; falha inicialmente atribuída à comparação UUID. [Commits 5161f49](https://github.com/Miranda-txt/G.A.T.I/commit/5161f4961de89d706c238d2a124fc869d77681c7) e [d1a9e82](https://github.com/Miranda-txt/G.A.T.I/commit/d1a9e823faa7be59a64d4537c6edb5dbef202b96) normalizaram a comparação e a moveram ao SQL, mas a falha permaneceu.
+- **Causa real identificada no traceback**: o teste carregava `runpy.run_path()` em cada consulta de `_api()`; isso criava novas classes `WorkerConflict`, incompatíveis com a classe da exceção que o worker realmente lançava. Os testes de deduplicação de mesma intenção já passavam; o teste adversarial capturava a classe errada. [Fix de teste 0a69fe9](https://github.com/Miranda-txt/G.A.T.I/commit/0a69fe99ced50a86c9825dfb711b9b82cb7d56eb) adicionou cache de módulo sem enfraquecer as assertions.
+- [CI GREEN do código final, commit 0a69fe9, execução #45836098825, tentativa 2](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45836098825): **287 coletados, 285 aprovados, 2 ignorados, 0 falhas**; Ruff lint/format, checks Django, migrations, OpenAPI, build Docker, cobertura de linhas 88,77% / ramos 74,40%, benchmark e veraPDF operacional aprovados. [Pipeline de segurança no mesmo SHA](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45836099229): consultar status específico ao auditar o gate.
+- A primeira tentativa do último SHA registrou 284 aprovados e uma falha **preexistente e intermitente de infraestrutura Chromium/CDP**, `Browser.getVersion: timeout CDP`, em `tests/test_dashboard_browser.py`. A reexecução do job sem alteração de código passou. **Ruling:** classificar como flakiness a investigar, não desabilitar teste, não tratar retry isolado como prova de estabilidade absoluta do Chromium.
+
+### Comportamentos demonstrados (PostgreSQL real, dados sintéticos)
+
+1. Enqueue transacional com rollback integral e chave única de deduplicação; mesma intenção retorna mesmo ID, outra intenção conflita.
+2. Claim concorrente com `SELECT ... FOR UPDATE SKIP LOCKED`; linha bloqueada é ignorada, três consumidores recebem três tarefas distintas.
+3. Lease temporário com `lease_id` opaco; lease expirado pode ser recuperado por outro consumidor; confirmação de lease obsoleto recusada (fencing da finalização).
+4. Tentativa máxima, backoff exponencial determinístico de laboratório (5 s, 10 s) e transição a `DEAD`; tarefa exaurida não é reexecutada.
+5. Handler simulado fora do bloqueio de claim; erros convertidos em códigos sanitizados sem registrar texto de exceções potencialmente sensíveis; reexecução após DONE não reprocessa.
+6. Rejeição de tipo e identificação não autorizados, chaves inválidas, datas ingênuas e parâmetros de lease inválidos.
+
+### Limitações e decisões ainda pendentes
+
+- **Não prometer exactly-once.** Um handler pode executar efeitos externos antes de perder lease ou após confirmação ambígua; fencing da conclusão do banco não impede efeitos duplicados por si. Handlers de produção precisam de idempotência ponta a ponta e verificação de estado/autorização imediatamente antes de efeitos.
+- **Sem outbox definitiva.** A tabela de teste não representa o schema persistente T02, que exigirá migration expand, constraints/índices, transições, autenticação do runner, auditoria, políticas de retry/jitter e fila de falhas monitorada. Nenhuma API de enfileiramento é habilitada no GATI.
+- **Sem garantia de worker contínuo no Render Free**. O spike apenas valida concorrência e transações PostgreSQL; a execução contínua, disponibilidade, watchdog, restart, credenciais de menor privilégio, deploy reversível e observabilidade exigem ambiente autorizado e decisão de operação.
+- **Sem alteração produtiva**: nenhuma dependência/lock, serviço Django, rota, worker de deployment, migration, bucket, conta ou segredo real foi introduzido. Manter T01 em avaliação e T02 bloqueada até assinatura da decisão tecnológica e dos demais gates.
+
+Ruling: o protótipo isolado em testes fornece evidência suficiente **somente** para a viabilidade do mecanismo PostgreSQL de claims/leases, não para aprovação de plataforma de execução nem da fila de produção. Custo residual: interrupções de serviço, duplicação de efeitos externos e retenção de tarefas ainda dependem de desenho e testes integrados.
