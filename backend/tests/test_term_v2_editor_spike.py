@@ -101,7 +101,11 @@ def test_editor_protected_block_is_mandatory_and_unique():
     [
         {"type": "iframe", "attrs": {"src": "https://example.invalid"}},
         {"type": "image", "attrs": {"src": "file:///etc/passwd"}},
-        {"type": "text", "text": "clique", "marks": [{"type": "link", "attrs": {"href": "javascript:alert(1)"}}]},
+        {
+            "type": "text",
+            "text": "clique",
+            "marks": [{"type": "link", "attrs": {"href": "javascript:alert(1)"}}],
+        },
         {"type": "paragraph", "attrs": {"style": "background:url(http://127.0.0.1/a)"}},
         {"type": "text", "text": "a" * 4097},
         {"type": "variable", "attrs": {"key": "nao_existe"}},
