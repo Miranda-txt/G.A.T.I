@@ -136,3 +136,117 @@ def test_editor_browser_marks_variables_and_backend_roundtrip(tmp_path):
         for node in block.get("content", [])
         if isinstance(node, dict)
     )
+
+
+TITLE_PASTE = r"""(() => {
+  const title = document.querySelector('#document-title');
+  const selection = window.getSelection();
+  const range = document.createRange();
+  title.focus();
+  range.selectNodeContents(title);
+  selection.removeAllRanges();
+  selection.addRange(range);
+  const data = new DataTransfer();
+  data.setData('text/plain', 'Termo <img src=x onerror=alert(1)>\nResponsável');
+  data.setData('text/html', '<img src=x onerror=window.__gatiInjected=true>');
+  const pasted = new ClipboardEvent('paste',
+    {bubbles: true, cancelable: true, clipboardData: data});
+  title.dispatchEvent(pasted);
+  const enter = new KeyboardEvent('keydown',
+    {key: 'Enter', bubbles: true, cancelable: true});
+  title.dispatchEvent(enter);
+  const drop = new DragEvent('drop',
+    {dataTransfer: data, bubbles: true, cancelable: true});
+  title.dispatchEvent(drop);
+  document.querySelector('#export-document').click();
+  return {
+    pasteBlocked: pasted.defaultPrevented,
+    enterBlocked: enter.defaultPrevented,
+    dropBlocked: drop.defaultPrevented,
+    text: title.textContent,
+    elementCount: title.childElementCount,
+    injected: window.__gatiInjected === true,
+    json: document.querySelector('#json-output').value
+  };
+})()"""
+
+
+PARAGRAPH_PASTE = r"""(() => {
+  const paragraph = document.querySelector('#editable-blocks .editable');
+  const range = document.createRange();
+  const selection = window.getSelection();
+  paragraph.focus();
+  range.selectNodeContents(paragraph);
+  selection.removeAllRanges();
+  selection.addRange(range);
+  const data = new DataTransfer();
+  data.setData('text/plain', '<script>alert(1)</script> patrimônio sintético');
+  data.setData('text/html', '<img src=x onerror=window.__gatiInjected=true>');
+  const pasted = new ClipboardEvent('paste',
+    {bubbles: true, cancelable: true, clipboardData: data});
+  paragraph.dispatchEvent(pasted);
+  document.querySelector('#export-document').click();
+  return {
+    pasteBlocked: pasted.defaultPrevented,
+    text: paragraph.textContent,
+    elementCount: paragraph.childElementCount,
+    injected: window.__gatiInjected === true,
+    json: document.querySelector('#json-output').value
+  };
+})()"""
+
+
+def test_editor_title_paste_is_plain_text_single_line_and_drop_blocked(tmp_path):
+    with browser_session(_browser(), tmp_path / "editor-title-paste") as cdp:
+        with dashboard_page(cdp, _html(), 375) as session:
+            state = cdp.evaluate(session, TITLE_PASTE)
+    assert state["pasteBlocked"] is True, state
+    assert state["enterBlocked"] is True, state
+    assert state["dropBlocked"] is True, state
+    assert state["elementCount"] == 0 and state["injected"] is False, state
+    assert state["text"] == "Termo <img src=x onerror=alert(1)> Responsável", state
+    document = NORMALIZE(json.loads(state["json"]))
+    assert document["content"]["content"][0]["content"][0]["text"] == state["text"]
+
+
+def test_editor_paragraph_paste_rejects_html_but_preserves_literal_text(tmp_path):
+    with browser_session(_browser(), tmp_path / "editor-paragraph-paste") as cdp:
+        with dashboard_page(cdp, _html(), 375) as session:
+            state = cdp.evaluate(session, PARAGRAPH_PASTE)
+    assert state["pasteBlocked"] is True, state
+    assert state["elementCount"] == 0 and state["injected"] is False, state
+    assert state["text"] == "<script>alert(1)</script> patrimônio sintético", state
+    document = NORMALIZE(json.loads(state["json"]))
+    assert document["content"]["content"][2]["content"][0]["text"] == state["text"]
+
+
+def _tab(cdp, session, reverse=False):
+    params = {
+        "key": "Tab",
+        "code": "Tab",
+        "windowsVirtualKeyCode": 9,
+        "nativeVirtualKeyCode": 9,
+        "modifiers": 8 if reverse else 0,
+    }
+    cdp.call("Input.dispatchKeyEvent", {"type": "keyDown", **params}, session)
+    cdp.call("Input.dispatchKeyEvent", {"type": "keyUp", **params}, session)
+
+
+def test_editor_keyboard_tab_order_and_visible_focus(tmp_path):
+    with browser_session(_browser(), tmp_path / "editor-keyboard") as cdp:
+        with dashboard_page(cdp, _html(), 375) as session:
+            cdp.evaluate(session, "document.querySelector('#document-title').focus()")
+            _tab(cdp, session)
+            first = cdp.evaluate(
+                session,
+                "({label: document.activeElement.getAttribute('aria-label'),"
+                " outline: getComputedStyle(document.activeElement).outlineStyle})",
+            )
+            _tab(cdp, session)
+            second = cdp.evaluate(session, "document.activeElement.id")
+            _tab(cdp, session, reverse=True)
+            back = cdp.evaluate(session, "document.activeElement.getAttribute('aria-label')")
+    assert first["label"] == "Parágrafo inicial"
+    assert first["outline"] != "none", first
+    assert second == "variable"
+    assert back == "Parágrafo inicial"
