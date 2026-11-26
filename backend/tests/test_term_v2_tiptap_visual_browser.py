@@ -32,12 +32,9 @@ def _html():
     bundle = (POC / "dist" / "visual.bundle.js").read_text(encoding="utf-8")
     assert '<link rel="stylesheet" href="visual.css">' in html
     assert '<script src="dist/visual.bundle.js" defer></script>' in html
-    return (
-        html.replace('<link rel="stylesheet" href="visual.css">', f"<style>{style}</style>")
-        .replace(
-            '<script src="dist/visual.bundle.js" defer></script>',
-            "<script>" + bundle.replace("</script", r"<\/script") + "</script>",
-        )
+    return html.replace('<link rel="stylesheet" href="visual.css">', f"<style>{style}</style>").replace(
+        '<script src="dist/visual.bundle.js" defer></script>',
+        "<script>" + bundle.replace("</script", r"<\/script") + "</script>",
     )
 
 
@@ -136,9 +133,7 @@ def test_tiptap_visual_accessibility_and_reflow(tmp_path, width):
                 if "data" in shot:
                     artifact = Path(os.environ["RUNNER_TEMP"]) / "term-v2"
                     artifact.mkdir(parents=True, exist_ok=True)
-                    (artifact / f"tiptap-visual-{width}.png").write_bytes(
-                        base64.b64decode(shot["data"])
-                    )
+                    (artifact / f"tiptap-visual-{width}.png").write_bytes(base64.b64decode(shot["data"]))
     assert result["width"] == width
     assert not result["errors"], result
 
@@ -169,18 +164,29 @@ def test_tiptap_python_validator_rejects_hostile_objects():
         "schema_version": 2,
         "classification": "EMPRESTIMO",
         "layout": {"paper": "A4", "orientation": "portrait", "margin_mm": 20},
-        "content": {"type": "doc", "content": [
-            {"type": "paragraph", "content": [{"type": "text", "text": "Exemplo sintético"}]},
-            {"type": "patrimonialBlock"},
-        ]},
+        "content": {
+            "type": "doc",
+            "content": [
+                {"type": "paragraph", "content": [{"type": "text", "text": "Exemplo sintético"}]},
+                {"type": "patrimonialBlock"},
+            ],
+        },
     }
     assert validate(document, allowed_resource_ids=set()) == document
     for change in (
         lambda d: d["content"]["content"].append({"type": "patrimonialBlock"}),
         lambda d: d["content"]["content"][0].update({"attrs": {"onclick": "alert(1)"}}),
-        lambda d: d["content"]["content"].append({"type": "resourceImage", "attrs": {
-            "resourceId": RESOURCE, "alt": "Teste", "width": 48, "height": 48,
-        }}),
+        lambda d: d["content"]["content"].append(
+            {
+                "type": "resourceImage",
+                "attrs": {
+                    "resourceId": RESOURCE,
+                    "alt": "Teste",
+                    "width": 48,
+                    "height": 48,
+                },
+            }
+        ),
     ):
         payload = json.loads(json.dumps(document))
         change(payload)
