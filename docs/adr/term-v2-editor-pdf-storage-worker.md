@@ -87,3 +87,45 @@ Ruling: isolamento por branch remota e verificação pelo CI, em vez de worktree
 - Ruling: medir cada caso em processo Linux novo, uma geração de aquecimento e 10 repetições medidas; RSS máximo do processo inclui imports e aquecimento, não somente a função; latência e CPU não incluem parsing do PDF, inicialização ou I/O do relatório. Dados brutos JSON, SHA-256, tamanho, páginas e PDF sintético serão artefatos do CI. Não inferir SLA produtivo a partir de runner compartilhado.
 - Ruling: tentar veraPDF CLI 1.30.4 (versão com correção de segurança de 09/11/2026, [release notes](https://github.com/veraPDF/veraPDF-library/releases/tag/v1.30.4)), em vez de 1.30.2. Disponibilidade do tag Docker ainda precisa ser confirmada no CI; registrar digest efetivamente obtido. Container sem rede, entrada sintética read-only, limites de recursos, sem XSLT/perfis customizados. Validar perfil PDF/A-2b explicitamente. XML analisado por defusedxml já presente no lock; códigos 0/1 precisam ser coerentes com relatório completo e resumo sem falhas operacionais. Não conformidade documentada não equivale a falha operacional: fallback PDF comum sem alegação PDF/A; decisão definitiva permanece pendente. Ausência de imagem ou falha operacional impede a avaliação; não omitir nem substituir a evidência.
 - Resultados numéricos e relatórios reais ainda pendentes da execução do CI. ADR continua em avaliação.
+
+## Evidências medidas — CI 45815496442 (26/11/2026)
+
+**Escopo:** apenas o renderer experimental de texto literal, sem integração aos Termos V2 em produção. Python 3.14.10, ReportLab 5.1.2, pypdf 6.21.4; runner GitHub Actions Ubuntu/Linux x86-64 compartilhado.
+
+- [Pipeline patrimonial, SHA a450661](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45815496442): **success**, 218 testes coletados, **216 aprovados e 2 ignorados** (65,83 s); Ruff lint/format, Django check, migrations, OpenAPI, coverage check e build Docker aprovados; linhas 88,77%, ramificações 74,40%.
+- [Pipeline de segurança, mesmo SHA](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45815496504): **success**; pip-audit do lock e dependências experimentais sem vulnerabilidades conhecidas detectadas, Bandit e Gitleaks aprovados.
+- [Artefato íntegro de medições, PDFs sintéticos e relatórios veraPDF](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45815496442/artifacts/15115656672): `gati-term-v2-renderer-evidence`, 18 arquivos ZIP (4 PDFs, 4 JSON, 4 XML, 4 stderr, status e digest da imagem). SHA-256 do ZIP informado pela ação: `8faf373013bb162afc5c0a8a9c5accaae7433fb12b0b5af71e715034fc7bed5b`. Os arquivos individuais e hashes completos estão no artefato.
+
+### Desempenho real do experimento
+
+Cada cenário foi executado em **processo Linux isolado**, com uma geração de aquecimento e **10 amostras cronometradas** (40 amostras no total). Mediana da latência de renderização e tempo de CPU em milissegundos; RSS é o pico do processo **inteiro** em KiB (inclui imports e aquecimento, não é apenas memória incremental da geração).
+
+| Cenário | Ativos | Signatários | Páginas | PDF (bytes) | Latência mediana (ms) | CPU mediana (ms) | RSS pico (KiB) |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Mínimo | 1 | 1 | 1 | 22.261 | 3,413 | 3,411 | 38.948 |
+| Máximo de ativos | 100 | 1 | 3 | 24.104 | 11,721 | 11,718 | 39.008 |
+| Máximo de signatários | 1 | 10 | 1 | 22.342 | 3,779 | 3,777 | 38.876 |
+| Máximo combinado | 100 | 10 | 3 | 24.180 | 12,095 | 12,092 | 39.032 |
+
+**Interpretação:** geração de PDF simples com boa capacidade experimental nos fixtures, sem SLA de produção inferível. A latência não inclui o startup do processo, parsing pypdf, gravação do relatório ou subprocesso do veraPDF. Ainda faltam cenários com templates ricos, anexos, imagens, múltiplas fontes, concorrência, limite de CPU/RSS sob carga e validação de experiência visual final. Os checks de SHA-256 foram aprovados. Uma inspeção visual pontual das páginas 1 e 3 do cenário máximo não identificou cortes evidentes, mas não é aprovação de layout final, acessibilidade ou PDF/A.
+
+### Resultado independente do veraPDF
+
+- Imagem efetivamente utilizada: `verapdf/cli:v1.30.4`, digest `sha256:c2ac9448973a56acd833c81441e38d2dca58ea26a2ce1621e9a32e85d3d2728f`.
+- Quatro relatórios com `jobEndStatus=normal`, perfil `PDF/A-2b validation profile`, `isCompliant=false` e código de saída `1`; não conformidade **não** é falha operacional. Os stderr associados ficaram vazios.
+- Os quatro cenários falharam nas mesmas três regras da ISO 19005-2:2011:
+
+| Cláusula | Falha observada nos XMLs do veraPDF |
+|---|---|
+| 6.1.7.1 | Ausência ou posição inadequada de EOL em torno de palavras-chave `stream`/`endstream` |
+| 6.2.4.3 | Uso de `DeviceGray` sem `OutputIntent`/perfil de cor apropriado |
+| 6.6.2.1 | Ausência de metadados `/Metadata` XMP válidos no catálogo |
+
+**Ruling:** manter explicitamente o renderer T01 como **PDF comum experimental**, jamais identificá-lo como PDF/A. A SPEC permite fallback quando PDF/A não está comprovado. Não contornar o veraPDF nem alterar suas regras de aprovação. Se a produção exigir PDF/A, investigar gerador compatível, metadados XMP, ICC/OutputIntent e delimitadores; gerar novo documento e obter `isCompliant=true` em perfil independente antes de alegar conformidade. Custo residual: indisponibilidade do recurso PDF/A até implementação e validação específica. A falha na cláusula 6.1.7.1 sugere ainda validar compatibilidade/formatação binária do gerador antes de qualquer alteração pós-processamento.
+
+### Gate e pendências
+
+- GREEN do benchmark e do parser: comprovado no SHA `a450661`.
+- Coleta numérica e diagnóstico PDF/A: concluídos e vinculados acima.
+- **T01 NÃO concluída:** continuam pendentes spikes e testes de editor visual, storage privado e worker/outbox; validação da licença e fontes, decisão tecnológica do ADR e aceite final.
+- **T02 NÃO liberada.** Não houve aprovação de PDF/A nem alteração da configuração de produção, de dependências definitivas, merge ou deploy.
