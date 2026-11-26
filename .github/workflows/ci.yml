@@ -61,6 +61,13 @@ jobs:
         working-directory: backend/tests/fixtures/term_v2/tiptap_poc
         timeout-minutes: 2
         run: node --test rich_schema.test.mjs
+      - name: Empacotar Tiptap visual para Chromium sem dependencias remotas em runtime
+        working-directory: backend/tests/fixtures/term_v2/tiptap_poc
+        timeout-minutes: 3
+        run: |
+          node --check visual_app.mjs
+          npm exec --yes --package=esbuild@0.27.0 -- esbuild visual_app.mjs --bundle --platform=browser --format=iife --target=es2022 --outfile=dist/visual.bundle.js
+          test -s dist/visual.bundle.js
       - name: Preservar lock experimental Tiptap para auditoria
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

@@ -79,11 +79,14 @@ const ResourceImage = Node.create({
   },
 });
 
-export function createRichSchema() {
-  return getSchema([
+export function createRichExtensions() {
+  return [
     Document, Paragraph, Text, Heading.configure({ levels: [1, 2, 3] }),
     Bold, Italic, Underline, TableKit, Variable, ProtectedBlock, ResourceImage,
-  ]);
+  ];
+}
+export function createRichSchema() {
+  return getSchema(createRichExtensions());
 }
 
 function walk(node, context, depth, parent) {
