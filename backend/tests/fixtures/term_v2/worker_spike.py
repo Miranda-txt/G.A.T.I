@@ -79,7 +79,7 @@ class WorkerSpike:
                 existing = cur.fetchone()
                 if existing is None:
                     raise WorkerConflict("Deduplication conflict without visible task")
-                if existing[1:] != (kind, resource_id, run_after):
+                if (existing[1], str(existing[2]), existing[3]) != (kind, str(resource_id), run_after):
                     raise WorkerConflict("Deduplication key reused for another intent")
                 return existing[0]
 
