@@ -43,6 +43,7 @@ jobs:
       - name: Validar schema cliente experimental T01 (Node sem pacotes externos)
         run: |
           node --check tests/fixtures/term_v2/editor_spike/model.cjs
+          node --check tests/fixtures/term_v2/editor_spike/editor.js
           node --test tests/fixtures/term_v2/editor_spike/model.test.cjs
       - run: python -m ruff format --config pyproject.toml --check .
       - run: python manage.py check
