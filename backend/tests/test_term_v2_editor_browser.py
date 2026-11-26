@@ -7,7 +7,6 @@ import shutil
 from pathlib import Path
 
 import pytest
-
 from test_dashboard_browser import browser_session, dashboard_page
 
 ROOT = Path(__file__).parent / "fixtures" / "term_v2" / "editor_spike"
