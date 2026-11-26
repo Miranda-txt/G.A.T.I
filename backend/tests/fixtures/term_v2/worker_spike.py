@@ -70,16 +70,14 @@ class WorkerSpike:
                     return inserted[0]
                 cur.execute(
                     """
-                    SELECT id, kind, resource_id, run_after
-                    FROM gati_t01_worker_spike
-                    WHERE dedupe_key = %s
+                    SELECT id FROM gati_t01_worker_spike
+                    WHERE dedupe_key = %s AND kind = %s
+                      AND resource_id = %s AND run_after = %s
                     """,
-                    [dedupe_key],
+                    [dedupe_key, kind, resource_id, run_after],
                 )
                 existing = cur.fetchone()
                 if existing is None:
-                    raise WorkerConflict("Deduplication conflict without visible task")
-                if (existing[1], str(existing[2]), existing[3]) != (kind, str(resource_id), run_after):
                     raise WorkerConflict("Deduplication key reused for another intent")
                 return existing[0]
 
