@@ -4,8 +4,8 @@ import argparse
 from pathlib import Path
 from xml.etree.ElementTree import ParseError
 
-from defusedxml.ElementTree import fromstring
 from defusedxml.common import DefusedXmlException
+from defusedxml.ElementTree import fromstring
 
 
 def classify(xml, code):
