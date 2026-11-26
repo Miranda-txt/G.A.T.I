@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GATI · Laboratório do editor T01</title>
+  <link rel="stylesheet" href="editor.css">
+  <script src="model.cjs" defer></script>
+  <script src="editor.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#page-title">Ir para o editor</a>
+  <header class="header">
+    <div class="brand"><span class="brand-logo" aria-hidden="true">G</span><span><strong>gati.</strong><small>GESTÃO DE ATIVOS DE TI</small></span></div>
+    <span class="environment">SPIKE T01 · NÃO PRODUTIVO</span>
+  </header>
+  <main class="workspace">
+    <div class="heading">
+      <div><p class="eyebrow">TERMOS / MODELOS / LABORATÓRIO</p><h1 id="page-title">Editor visual de modelos</h1>
+        <p>Experimento local de autoria estruturada. Nenhum dado é enviado ou salvo no GATI.</p></div>
+      <span class="chip">Schema v1 · A4</span>
+    </div>
+    <div class="layout">
+      <section class="panel editor-panel" aria-label="Área de edição">
+        <div class="meta"><label for="classification">Classificação do termo</label>
+          <select id="classification"><option value="ENTREGA">Entrega</option><option value="DEVOLUCAO">Devolução</option><option value="EMPRESTIMO">Empréstimo</option></select>
+        </div>
+        <div class="toolbar" role="toolbar" aria-label="Formatação do texto">
+          <button class="tool bold" type="button" data-mark="bold" aria-label="Aplicar negrito">N</button>
+          <button class="tool italic" type="button" data-mark="italic" aria-label="Aplicar itálico">I</button>
+          <button class="tool underline" type="button" data-mark="underline" aria-label="Aplicar sublinhado">S</button>
+          <button class="tool strike" type="button" data-mark="strike" aria-label="Aplicar tachado">T</button>
+          <span class="rule" aria-hidden="true"></span>
+          <button class="tool wide" type="button" id="add-paragraph">+ Parágrafo</button>
+          <button class="tool wide" type="button" id="add-list">+ Lista</button>
+        </div>
+        <div class="page-background">
+          <article class="paper" aria-label="Folha A4 de edição">
+            <div class="paper-overline"><span>DOCUMENTO DE RESPONSABILIDADE</span><span>GATI</span></div>
+            <h2 id="document-title" role="textbox" aria-label="Título do termo" aria-multiline="false" contenteditable="true" spellcheck="true">Termo de responsabilidade</h2>
+            <div class="accent-line" aria-hidden="true"></div>
+            <div id="editable-blocks">
+              <p class="editable" contenteditable="true" role="textbox" aria-label="Parágrafo inicial" aria-multiline="true" spellcheck="true">Confirmo o recebimento dos equipamentos e acessórios descritos neste documento. Responsável: </p>
+            </div>
+            <section class="protected" aria-label="Bloco patrimonial obrigatório, somente leitura">
+              <div class="protected-heading"><strong>▣ Bloco patrimonial obrigatório</strong><span class="protected-status">PROTEGIDO</span></div>
+              <p>Contexto do processo, ativos, responsáveis e signatários serão preenchidos a partir do snapshot autorizado na emissão.</p>
+              <div class="protected-row"><span>Ativos vinculados</span><span>Dados do processo, não editáveis</span></div>
+              <div class="protected-row"><span>Responsáveis e assinaturas</span><span>Dados do processo, não editáveis</span></div>
+            </section>
+            <div class="paper-footer"><span>Prévia estrutural experimental</span><span>Não equivale ao PDF do servidor</span></div>
+          </article>
+        </div>
+        <p class="help">Selecione texto para aplicar uma marca. Use Tab para navegar. A colagem é convertida em texto simples.</p>
+      </section>
+      <aside class="side" aria-label="Campos e exportação">
+        <section class="panel side-card"><h2>Campos dinâmicos</h2><p>Adicione somente referências do catálogo aprovado.</p>
+          <label for="variable">Campo disponível</label><select id="variable"></select>
+          <button id="insert-variable" type="button" class="primary">Inserir campo</button>
+          <p class="note">Os valores patrimoniais não são editados nesta página.</p>
+        </section>
+        <section class="panel side-card"><h2>Saída estruturada</h2><p>Exportação local para avaliar o contrato JSON, sem persistência.</p>
+          <button id="export-document" class="primary" type="button">Validar e exportar JSON</button>
+          <label for="json-output">JSON experimental</label>
+          <textarea id="json-output" rows="12" readonly aria-describedby="json-help"></textarea>
+          <p class="note" id="json-help">A validação definitiva será realizada no backend Django.</p>
+        </section>
+      </aside>
+    </div>
+    <p id="editor-status" role="status" aria-live="polite" class="status">Laboratório pronto para edição local.</p>
+  </main>
+  <footer>GATI · Spike técnico T01 · Enterprise Blue · Não publicar ou assinar documentos nesta página</footer>
+</body>
+</html>
