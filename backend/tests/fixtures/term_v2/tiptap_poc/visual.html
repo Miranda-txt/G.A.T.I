@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GATI — PoC visual Tiptap T01</title>
+  <link rel="stylesheet" href="visual.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="masthead">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">G</span>
+        <div><strong>GATI</strong><span>Gestão de Ativos de Tecnologia da Informação</span></div>
+      </div>
+      <span class="environment">LABORATÓRIO T01 · SEM DADOS REAIS</span>
+    </header>
+    <main class="workspace">
+      <header class="page-head">
+        <div class="eyebrow">Termos e Empréstimos / Prova de conceito</div>
+        <h1>Editor visual de documentos</h1>
+        <p>Experimento independente, com campos validados e bloco patrimonial bloqueado.</p>
+      </header>
+      <section class="editor-card" aria-labelledby="workspace-title">
+        <div class="card-head">
+          <div><h2 id="workspace-title">Termo de empréstimo — demonstração</h2>
+            <p class="description">Conteúdo sintético • Formato A4 • Sem publicação</p></div>
+          <span class="draft">Rascunho experimental</span>
+        </div>
+        <div class="toolbar" id="editor-toolbar" role="toolbar" aria-label="Ferramentas de edição">
+          <button type="button" data-action="bold" aria-label="Aplicar negrito" title="Negrito (Ctrl+B)"><b>N</b></button>
+          <button type="button" data-action="italic" aria-label="Aplicar itálico" title="Itálico (Ctrl+I)"><i>I</i></button>
+          <button type="button" data-action="undo" aria-label="Desfazer última edição">Desfazer</button>
+          <button type="button" data-action="redo" aria-label="Refazer última edição">Refazer</button>
+          <button type="button" data-action="table" aria-label="Inserir tabela">+ Tabela</button>
+          <button type="button" data-action="image" aria-label="Inserir recurso aprovado">+ Recurso aprovado</button>
+          <button type="button" data-action="export" class="action-primary" aria-label="Validar e exportar documento JSON">Validar e exportar</button>
+        </div>
+        <div class="paper-area">
+          <div class="paper" role="group" aria-label="Documento editável em formato A4">
+            <div class="paper-caption">GATI · MODELO EXPERIMENTAL · EMPRÉSTIMO</div>
+            <div id="editor" aria-label="Corpo do documento"></div>
+          </div>
+        </div>
+        <div class="feedback" id="editor-status" role="status" aria-live="polite">Editor experimental preparado.</div>
+        <div class="export-area">
+          <label for="export-json">JSON estruturado validado (somente demonstração)</label>
+          <textarea id="export-json" rows="5" readonly spellcheck="false"></textarea>
+        </div>
+      </section>
+      <p class="footnote">Este editor não grava termos, não solicita rede, não substitui validação e autorização no servidor.</p>
+    </main>
+  </div>
+  <script src="dist/visual.bundle.js" defer></script>
+</body>
+</html>
