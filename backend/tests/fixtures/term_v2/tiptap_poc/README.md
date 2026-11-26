@@ -1,7 +1,8 @@
 # PoC Tiptap OSS — T01 (somente laboratório)
 
 Esta prova testa o **schema ProseMirror real** por meio de `getSchema` do Tiptap
-3.35.0. É headless: não é a interface visual definitiva do GATI.
+3.35.0 e inclui uma **PoC visual real no Chromium**. Não é a interface
+definitiva, nem uma rota/API produtiva do GATI.
 Sem Cloud, Pro, contas, credenciais, URLs externas ou gravação produtiva.
 
 ## Limites do experimento
@@ -30,7 +31,51 @@ npm audit --omit=dev --audit-level=high
 npm test
 ```
 
-Faltam ensaio visual em Chromium da implementação Tiptap, integração
-servidor/editor, undo/redo, IME, leitores de tela, seleção entre tabelas,
-headings/footers, imagens de recursos aprovados e renderização WYSIWYG.
+## Interface visual experimental — 26/11/2026
+
+Arquivos de laboratório: `visual.html`, `visual.css`, `visual_app.mjs`
+e `rich_schema.py`. A página usa a identidade Enterprise Blue do GATI,
+com edição direta de texto e tabela, toolbar acessível, negrito/itálico,
+desfazer/refazer, placeholder de recurso aprovado (sem buscar imagem remota),
+campo de variável e bloco patrimonial não editável.
+
+O `visual_app.mjs` importa **Tiptap OSS real**, ProseMirror history e
+guardas de transação. Um bundle local estático é gerado no CI com
+esbuild `0.27.0` e embutido pelo harness CDP no teste, sem HTTP/CDN externos.
+O `package-lock.json` de Tiptap continua experimental; esbuild está
+versionado no comando, mas **não está no lock**, portanto não é
+estratégia definitiva de build reproduzível.
+
+O teste `tests/test_term_v2_tiptap_visual_browser.py` usa Chromium real
+nos viewports de 320, 375 e 1366 px, checa reflow com fonte raiz a 200%,
+foco visível, semântica da barra de ferramentas, unicidade do bloco protegido,
+formatação, undo/redo, inserção de tabela e recurso autorizado sem URL,
+tentativa de excluir o bloco e roundtrip de JSON com validador Python
+experimental. Duas capturas sintéticas de 375 e 1366 px são publicadas como
+artefato na execução do CI. **O validador Python não substitui a validação,
+permissão por recurso, versionamento nem a persistência do servidor real.**
+
+[CI GREEN do código, commit 927b0f0](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45863153297):
+**299 coletados, 297 aprovados, 2 ignorados, 0 falhas**; segurança no
+[mesmo commit](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45863153300)
+aprovada. Capturas mobile/desktop foram inspecionadas visualmente.
+
+Para executar a página em laboratório local isolado, após o setup de Node
+e das dependências Tiptap já indicado:
+
+```sh
+npm exec --yes --package=esbuild@0.27.0 -- esbuild visual_app.mjs --bundle --platform=browser --format=iife --target=es2022 --outfile=dist/visual.bundle.js
+python -m http.server 8765 --bind 127.0.0.1
+```
+
+Acessar `http://127.0.0.1:8765/visual.html` apenas em ambiente de testes.
+Não colocar o servidor experimental em rede ou anexá-lo às rotas Django.
+O bundle não é versionado no Git e o build envolve obtenção de pacotes
+via registry. Não usar dados reais nem inferir permissões do usuário a
+partir da interface.
+
+**Pendências:** leitores de tela, IME, mobile touch real, acessibilidade
+abrangente, tabelas complexas/mescladas, edição arbitrária dentro de células,
+colagem de conteúdo rico, integração com snapshot/assinatura, imagem real
+aprovada após scanner e persistência/validação/autorização Django.
 Nenhuma escolha de Tiptap/ProseMirror está aprovada para T04.
