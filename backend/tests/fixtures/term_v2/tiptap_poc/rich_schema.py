@@ -8,14 +8,28 @@ import re
 import uuid
 
 NODE_TYPES = {
-    "doc", "heading", "paragraph", "text", "variable", "patrimonialBlock",
-    "table", "tableRow", "tableCell", "tableHeader", "resourceImage",
+    "doc",
+    "heading",
+    "paragraph",
+    "text",
+    "variable",
+    "patrimonialBlock",
+    "table",
+    "tableRow",
+    "tableCell",
+    "tableHeader",
+    "resourceImage",
 }
 MARKS = {"bold", "italic", "underline"}
 COMMON = {
-    "responsavel.nome", "responsavel.documento_mascarado", "responsavel.departamento",
-    "processo.tipo", "processo.data", "processo.localizacao",
-    "emissao.numero", "emissao.data",
+    "responsavel.nome",
+    "responsavel.documento_mascarado",
+    "responsavel.departamento",
+    "processo.tipo",
+    "processo.data",
+    "processo.localizacao",
+    "emissao.numero",
+    "emissao.data",
 }
 LOAN = {"emprestimo.inicio", "emprestimo.prazo_original", "emprestimo.finalidade"}
 CHILDREN = {
@@ -35,8 +49,10 @@ DEPTH_LIMIT = 8
 
 
 def _obj(obj, required, optional=()):
-    if not isinstance(obj, dict) or not set(required).issubset(obj) or not set(obj).issubset(
-        set(required) | set(optional)
+    if (
+        not isinstance(obj, dict)
+        or not set(required).issubset(obj)
+        or not set(obj).issubset(set(required) | set(optional))
     ):
         raise ValueError("Campos ou atributos não permitidos")
 
@@ -91,7 +107,7 @@ def _node(node, parent, depth, ctx):
         _obj(attrs, ("resourceId", "alt", "width", "height"))
         try:
             rid = uuid.UUID(attrs["resourceId"])
-        except (TypeError, ValueError, AttributeError):
+        except TypeError, ValueError, AttributeError:
             raise ValueError("Recurso inválido") from None
         if (
             str(rid) != attrs["resourceId"]
@@ -147,8 +163,10 @@ def validate_rich_document(document, allowed_resource_ids):
         raise ValueError("Layout inválido")
     if not isinstance(allowed_resource_ids, (set, frozenset)):
         raise ValueError("Allowlist controlada pelo servidor obrigatória")
-    if any(not isinstance(key, str) or re.fullmatch(r"[0-9a-f-]{36}", key) is None
-           for key in allowed_resource_ids):
+    if any(
+        not isinstance(key, str) or re.fullmatch(r"[0-9a-f-]{36}", key) is None
+        for key in allowed_resource_ids
+    ):
         raise ValueError("Identificadores inválidos")
     serialized = json.dumps(document, ensure_ascii=False, separators=(",", ":"))
     if len(serialized.encode("utf-8")) > BYTE_LIMIT:
