@@ -113,7 +113,10 @@ def test_editor_browser_layout_and_backend_roundtrip(tmp_path, width):
         cdp.call("Browser.getVersion")
         with dashboard_page(cdp, _html(), width) as session:
             state = cdp.evaluate(session, SMOKE)
-    assert not state["errors"], state
+    if state["errors"]:
+        print(json.dumps({"errors": state["errors"], "pageWidth200": state["pageWidth200"],
+            "overflow200": state["overflow200"]}, ensure_ascii=False, indent=2))
+    assert not state["errors"], {"errors": state["errors"], "pageWidth200": state["pageWidth200"]}
     assert state["width"] == width
     document = NORMALIZE(json.loads(state["raw"]))
     assert sum(n["type"] == "patrimonialBlock" for n in document["content"]["content"]) == 1
