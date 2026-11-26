@@ -38,6 +38,9 @@ jobs:
       - name: Instalar dependencias experimentais T01 apenas no runner de testes
         run: >-
           python -m pip install --only-binary=:all: --no-deps -r tests/fixtures/term_v2/requirements-spike.txt
+      - name: Instalar WeasyPrint apenas para comparação PDF T01
+        timeout-minutes: 3
+        run: python -m pip install --only-binary=:all: weasyprint==70.0
       - run: python -m pip check
       - run: python -m ruff check --config pyproject.toml .
       - name: Validar schema cliente experimental T01 (Node sem pacotes externos)
