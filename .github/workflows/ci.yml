@@ -61,23 +61,16 @@ jobs:
         working-directory: backend/tests/fixtures/term_v2/tiptap_poc
         timeout-minutes: 2
         run: node --test rich_schema.test.mjs
-      # Bootstrap T01: gerar o lock do build uma unica vez no runner autorizado.
-      # Remover esta resolucao quando o lock exato for recuperado e versionado.
-      - name: Gerar lock esbuild isolado T01 (bootstrap temporario)
+      - name: Auditar e instalar ferramentas de build T01 pelo lock versionado sem scripts
         working-directory: backend/tests/fixtures/term_v2/tiptap_poc/build_tools
         timeout-minutes: 3
         run: |
           node --version
           npm --version
-          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
-          sha256sum package-lock.json > package-lock.sha256
-      - name: Auditar e instalar ferramentas de build T01 sem scripts
-        working-directory: backend/tests/fixtures/term_v2/tiptap_poc/build_tools
-        timeout-minutes: 3
-        run: |
           sha256sum --check package-lock.sha256
           npm ci --include=optional --ignore-scripts --no-audit --no-fund
           sha256sum --check package-lock.sha256
+          git diff --exit-code -- package-lock.json package-lock.sha256
           npm sbom --package-lock-only --sbom-format=cyclonedx > sbom.json
           status=0
           npm audit --json --audit-level=high > audit.json || status=$?

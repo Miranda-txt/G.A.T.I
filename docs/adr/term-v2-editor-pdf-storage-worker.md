@@ -237,3 +237,12 @@ sem nova resolução de versões no CI; a ferramenta de build ainda exige
 lock/auditoria. O novo CI deve confirmar a mudança. PDF/A-2b não conforme;
 storage/worker operacionais e aprovação tecnológica permanecem pendentes.
 **T01 não aprovada; T02 bloqueada.**
+
+## Atualização do lock de build — 27/11/2026
+
+O bootstrap esbuild de `9b28b3e` ficou GREEN; o lock exato e SHA-256
+foram recuperados do artefato 15197072306 e versionados, sem alteração
+nas versões do editor ou ferramenta. Ver evidências na seção 10 do
+[parecer T01](term-v2-t01-gate-review.md). O CI deste incremento deve
+confirmar a instalação sem resolução dinâmica. Node/npm e runner
+permanecem variáveis. T01 em avaliação; T02 bloqueada.

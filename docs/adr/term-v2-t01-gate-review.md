@@ -169,3 +169,33 @@ versionar e verificar o lock em novo CI sem resolução dinâmica.
 Não atualizar versões, não instalar no runtime produtivo, não contratar
 serviços. Sem garantia de build bit a bit, pois Node/npm e runner
 ainda podem variar. T01 em avaliação; T02 bloqueada.
+
+## 10. Lock do build recuperado e versionado — 27/11/2026
+
+O bootstrap de `9b28b3e` ficou GREEN em
+[Núcleo Patrimonial #45998560696](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45998560696)
+e [Segurança #45998560698](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45998560698).
+320 Pytest aprovados, 2 ignorados, 33/33 Node Tiptap, 4/4 Node inicial;
+Node 24.22.3 / npm 11.19.1, esbuild 0.27.0, bundle 792,4 KiB (valor
+reportado pelo esbuild: 792.4kb), Chromium e build Docker aprovados.
+O [artefato 15197072306](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45998560696/artifacts/15197072306)
+foi baixado e inspecionado: lockfileVersion 3, 13.991 bytes, 27 pacotes
+(1 esbuild e 26 binários opcionais de plataforma, todos MIT segundo
+metadados do lock), integridades SHA-512, SBOM CycloneDX 1.5 com 27
+componentes, npm audit 0 vulnerabilidades reportadas.
+SHA-256 `15eb0b6d9f9203c0744f5038d03472320055d3166a1a070a7fdfece9fa04fed5`; Git blob `6f71b4ae6217f24e8d0b73e72294c54bbbd400b3`.
+O blob enviado foi conferido contra o arquivo do artefato.
+
+Ruling: versionar o lock e o arquivo SHA-256 exatos do CI GREEN, sem
+alterar versões. Remover a geração dinâmica do lock; preservar npm ci
+sem scripts, auditoria, SBOM, verificação do hash antes/depois,
+git diff dos locks e teste da versão do binário. O novo CI deve
+confirmar o consumo do lock versionado. O log registrou aviso DEP0169
+de url.parse() em processos Node do runner, sem falha; não atribuir
+a origem ao esbuild sem investigação. Node/npm e ubuntu-latest ainda
+podem variar, portanto não afirmar reprodutibilidade bit a bit.
+Metadados de licença e auditoria pontual não substituem revisão
+de licenças, SBOM do editor completo e monitoramento de advisories.
+Não há alteração de dependências produtivas ou liberação de T02.
+
+**Próximo gate:** após GREEN do lock de build versionado, iniciar prova JSON rico Tiptap v2 → PDF diretamente do contrato Python, com resolução de variáveis, snapshot e recursos autorizados; sem adoção definitiva de motor ou alteração produtiva.
