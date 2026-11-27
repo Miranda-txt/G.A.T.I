@@ -205,3 +205,16 @@ Não há alteração de dependências produtivas ou liberação de T02.
 CI de dfc7fe0 GREEN: 320 Pytest, 2 ignorados, 33 Node Tiptap, locks íntegros e auditoria npm sem vulnerabilidades reportadas. Novo spike isolado consome o validador Python existente, snapshot sintético e imagens aprovadas. RED local: 26 falhas por capacidade ausente; GREEN 26/26. Revisão visual identificou divisão de signatários: 3/4 testes adicionais falharam; correção e GREEN local 30/30. Python 3.13.5, ReportLab 4.4.9, WeasyPrint 68.0, pypdf 5.9.0, Pillow 12.3.0; versões diferentes do CI. Ruff indisponível localmente. CI integral pendente.
 
 Ruling: usar fontes Vera já distribuídas pelo ReportLab, rejeitar glifos não suportados em vez de perda silenciosa, tabelas não retangulares e cabeçalhos mistos, PNG de até 1 MiB e 512 px por dimensão, até 8 recursos no catálogo. Limites exclusivamente experimentais; podem restringir conteúdo válido no editor, exigindo revisão antes de integração. Snapshot reduzido de laboratório, não contrato definitivo de domínio. Nenhuma dependência produtiva alterada. Teste de socket não equivale a isolamento de rede por processo. PDF comum, não PDF/A. Pendentes: inspeção final em CI, fontes/licenças, limites de páginas/tempo, concorrência, paridade de schema, segurança de recursos reais e homologação dos motores. T02 bloqueada.
+
+## 12. Benchmark direto JSON v2 — 27/11/2026
+
+GREEN confirmado em 5c1556b: [Núcleo Patrimonial](https://github.com/Miranda-txt/G.A.T.I/actions/runs/46007623418) e [Segurança](https://github.com/Miranda-txt/G.A.T.I/actions/runs/46007623382). 350 Pytest aprovados, 2 ignorados, 1 aviso, 30/30 conversor, 33/33 Tiptap, 195 arquivos formatados, cobertura 88,77%/74,40%.
+
+Coletor isolado por cenário: RED 7 falhas pela ausência do coletor; GREEN local 37/37 incluindo 30 regressões do conversor. Matriz 16 cenários (2 motores, 2 orientações, 1/100 ativos, 1/10 signatários), 5 amostras medidas e uma inicial por cenário. Cada PDF inspecionado, SHA-256, dimensões, conteúdo, imagem e ausência de mutação do input. Todos os hashes repetidos coincidiram localmente, sem garantia entre ambientes. Python 3.13.5, ReportLab 4.4.9, WeasyPrint 68.0; adaptação local da sintaxe PEP 758, sem Ruff disponível. CI usa versões distintas.
+
+| Máximo | ReportLab mediana ms | WeasyPrint mediana ms | Páginas RL/WP |
+|---|---:|---:|---:|
+| Retrato | 34,96 | 331,57 | 4/5 |
+| Paisagem | 32,12 | 327,09 | 7/7 |
+
+RSS retrato 139,15/178,23 MiB do processo completo (ambos motores importados, inspeção incluída); bytes 70.280/21.048. Medições sequenciais, sem SLO, sem p95/p99 confiáveis. Ruling: manter cinco repetições por cenário no CI para limitar custo, preservar amostras brutas e validar PDF/A-2b nos quatro casos máximos com veraPDF existente. Não adotar motor definitivo, não alterar dependências produtivas. CI deste incremento pendente. Concorrência, limites adversariais, fidelidade visual e armazenamento/worker ainda pendentes. T02 bloqueada.

@@ -172,6 +172,35 @@ jobs:
             status="$(python tests/fixtures/term_v2/verapdf_report.py "$RUNNER_TEMP/term-v2/rico-$motor.xml" "$code")"
             printf 'rico-%s: %s (exit=%s)\n' "$motor" "$status" "$code" | tee -a "$RUNNER_TEMP/term-v2/verapdf-status.txt"
           done
+      - name: Medir conversao direta JSON v2 para PDF em processos separados
+        timeout-minutes: 6
+        run: |
+          set -euo pipefail
+          for motor in reportlab weasyprint; do
+            for orientation in portrait landscape; do
+              for assets in 1 100; do
+                for signers in 1 10; do
+                  python tests/fixtures/term_v2/json_pdf_benchmark.py --engine "$motor" --orientation "$orientation" --assets "$assets" --signers "$signers" --repetitions 5 --output "$RUNNER_TEMP/term-v2"
+                done
+              done
+            done
+          done
+      - name: Classificar PDF/A-2b dos PDFs JSON v2 maximos
+        timeout-minutes: 5
+        env:
+          VERAPDF_IMAGE: verapdf/cli:v1.30.4
+        run: |
+          set -euo pipefail
+          image_id="$(docker image inspect --format '{{.Id}}' "$VERAPDF_IMAGE")"
+          for motor in reportlab weasyprint; do
+            for orientation in portrait landscape; do
+              scenario="json-v2-$motor-$orientation-100-10"
+              code=0
+              docker run --rm --network none --cap-drop ALL --security-opt no-new-privileges --memory 512m --cpus 1 --pids-limit 256 -v "$RUNNER_TEMP/term-v2:/data:ro" "$image_id" --flavour 2b --format xml "$scenario.pdf" > "$RUNNER_TEMP/term-v2/$scenario.xml" 2> "$RUNNER_TEMP/term-v2/$scenario.stderr.log" || code=$?
+              status="$(python tests/fixtures/term_v2/verapdf_report.py "$RUNNER_TEMP/term-v2/$scenario.xml" "$code")"
+              printf '%s: %s (exit=%s)\n' "$scenario" "$status" "$code" | tee -a "$RUNNER_TEMP/term-v2/verapdf-status.txt"
+            done
+          done
       - name: Publicar evidencias sinteticas T01
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
