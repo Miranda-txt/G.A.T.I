@@ -89,11 +89,7 @@ def _node(node, parent, depth, ctx):
         seen = set()
         for mark in marks:
             _obj(mark, ("type",))
-            if (
-                not isinstance(mark["type"], str)
-                or mark["type"] not in MARKS
-                or mark["type"] in seen
-            ):
+            if not isinstance(mark["type"], str) or mark["type"] not in MARKS or mark["type"] in seen:
                 raise ValueError("Marca não permitida")
             seen.add(mark["type"])
         return
