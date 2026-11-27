@@ -301,7 +301,8 @@ def _weasyprint(blocks, page, margin, orientation):
             rows, headers = block[1:]
             head = "".join("<tr>" + "".join(f"<th>{v}</th>" for v in row) + "</tr>" for row in rows[:headers])
             body = "".join("<tr>" + "".join(f"<td>{v}</td>" for v in row) + "</tr>" for row in rows[headers:])
-            parts.append(f"<table><thead>{head}</thead><tbody>{body}</tbody></table>")
+            header = f"<thead>{head}</thead>" if headers else ""
+            parts.append(f"<table>{header}<tbody>{body}</tbody></table>")
         elif kind == "signers":
             signers = "".join(f"<p>{signer}</p>" for signer in block[1])
             parts.append(f'<section class="signers"><h2>Signatários</h2>{signers}</section>')

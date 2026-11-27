@@ -37,3 +37,12 @@ Casos: minimo, ativos_maximos, signatarios_maximos, maximo_combinado. Um aquecim
 - Storage: 26 testes de capacidade com fake S3/R2; sem bucket/IAM/R2 real.
 - Worker: 10 testes PostgreSQL/lease/deduplicação; sem scheduler ou runner contínuo.
 - [Gate e matriz de decisões](../../../../docs/adr/term-v2-t01-gate-review.md): os testes experimentais não autorizam T02 nem uso de dados reais.
+
+## Corpus adversarial JSON v2 — 27/11/2026
+
+Em backend/, somente no ambiente de testes Linux com dependências experimentais instaladas:
+
+    python -m pytest tests/test_term_v2_json_pdf_adversarial.py -v
+    python tests/fixtures/term_v2/json_pdf_adversarial.py --output /tmp/gati-adversarial-novo
+
+Usar diretório vazio. 16 cenários por motor/orientação, 64 jobs em pares concorrentes, reutilizando o envelope de capacidade existente. 28 casos válidos esperados e 36 rejeições explícitas (sem PDF). Limites de laboratório: 4096 caracteres por nó, 100 linhas, 12 células, 1000 nós e 131072 bytes de JSON canônico. Casos adicionais: imagens repetidas, expansão de variável, tabela irregular, variável ausente, recurso não autorizado e bloco protegido adulterado. O subprocesso verifica integridade textual e ordem (desconsiderando espaços de extração e rodapé experimental), 100 ativos, 10 signatários, operações de imagem, páginas A4, hash e ausência de mutação. O processo pai verifica relatório, hash e limites antes de publicar os bytes sintéticos. Sem interpretação como PDF/A, sem prova de geometria visual, sandbox completo ou política produtiva. O CI guarda as evidências no artefato gati-term-v2-renderer-evidence/adversarial. Consultar o parecer T01 para resultados e pendências.

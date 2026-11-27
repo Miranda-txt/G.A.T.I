@@ -239,3 +239,31 @@ Ruling: envelope experimental Linux por processo de 512 MiB de espaço virtual (
 Falha: uma única escrita buffered de 8192 bytes com RLIMIT_FSIZE=1024 retornou exit 0 no CI Python 3.14.10. O log não informa quantos bytes foram efetivamente gravados porque a assertion de status precedia a inspeção do arquivo. Investigação local Python 3.13.5: a expressão buffered original retorna EFBIG; a escrita bruta única de 8192 bytes retorna 1024 e exit 0, com arquivo de 1024 bytes; nova escrita retorna EFBIG e exit 1. Logo, exit 0 de uma escrita isolada não demonstra violação do limite. Não atribuir uma causa interna específica ao CPython sem evidência adicional.
 
 Ruling: separar limite exato, escrita parcial e tentativa posterior acima do limite com I/O sem buffering; verificar o conteúdo completo do arquivo (1024 bytes) e código de saída. Adicionar rejeição de PDF truncado com metadados originais. Sem alterar o coletor, os limites, controles produtivos ou workflow. Mutação local em cópia isolada, removendo --fsize: 2 falhas esperadas, 1 aprovado; restauração do blob 1772f50829339e55003975c92cc5e385a1c29b76: 16/16 aprovados, compileall aprovado. Teste local não reproduz integralmente o CI Python 3.14; regressão completa e matriz real pendentes do novo CI. T01 aberta, T02 bloqueada.
+
+## 15. GREEN da capacidade e corpus adversarial — 27/11/2026
+
+Checkpoint c598609 confirmado GREEN em [Núcleo Patrimonial #46017540376](https://github.com/Miranda-txt/G.A.T.I/actions/runs/46017540376) e [Segurança #46017540325](https://github.com/Miranda-txt/G.A.T.I/actions/runs/46017540325). 373 aprovados, 2 ignorados (ClamAV real opcional), 1 aviso; cobertura 88,77%/74,40%. [Artefato oficial](https://github.com/Miranda-txt/G.A.T.I/actions/runs/46017540376/artifacts/15207915201). Valores por subprocesso na matriz anterior, conforme evidência registrada no handoff (8/8 aceitos):
+
+| Motor | Orientação | Slot | Wall ms | RSS KiB | Páginas |
+|---|---|---:|---:|---:|---:|
+| ReportLab | Retrato | 1 | 916,145 | 83424 | 4 |
+| ReportLab | Retrato | 2 | 916,105 | 83440 | 4 |
+| ReportLab | Paisagem | 1 | 916,358 | 83636 | 7 |
+| ReportLab | Paisagem | 2 | 916,259 | 83624 | 7 |
+| WeasyPrint | Retrato | 1 | 1516,930 | 98452 | 5 |
+| WeasyPrint | Retrato | 2 | 1517,158 | 98284 | 5 |
+| WeasyPrint | Paisagem | 1 | 1567,724 | 98336 | 7 |
+| WeasyPrint | Paisagem | 2 | 1567,658 | 97904 | 7 |
+
+Novo recorte: 16 cenários sintéticos por combinação de motor/orientação, 64 subprocessos (pares). Fronteiras exatas de caracteres, linhas, células, nós, bytes e um acima do limite; imagens aprovadas repetidas, 20 expansões de variável de 400 caracteres, tabela irregular, variável ausente, recurso não autorizado e bloco protegido adulterado. Sem dados reais. Reutiliza 512 MiB AS, 10 s CPU, 30 s wall, 5 MiB por arquivo, 50 páginas pós-render. Nenhum limite de produto decidido.
+
+RED local: 10 falhas, 2 aprovados (oito testes sem coletor e duas regressões WeasyPrint 68.0 de tabela sem cabeçalho omitida). Causa reproduzida: elemento thead vazio emitido em tabela exclusivamente de células comuns; a omissão desse elemento restaurou os dados (4/4 testes de regressão). Nenhuma mudança de schema ou motor produtivo. A versão oficial 70.0 ainda exige confirmação pelo CI.
+
+GREEN direcionado final local: 42/42 (30 anteriores + 12 novos). Matriz final local: 64/64, 28 PDFs íntegros, 36 rejeições esperadas sem PDF; 9 operações de desenho de imagem por documento do caso repetido. Hash, dimensão, páginas, ordem e presença dos valores esperados, não mutação e metadados conferidos; publicação após validação, diretório temporário limpo e cópia final por rename. Limitação: a comparação normaliza espaços e usa extração de texto e operações diretas de imagem, não prova geometria, visibilidade de cada glifo, fidelidade tipográfica ou ausência de qualquer conteúdo inesperado. Linhas altas que atravessam páginas permanecem pendentes de homologação visual e teste específico.
+
+| Motor local | Pico RSS KiB | Máximo wall de render ms | Máximo páginas | Máximo bytes |
+|---|---:|---:|---:|---:|
+| ReportLab 4.4.9 | 143552 | 175,22 | 26 | 94610 |
+| WeasyPrint 68.0 | 178040 | 3146,57 | 26 | 34565 |
+
+Ruling: ensaio local em cópia de blobs verificados, sem checkout integral por DNS, Python 3.13.5 com adaptação exclusivamente local de sintaxe except do Python 3.14; versões de motores diferentes do CI. Fontconfig local falhou com SIGSEGV sob o envelope antes do ajuste de ambiente MALLOC_ARENA_MAX=2 e OPENBLAS_NUM_THREADS=1, sem relaxar limites; resultado não demonstra capacidade produtiva. Ruff 0.17.3 indisponível no ambiente local; formatação revisada manualmente e verificação oficial pendente. Revisão própria, sem subagente. A matriz executa no CI antes de publicar os artefatos sintéticos; falha inesperada não é contada como rejeição legítima. O CI deste incremento está pendente. Sem eleição de motor, sem PDF/A declarado, sem integração real, sem alteração em produção/infra, sem encerramento T01 ou liberação T02.
