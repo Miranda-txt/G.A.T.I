@@ -15,18 +15,23 @@ Sem Cloud, Pro, contas, credenciais, URLs externas ou gravação produtiva.
 - Guard de transação no cliente e normalizador estrito no laboratório;
   **a validação produtiva no servidor ainda NÃO existe**.
 
-O `package.json` fixa as dependências OSS na versão 3.35.0. O CI gera um
-`package-lock.json` transitório, verifica seu hash em `package-lock.sha256`,
-executa `npm ci`/audit e publica o lock como artefato. O lock completo deve
-ser versionado após aceite da PoC; a estratégia de hash temporária não é
-substituto permanente do lock reproduzível versionado.
+O `package.json` fixa as dependências OSS na versão 3.35.0. O
+`package-lock.json` experimental completo foi recuperado do artefato
+[15196270278](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45995627126/artifacts/15196270278)
+do CI GREEN de `e78af56`, conferido byte a byte pelo SHA-256 já registrado
+em `package-lock.sha256` e pelo Git blob. O CI passa a consumir esse lock
+diretamente, sem resolver novamente as versões transitivas; verifica o
+hash, executa `npm ci`/audit, verifica ausência de alteração no lock e
+publica o artefato. O primeiro CI dessa mudança ainda deve confirmar a
+instalação a partir do lock versionado. Não é aprovação da dependência
+para produção.
 
 Execução em runner isolado com acesso ao registry:
 
 ```sh
-npm install --package-lock-only --ignore-scripts --no-audit --no-fund
 sha256sum -c package-lock.sha256
 npm ci --ignore-scripts --no-audit --no-fund
+git diff --exit-code -- package-lock.json
 npm audit --omit=dev --audit-level=high
 npm test
 ```
@@ -104,8 +109,14 @@ RED: [CI do commit a71b539](https://github.com/Miranda-txt/G.A.T.I/actions/runs/
 24/33 testes Node aprovados, 9 falhas; reprodução local dos 23 casos
 Python em 3.13.5 (adaptação de sintaxe da exceção somente na cópia RED):
 14 aprovados, 9 falhas. Após a correção, os 23 casos Python passaram
-localmente. A confirmação Node, Chromium, Ruff e suíte integral depende
-do CI do novo commit. Não declarar equivalência exaustiva: limites
+localmente. O CI de `8699fcf` confirmou 33/33 testes Node, mas falhou
+exclusivamente no Ruff format. Após correção de formatação em `e78af56`,
+[Núcleo Patrimonial](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45995627126)
+e [Segurança](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45995627009)
+ficaram GREEN: 33/33 Node (23 compartilhados), 320/322 Pytest (2 smoke
+ClamAV opcionais ignorados), 1 aviso, 193 arquivos formatados, Chromium,
+Django, OpenAPI, cobertura e Docker aprovados. Não declarar equivalência
+exaustiva: limites
 numéricos na fronteira JSON, canonicalização, clipboard rico, validação
 HTTP e autorização por recurso ainda exigem homologação. Nenhuma alteração
 produtiva, nova dependência ou liberação de T02.

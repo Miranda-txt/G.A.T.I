@@ -1,10 +1,11 @@
 # T01 — Parecer consolidado do gate de dependências e tecnologias
 
-- Revisão: 2026-11-26, checkpoints do SHA af04340e5fda9ac44d27e0169fcb9320e77ea9fc.
+- Revisão inicial: 2026-11-26, checkpoints do SHA af04340e5fda9ac44d27e0169fcb9320e77ea9fc.
+- Atualização de evidências: 2026-11-27, SHA `e78af56bde743d0cd87d88ded95032296c8ba756`; ver seção 8 (prevalece sobre estados históricos de CI).
 - Autoridade: GATI-SPEC-TERM-002 v0.1.0 e plano de 2026-11-25, Task 01.
 - Estado: **PARECER TÉCNICO PARCIAL; T01 NÃO APROVADA; T02 BLOQUEADA**.
 - Escopo: evidências dos spikes, comparação/licenças, limites, riscos e ações de desbloqueio.
-- Controle: não altera produção, migrations, lock, serviços, contas, CI ou visibilidade do repositório.
+- Controle: não altera produção, migrations, dependências produtivas, serviços, contas ou visibilidade do repositório. A seção 8 registra apenas lock e CI do laboratório.
 
 ## 1. O que está comprovado no commit de referência
 
@@ -97,3 +98,50 @@ Assinaturas/decisão: **PENDENTES** — responsável técnico, responsável de o
 **Limitações decisivas:** não implementa o editor da aplicação nem integra Django; não há autenticação/autorização do usuário, banco de dados, persistência, workflow de assinaturas, emissão ou deploy. Não há certificação WCAG, teste de leitores de tela, IME, toque real, modelagem de conteúdo arbitrário, redimensionamento de tabela, validação completa de clipboard rico nem reconciliação com o schema v1. Capturas são evidência visual pontual, não aprovação de acessibilidade. esbuild é fixado no comando mas não bloqueado em lock transitivo definitivo. Testes externos seguem exigindo Python 3.14/PostgreSQL 18 e dependências de laboratório.
 
 **Ruling:** a PoC visual de Tiptap OSS passou seus gates de laboratório; **não aprovar Tiptap para T04 apenas com esses resultados**. Próximos gates: serialização rica compatível com backend e classes de conteúdo reais, sanitização cross-browser, acesso a recursos com scanner/quarentena, ergonomia de edição complexa, licença/SCA e build fixo, teste com tecnologia assistiva, aceitação de runtime/storage e assinatura do ADR. **T01 em avaliação; T02 bloqueada**.
+
+## 8. Contrato adversarial GREEN, revisão e lock experimental — 27/11/2026
+
+**Referência verificável:** `e78af56bde743d0cd87d88ded95032296c8ba756`.
+[Núcleo Patrimonial #45995627126](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45995627126)
+e [Segurança #45995627009](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45995627009)
+concluídos com sucesso. Python 3.14.10 / PostgreSQL 18.6; 322 coletados,
+320 aprovados, 2 smoke ClamAV real ignorados, 1 aviso, 0 falhas;
+33/33 testes Node Tiptap (23 casos do corpus compartilhado) e 4/4 Node
+do editor inicial; 193 arquivos formatados; Ruff lint, Chromium, Django
+check/migrations, OpenAPI, build Docker e scanners aprovados. Cobertura
+global 88,77% linhas / 74,40% ramificações.
+
+- RED: `30c7cdc` e `a71b539` (ampliação para 23 casos; [CI #45994004106](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45994004106), 24/33 Node, 9 falhas).
+- Correção autorizada: `8699fcf` (33/33 Node; CI interrompido por formatação, [#45995238715](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45995238715)).
+- GREEN integral: `e78af56`, ajuste exclusivo de formatação. O contrato exige raiz doc, UUID v4 canônico, ausência distinta de null, pontos de código Unicode, rejeição de controles/substitutos isolados, tipos malformados e alt não vazio. O servidor é autoridade; nenhum endpoint Django foi implementado.
+- Revisão técnica **pelo próprio implementador**, sem subagente independente disponível: leitura dos validadores e teste compartilhado. A equivalência é limitada ao corpus. Em particular, JSON com números integrais escritos como 2.0/2e0 pode ser aceito pelo JS e recusado pelo Python (type int); não é bypass do servidor, mas exige contrato de fronteira HTTP e regressão antes de integração. Tabelas com linhas de comprimentos distintos não são proibidas pelos guardas atuais; a política de tabelas e a renderização fiel devem ser testadas no spike JSON→PDF. O guard do cliente verifica unicidade/payload, não posição imutável; regenerar bloco de snapshot autorizado. Limites permanecem experimentais. Nenhum parecer independente ou WCAG certificado.
+
+### Lock experimental versionado
+
+- Fonte: [artefato 15196270278](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45995627126/artifacts/15196270278), baixado e inspecionado. ZIP contém somente package-lock.json, 13.025 bytes, lockfileVersion 3, SHA-256 `d2fbff6856b4c7a3894eded3493487df9fb206a13fbcf483db5276053e2fc788`, Git blob `53a292756c179c357344f552ed5d77136966800d`.
+- 26 pacotes (10 Tiptap diretos e 16 transitivos), todos com versão, integridade SHA-512 e metadado de licença MIT no lock. O npm audit do CI de referência reportou 0 vulnerabilidades; isso não substitui revisão dos arquivos LICENSE, advisories futuros, SBOM e auditoria da cadeia de build.
+- Ruling: versionar **exatamente** o lock já testado, sem atualizar pacote ou alterar dependência produtiva; retirar apenas a regeneração do lock no CI, preservar verificação SHA-256, npm ci e audit, e verificar que o lock não foi modificado. Custo residual: novo CI precisa validar checkout/instalação; esbuild 0.27.0 continua fixado no comando e fora do lock, portanto o build completo ainda não é reproduzível. Não implica aprovação definitiva do editor.
+
+### PDF: medição atualizada, ainda sem JSON rico direto
+
+Dados do mesmo CI, 100 ativos/10 signatários, cinco repetições por motor:
+
+| Motor | Mediana wall (ms) | Mediana CPU (ms) | Pico RSS (KiB) | Páginas | Bytes |
+|---|---:|---:|---:|---:|---:|
+| ReportLab 5.1.2 | 47,899007 | 47,883607 | 80.532 | 5 | 7.780 |
+| WeasyPrint 70.0 | 538,841959 | 539,079835 | 117.008 | 6 | 25.184 |
+
+[Artefato de evidências 15196076638](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45995627126/artifacts/15196076638).
+Os quatro PDFs simples e os dois ricos permanecem não conformes ao PDF/A-2b
+no veraPDF; sucesso operacional do job não é aprovação arquivística.
+Não usar a mediana isolada como SLA nem declarar fidelidade do editor:
+o fixture atual não consome diretamente o schema Tiptap v2.
+
+**Gate:** T01 permanece em avaliação; T02 bloqueada. Próximos incrementos
+isolados: validar o novo CI com lock versionado, fechar o lock/auditoria
+da ferramenta de build, prova direta JSON v2 validado → PDF com
+variáveis/snapshot/recursos controlados e inspeção de todas as páginas,
+limites e concorrência; homologação de storage privado real e execução
+do worker dependem de ambiente/decisão autorizados; decisão final do ADR
+e limites aprovados. Sem merge, deploy, provisionamento ou alteração
+de dependências produtivas. O presente registro não declara T01 concluída.

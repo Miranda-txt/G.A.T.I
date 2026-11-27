@@ -224,3 +224,16 @@ Nenhuma dependência, configuração de nuvem, modelo de banco, rota, migração
 - **Sem alteração produtiva**: nenhuma dependência/lock, serviço Django, rota, worker de deployment, migration, bucket, conta ou segredo real foi introduzido. Manter T01 em avaliação e T02 bloqueada até assinatura da decisão tecnológica e dos demais gates.
 
 Ruling: o protótipo isolado em testes fornece evidência suficiente **somente** para a viabilidade do mecanismo PostgreSQL de claims/leases, não para aprovação de plataforma de execução nem da fila de produção. Custo residual: interrupções de serviço, duplicação de efeitos externos e retenção de tarefas ainda dependem de desenho e testes integrados.
+
+## Contrato rico adversarial e lock experimental — 27/11/2026
+
+A atualização consolidada de evidências, revisão técnica, lock Tiptap e
+benchmark PDF está na [seção 8 do parecer T01](term-v2-t01-gate-review.md#8-contrato-adversarial-green-revisão-e-lock-experimental--27112026).
+O GREEN de referência é `e78af56` (320 Pytest aprovados, 2 ignorados,
+33/33 Node Tiptap). A decisão aprovada é somente a correção por contrato
+compartilhado e autoridade Python; não a adoção definitiva do Tiptap.
+O lock completo do laboratório é versionado a partir do artefato validado,
+sem nova resolução de versões no CI; a ferramenta de build ainda exige
+lock/auditoria. O novo CI deve confirmar a mudança. PDF/A-2b não conforme;
+storage/worker operacionais e aprovação tecnológica permanecem pendentes.
+**T01 não aprovada; T02 bloqueada.**
