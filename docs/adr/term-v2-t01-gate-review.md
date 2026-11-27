@@ -218,3 +218,16 @@ Coletor isolado por cenário: RED 7 falhas pela ausência do coletor; GREEN loca
 | Paisagem | 32,12 | 327,09 | 7/7 |
 
 RSS retrato 139,15/178,23 MiB do processo completo (ambos motores importados, inspeção incluída); bytes 70.280/21.048. Medições sequenciais, sem SLO, sem p95/p99 confiáveis. Ruling: manter cinco repetições por cenário no CI para limitar custo, preservar amostras brutas e validar PDF/A-2b nos quatro casos máximos com veraPDF existente. Não adotar motor definitivo, não alterar dependências produtivas. CI deste incremento pendente. Concorrência, limites adversariais, fidelidade visual e armazenamento/worker ainda pendentes. T02 bloqueada.
+
+## 13. Capacidade concorrente experimental — 27/11/2026
+
+GREEN confirmado em 152e609: [Núcleo Patrimonial](https://github.com/Miranda-txt/G.A.T.I/actions/runs/46010947982) e [Segurança](https://github.com/Miranda-txt/G.A.T.I/actions/runs/46010947789). 357 aprovados, 2 ignorados, 1 aviso, 197 arquivos formatados, cobertura 88,77%/74,40%. Os quatro PDFs JSON máximos foram classificados como não conformes PDF/A-2b.
+
+| Motor | Retrato mediana ms | Paisagem mediana ms | RSS retrato KiB |
+|---|---:|---:|---:|
+| ReportLab 5.1.2 | 27,690357 | 29,817211 | 84220 |
+| WeasyPrint 70.0 | 152,984797 | 160,564632 | 104020 |
+
+ReportLab manteve hashes nas repetições máximas; WeasyPrint não. Não exigir regeneração idêntica: preservar bytes emitidos e hash. PDF comum é fallback previsto, sem aprovação definitiva.
+
+Ruling: envelope experimental Linux por processo de 512 MiB de espaço virtual (não RSS), 10 s CPU, 30 s wall, 5 MiB por arquivo, 50 páginas verificadas após geração, dois processos simultâneos. Oito jobs em quatro pares, cada um com duas medições e uma inicial. Limites não são SLO nem capacidade comprovada do Render. RED local 11 falhas por ausência do coletor; GREEN 11/11; teste adicional de registro de falhas RED 1 falha/1 aprovado; GREEN final 13/13, compileall aprovado. Matriz local usa benchmark sintético substituto, não motores reais; CI executará benchmark real. Sem checkout integral local por DNS indisponível, sem Ruff/Python 3.14/Django local; baseline remota GREEN. Revisão própria, sem subagente. Limites por processo não equivalem a cgroups, isolamento de rede ou sandbox de filesystem; saída de diagnóstico descartada, código de retorno registrado. Limite de páginas posterior à geração; não protege sozinho contra consumo durante renderização. Pendentes: carga adversarial documental, isolamento real, fidelidade visual, armazenamento e worker. T01 aberta, T02 bloqueada.

@@ -201,6 +201,11 @@ jobs:
               printf '%s: %s (exit=%s)\n' "$scenario" "$status" "$code" | tee -a "$RUNNER_TEMP/term-v2/verapdf-status.txt"
             done
           done
+      - name: Medir capacidade concorrente JSON PDF T01 com limites Linux
+        timeout-minutes: 4
+        run: |
+          set -euo pipefail
+          python tests/fixtures/term_v2/json_pdf_capacity.py --output "$RUNNER_TEMP/term-v2/json-v2-capacity.json"
       - name: Publicar evidencias sinteticas T01
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
