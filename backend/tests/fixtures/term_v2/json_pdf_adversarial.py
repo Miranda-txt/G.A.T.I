@@ -271,7 +271,7 @@ def run_case(engine, orientation, case, output):
                 capacity["validate_evidence"](directory, stem)
             elif pdf.exists() or metrics.get("rejection") != case:
                 raise ValueError("Rejected document produced PDF or incorrect result")
-        except (OSError, ValueError):
+        except OSError, ValueError:
             result["status"] = "invalid_evidence"
             return result
         output.mkdir(parents=True, exist_ok=True)
