@@ -5,7 +5,6 @@ Não integrar ao Django produtivo. Não consulta banco e não usa dados pessoais
 
 import json
 import re
-import uuid
 
 NODE_TYPES = {
     "doc",
@@ -46,6 +45,16 @@ TEXT_LIMIT = 4096
 BYTE_LIMIT = 131072
 NODE_LIMIT = 1000
 DEPTH_LIMIT = 8
+RESOURCE_ID = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}")
+INVALID_TEXT = re.compile(r"[\u0000-\u0008\u000b-\u001f\u007f\ud800-\udfff]")
+
+
+def _valid_resource_id(value):
+    return isinstance(value, str) and RESOURCE_ID.fullmatch(value) is not None
+
+
+def _valid_text(value, limit):
+    return isinstance(value, str) and 1 <= len(value) <= limit and INVALID_TEXT.search(value) is None
 
 
 def _obj(obj, required, optional=()):
@@ -62,7 +71,7 @@ def _node(node, parent, depth, ctx):
         raise ValueError("Profundidade acima do limite")
     _obj(node, ("type",), ("content", "attrs", "text", "marks"))
     kind = node["type"]
-    if kind not in NODE_TYPES:
+    if not isinstance(kind, str) or kind not in NODE_TYPES:
         raise ValueError("Nó não permitido")
     if parent is not None and kind not in CHILDREN.get(parent, set()):
         raise ValueError("Hierarquia inválida")
@@ -72,11 +81,7 @@ def _node(node, parent, depth, ctx):
     if kind == "text":
         _obj(node, ("type", "text"), ("marks",))
         value = node["text"]
-        if (
-            not isinstance(value, str)
-            or not 1 <= len(value) <= TEXT_LIMIT
-            or any(ord(ch) < 32 and ch not in "\t\n" for ch in value)
-        ):
+        if not _valid_text(value, TEXT_LIMIT):
             raise ValueError("Texto inválido")
         marks = node.get("marks", [])
         if not isinstance(marks, list) or len(marks) > 3:
@@ -84,7 +89,11 @@ def _node(node, parent, depth, ctx):
         seen = set()
         for mark in marks:
             _obj(mark, ("type",))
-            if mark["type"] not in MARKS or mark["type"] in seen:
+            if (
+                not isinstance(mark["type"], str)
+                or mark["type"] not in MARKS
+                or mark["type"] in seen
+            ):
                 raise ValueError("Marca não permitida")
             seen.add(mark["type"])
         return
@@ -105,17 +114,11 @@ def _node(node, parent, depth, ctx):
         _obj(node, ("type", "attrs"))
         attrs = node["attrs"]
         _obj(attrs, ("resourceId", "alt", "width", "height"))
-        try:
-            rid = uuid.UUID(attrs["resourceId"])
-        except TypeError, ValueError, AttributeError:
-            raise ValueError("Recurso inválido") from None
         if (
-            str(rid) != attrs["resourceId"]
-            or rid.version != 4
+            not _valid_resource_id(attrs["resourceId"])
             or attrs["resourceId"] not in ctx["allowed"]
-            or not isinstance(attrs["alt"], str)
-            or not attrs["alt"].strip()
-            or len(attrs["alt"]) > 160
+            or not _valid_text(attrs["alt"], 160)
+            or re.fullmatch(r"[\s\ufeff]*", attrs["alt"]) is not None
             or type(attrs["width"]) is not int
             or type(attrs["height"]) is not int
             or not 16 <= attrs["width"] <= 2000
@@ -150,12 +153,14 @@ def validate_rich_document(document, allowed_resource_ids):
     _obj(document, ("schema_version", "classification", "layout", "content"))
     if type(document["schema_version"]) is not int or document["schema_version"] != 2:
         raise ValueError("Versão do documento inválida")
-    if document["classification"] not in {"ENTREGA", "DEVOLUCAO", "EMPRESTIMO"}:
+    classification = document["classification"]
+    if not isinstance(classification, str) or classification not in {"ENTREGA", "DEVOLUCAO", "EMPRESTIMO"}:
         raise ValueError("Classificação inválida")
     _obj(document["layout"], ("paper", "orientation", "margin_mm"))
     lay = document["layout"]
     if (
         lay["paper"] != "A4"
+        or not isinstance(lay["orientation"], str)
         or lay["orientation"] not in {"portrait", "landscape"}
         or type(lay["margin_mm"]) is not int
         or not 10 <= lay["margin_mm"] <= 30
@@ -163,14 +168,10 @@ def validate_rich_document(document, allowed_resource_ids):
         raise ValueError("Layout inválido")
     if not isinstance(allowed_resource_ids, (set, frozenset)):
         raise ValueError("Allowlist controlada pelo servidor obrigatória")
-    if any(
-        not isinstance(key, str) or re.fullmatch(r"[0-9a-f-]{36}", key) is None
-        for key in allowed_resource_ids
-    ):
+    if any(not _valid_resource_id(key) for key in allowed_resource_ids):
         raise ValueError("Identificadores inválidos")
-    serialized = json.dumps(document, ensure_ascii=False, separators=(",", ":"))
-    if len(serialized.encode("utf-8")) > BYTE_LIMIT:
-        raise ValueError("Limite de tamanho")
+    if not isinstance(document["content"], dict) or document["content"].get("type") != "doc":
+        raise ValueError("Raiz deve ser doc")
     ctx = {
         "classification": document["classification"],
         "allowed": allowed_resource_ids,
@@ -180,4 +181,7 @@ def validate_rich_document(document, allowed_resource_ids):
     _node(document["content"], None, 0, ctx)
     if ctx["protected"] != 1:
         raise ValueError("Bloco patrimonial obrigatório e único")
+    serialized = json.dumps(document, ensure_ascii=False, separators=(",", ":"))
+    if len(serialized.encode("utf-8")) > BYTE_LIMIT:
+        raise ValueError("Limite de tamanho")
     return document

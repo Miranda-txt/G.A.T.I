@@ -18,7 +18,7 @@ const COMMON = new Set([
   'processo.localizacao', 'emissao.numero', 'emissao.data',
 ]);
 const LOAN = new Set(['emprestimo.inicio', 'emprestimo.prazo_original', 'emprestimo.finalidade']);
-const RESOURCE_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+const RESOURCE_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 const NODE_SET = new Set([
   'doc', 'heading', 'paragraph', 'text', 'variable', 'patrimonialBlock',
   'table', 'tableRow', 'tableCell', 'tableHeader', 'resourceImage',
@@ -32,9 +32,13 @@ const exact = (obj, required, optional = []) => {
     throw new Error('Atributos ou campos não permitidos');
   }
 };
+const isResourceId = value => typeof value === 'string' &&
+  value.length === 36 && RESOURCE_ID.test(value);
+const validText = (value, limit) => typeof value === 'string' &&
+  value.length > 0 && value.length <= limit * 2 && [...value].length <= limit &&
+  !/[\u0000-\u0008\u000b-\u001f\u007f\uD800-\uDFFF]/u.test(value);
 const strictText = value => {
-  if (typeof value !== 'string' || value.length < 1 || value.length > MAX_TEXT ||
-      /[\u0000-\u0008\u000b-\u001f\u007f]/u.test(value)) {
+  if (!validText(value, MAX_TEXT)) {
     throw new Error('Texto inválido ou excede limite');
   }
 };
@@ -136,9 +140,9 @@ function walk(node, context, depth, parent) {
     exact(node, ['type', 'attrs']);
     exact(node.attrs, ['resourceId', 'alt', 'width', 'height']);
     const { resourceId, alt, width, height } = node.attrs;
-    if (typeof resourceId !== 'string' || !RESOURCE_ID.test(resourceId) ||
+    if (!isResourceId(resourceId) ||
       !context.allowed.has(resourceId)) throw new Error('ID de recurso não autorizado');
-    if (typeof alt !== 'string' || !alt.trim() || alt.length > 160 ||
+    if (!validText(alt, 160) || /^[\s\u0085]*$/u.test(alt) ||
         !Number.isInteger(width) || !Number.isInteger(height) ||
         width < 16 || height < 16 || width > 2000 || height > 2000) {
       throw new Error('Atributos da imagem inválidos');
@@ -155,7 +159,7 @@ function walk(node, context, depth, parent) {
              type === 'tableCell' || type === 'tableHeader') {
     exact(node, ['type', 'content']);
   }
-  const children = node.content ?? [];
+  const children = Object.hasOwn(node, 'content') ? node.content : [];
   if (!Array.isArray(children) || (type !== 'paragraph' && children.length === 0)) {
     throw new Error('Conteúdo obrigatório');
   }
@@ -188,16 +192,16 @@ export function normalizeRichDocument(document, { allowedResourceIds = [] } = {}
       document.layout.margin_mm < 10 || document.layout.margin_mm > 30) {
     throw new Error('Layout inválido');
   }
-  if (!Array.isArray(allowedResourceIds) || allowedResourceIds.some(id =>
-    typeof id !== 'string' || !RESOURCE_ID.test(id))) {
+  if (!Array.isArray(allowedResourceIds) || allowedResourceIds.some(id => !isResourceId(id))) {
     throw new Error('Catálogo de recursos inválido');
   }
-  const data = JSON.stringify(document);
-  if (new TextEncoder().encode(data).length > MAX_BYTES) throw new Error('Documento acima do limite');
+  if (document.content?.type !== 'doc') throw new Error('Raiz deve ser doc');
   const context = { classification: document.classification, allowed: new Set(allowedResourceIds),
     count: 0, protected: 0 };
   walk(document.content, context, 0, null);
   if (context.protected !== 1) throw new Error('Bloco patrimonial obrigatório e único');
+  const data = JSON.stringify(document);
+  if (new TextEncoder().encode(data).length > MAX_BYTES) throw new Error('Documento acima do limite');
   // Preserve exact JSON; never accept loose HTML or serialize via innerHTML.
   const result = JSON.parse(data);
   const node = createRichSchema().nodeFromJSON(result.content);

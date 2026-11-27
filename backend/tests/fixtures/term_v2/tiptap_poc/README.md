@@ -79,3 +79,33 @@ abrangente, tabelas complexas/mescladas, edição arbitrária dentro de células
 colagem de conteúdo rico, integração com snapshot/assinatura, imagem real
 aprovada após scanner e persistência/validação/autorização Django.
 Nenhuma escolha de Tiptap/ProseMirror está aprovada para T04.
+
+## Contrato adversarial compartilhado — 27/11/2026
+
+Decisão aprovada para a correção experimental: JavaScript valida para feedback;
+Python é a autoridade de validação estrutural no futuro backend, sem confiar
+em DOM, HTML ou no catálogo fornecido pelo cliente. O corpus
+`schema_contract_cases.json` é consumido pelos testes Node e Pytest.
+
+- Raiz obrigatoriamente `doc`; conteúdo ausente permitido somente quando
+  previsto, mas `null` não equivale a ausência.
+- UUID v4 canônico minúsculo, inclusive no catálogo de recursos.
+- Limites de 4.096 pontos de código Unicode por nó de texto e 160 por
+  descrição de imagem; rejeitar C0 exceto TAB/LF, DEL e substitutos isolados.
+  Descrições exclusivamente compostas por whitespace (incluindo NEL e BOM)
+  são inválidas. Não se trata de contagem de grafemas.
+- Tipos malformados devem ser rejeitados de forma controlada; validar
+  hierarquia e profundidade antes de serializar e medir os bytes UTF-8.
+- Permanecem os limites de 128 KiB, 1.000 nós, profundidade 8, 100 linhas
+  e 12 células por linha, catálogo por classificação e bloco patrimonial
+  obrigatório e único. Nenhum URL externo ou atributo desconhecido.
+
+RED: [CI do commit a71b539](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45994004106),
+24/33 testes Node aprovados, 9 falhas; reprodução local dos 23 casos
+Python em 3.13.5 (adaptação de sintaxe da exceção somente na cópia RED):
+14 aprovados, 9 falhas. Após a correção, os 23 casos Python passaram
+localmente. A confirmação Node, Chromium, Ruff e suíte integral depende
+do CI do novo commit. Não declarar equivalência exaustiva: limites
+numéricos na fronteira JSON, canonicalização, clipboard rico, validação
+HTTP e autorização por recurso ainda exigem homologação. Nenhuma alteração
+produtiva, nova dependência ou liberação de T02.
