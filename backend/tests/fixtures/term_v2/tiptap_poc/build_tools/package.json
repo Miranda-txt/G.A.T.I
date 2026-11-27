@@ -1,0 +1,9 @@
+{
+  "name": "gati-term-v2-tiptap-build-tools",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Ferramentas de build isoladas da PoC T01, sem uso produtivo",
+  "dependencies": {
+    "esbuild": "0.27.0"
+  }
+}

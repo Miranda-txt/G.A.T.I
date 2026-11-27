@@ -120,3 +120,22 @@ exaustiva: limites
 numéricos na fronteira JSON, canonicalização, clipboard rico, validação
 HTTP e autorização por recurso ainda exigem homologação. Nenhuma alteração
 produtiva, nova dependência ou liberação de T02.
+
+## Build experimental: bootstrap de lock — 27/11/2026
+
+O lock Tiptap versionado foi confirmado no CI GREEN de `1f79229`:
+[Núcleo Patrimonial](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45996893701)
+e [Segurança](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45996893727).
+320/322 Pytest, 33/33 Node Tiptap, hash do lock íntegro, npm audit sem
+vulnerabilidades reportadas. Para fechar a lacuna de build, o manifesto
+`build_tools/package.json` mantém esbuild 0.27.0 em projeto npm separado.
+Não altera o lock Tiptap ou dependências produtivas. O runner autorizado
+gera temporariamente o lock (a rede do sandbox local não resolve o
+registry npm), instala com `npm ci --ignore-scripts`, inclui binário
+opcional da plataforma, publica hash, SBOM CycloneDX e relatório npm audit.
+O build chama diretamente o executável instalado; não usa npm exec nem
+download implícito durante o empacotamento. RED local: npm ci sem lock
+retornou EUSAGE, exit 1, conforme esperado. A execução remota deve confirmar
+instalação, auditoria e Chromium; depois recuperar/versionar o lock exato
+e remover a resolução temporária. Até esse segundo GREEN, o build completo
+não está bloqueado. Não é escolha produtiva de esbuild ou Tiptap.

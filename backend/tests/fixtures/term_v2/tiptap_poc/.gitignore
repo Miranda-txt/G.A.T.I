@@ -1,0 +1,4 @@
+node_modules/
+dist/
+build_tools/audit.json
+build_tools/sbom.json

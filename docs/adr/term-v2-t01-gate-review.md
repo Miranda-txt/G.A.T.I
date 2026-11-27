@@ -145,3 +145,27 @@ limites e concorrência; homologação de storage privado real e execução
 do worker dependem de ambiente/decisão autorizados; decisão final do ADR
 e limites aprovados. Sem merge, deploy, provisionamento ou alteração
 de dependências produtivas. O presente registro não declara T01 concluída.
+
+## 9. Lock do editor GREEN e bootstrap do lock de build — 27/11/2026
+
+[Núcleo Patrimonial #45996893701](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45996893701)
+e [Segurança #45996893727](https://github.com/Miranda-txt/G.A.T.I/actions/runs/45996893727)
+no SHA `1f79229bea0d092d267d2ce2f0a6eb6c571730b0`: GREEN, hash do lock
+OK, npm audit 0 vulnerabilidades reportadas, 33/33 Node Tiptap, 4/4 Node
+inicial, 322 coletados, 320 Pytest aprovados, 2 smoke ClamAV ignorados,
+1 aviso, cobertura 88,77% / 74,40%, Ruff, migrations, OpenAPI e Docker
+aprovados. A instalação do lock Tiptap versionado está comprovada.
+
+Ruling: manter esbuild 0.27.0 (versão já utilizada), em manifesto npm
+separado `tiptap_poc/build_tools/package.json`, para não alterar as
+26 dependências já validadas do editor. A rede local não resolve
+registry.npmjs.org; RED local de npm ci sem lock = EUSAGE, exit 1.
+Usar o runner de CI existente para gerar lock **temporário** uma vez,
+instalar sem lifecycle scripts, auditar todos os pacotes do build,
+publicar SHA-256/SBOM CycloneDX/audit e executar o bundle com o esbuild
+local. Nenhum npm exec dinâmico durante o build. Custo residual: o
+bootstrap ainda resolve o lock no runner; só concluir após recuperar,
+versionar e verificar o lock em novo CI sem resolução dinâmica.
+Não atualizar versões, não instalar no runtime produtivo, não contratar
+serviços. Sem garantia de build bit a bit, pois Node/npm e runner
+ainda podem variar. T01 em avaliação; T02 bloqueada.
