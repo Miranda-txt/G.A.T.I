@@ -41,15 +41,30 @@ def test_bounded_process_wall_timeout(tmp_path):
     [
         ("bytearray(256 * 1024 * 1024)", {"memory_mib": 64}),
         ("while True: pass", {"cpu_seconds": 1}),
-        ("open('excess.bin', 'wb').write(b'x' * 8192)", {"file_bytes": 1024}),
     ],
 )
 def test_bounded_process_rejects_resource_exhaustion(tmp_path, source, limits):
     result = _capacity()["run_bounded"]([sys.executable, "-c", source], tmp_path, **limits)
     assert result["status"] == "failed"
     assert result["returncode"] != 0
-    if (tmp_path / "excess.bin").exists():
-        assert (tmp_path / "excess.bin").stat().st_size <= 1024
+
+
+@pytest.mark.parametrize(
+    "writes,status",
+    [
+        ("stream.write(b'x' * 1024)", "ok"),
+        ("assert stream.write(b'x' * 8192) == 1024", "ok"),
+        ("stream.write(b'x' * 1024)\n    stream.write(b'y')", "failed"),
+    ],
+    ids=["exact-limit", "partial-write", "beyond-limit"],
+)
+def test_bounded_process_file_size_limit(tmp_path, writes, status):
+    # Uma escrita parcial pode retornar sucesso; o limite deve ser verificado nos bytes reais.
+    source = "with open('excess.bin', 'wb', buffering=0) as stream:\n    " + writes
+    result = _capacity()["run_bounded"]([sys.executable, "-c", source], tmp_path, file_bytes=1024)
+    assert result["status"] == status
+    assert (result["returncode"] == 0) == (status == "ok")
+    assert (tmp_path / "excess.bin").read_bytes() == b"x" * 1024
 
 
 def _evidence(directory, pages=1):
@@ -69,7 +84,7 @@ def test_capacity_accepts_verified_evidence(tmp_path):
     assert _capacity()["validate_evidence"](tmp_path, "sample") == expected
 
 
-@pytest.mark.parametrize("case", ["pages", "bytes", "hash", "page_count", "missing"])
+@pytest.mark.parametrize("case", ["pages", "bytes", "hash", "page_count", "missing", "truncated"])
 def test_capacity_rejects_invalid_evidence(tmp_path, case):
     metrics = _evidence(tmp_path, pages=2)
     limits = {}
@@ -81,8 +96,12 @@ def test_capacity_rejects_invalid_evidence(tmp_path, case):
         metrics["sha256"] = "0" * 64
     elif case == "page_count":
         metrics["pages"] = 1
-    else:
+    elif case == "missing":
         (tmp_path / "sample.pdf").unlink()
+    else:
+        pdf = tmp_path / "sample.pdf"
+        raw = pdf.read_bytes()
+        pdf.write_bytes(raw[: len(raw) // 2])
     (tmp_path / "sample.json").write_text(json.dumps(metrics), encoding="utf-8")
     with pytest.raises(ValueError):
         _capacity()["validate_evidence"](tmp_path, "sample", **limits)
