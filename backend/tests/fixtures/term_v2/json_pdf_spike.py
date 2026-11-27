@@ -110,7 +110,7 @@ def _image(raw):
             output = io.BytesIO()
             image.convert("RGBA").save(output, format="PNG")
             return output.getvalue(), image.size
-    except (OSError, ValueError, PillowImage.DecompressionBombError):
+    except OSError, ValueError, PillowImage.DecompressionBombError:
         raise ValueError("PNG inválido") from None
 
 
@@ -310,7 +310,7 @@ def _weasyprint(blocks, page, margin, orientation):
             source = uri(block[1], "image/png")
             parts.append(f'<img src="{source}" alt="" style="width:{iw}pt;height:{ih}pt"><p>{block[5]}</p>')
     markup = f"""<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><style>
-    {''.join(fonts)}
+    {"".join(fonts)}
     @page {{size:A4 {orientation};margin:{margin}pt;
       @bottom-left {{content:'GATI - PDF comum experimental';font:8pt GatiVera}}
       @bottom-right {{content:'Página ' counter(page);font:8pt GatiVera}}}}
@@ -321,7 +321,7 @@ def _weasyprint(blocks, page, margin, orientation):
     table {{width:100%;table-layout:fixed;border-collapse:collapse;margin-bottom:8pt;font-size:9pt}}
     th,td {{border:0.3pt solid #CBD5E1;padding:5pt;text-align:left;vertical-align:top}}
     th {{background:#E8EFF6}} thead {{display:table-header-group}} tr {{break-inside:avoid}}
-    </style></head><body>{''.join(parts)}</body></html>"""
+    </style></head><body>{"".join(parts)}</body></html>"""
     pdf = HTML(string=markup, url_fetcher=fetch).write_pdf(font_config=FontConfiguration())
     if denied:
         raise ValueError("Tentativa de fetch não autorizado")
