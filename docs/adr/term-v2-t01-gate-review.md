@@ -199,3 +199,9 @@ de licenças, SBOM do editor completo e monitoramento de advisories.
 Não há alteração de dependências produtivas ou liberação de T02.
 
 **Próximo gate:** após GREEN do lock de build versionado, iniciar prova JSON rico Tiptap v2 → PDF diretamente do contrato Python, com resolução de variáveis, snapshot e recursos autorizados; sem adoção definitiva de motor ou alteração produtiva.
+
+## 11. Spike JSON v2 para PDF — 27/11/2026
+
+CI de dfc7fe0 GREEN: 320 Pytest, 2 ignorados, 33 Node Tiptap, locks íntegros e auditoria npm sem vulnerabilidades reportadas. Novo spike isolado consome o validador Python existente, snapshot sintético e imagens aprovadas. RED local: 26 falhas por capacidade ausente; GREEN 26/26. Revisão visual identificou divisão de signatários: 3/4 testes adicionais falharam; correção e GREEN local 30/30. Python 3.13.5, ReportLab 4.4.9, WeasyPrint 68.0, pypdf 5.9.0, Pillow 12.3.0; versões diferentes do CI. Ruff indisponível localmente. CI integral pendente.
+
+Ruling: usar fontes Vera já distribuídas pelo ReportLab, rejeitar glifos não suportados em vez de perda silenciosa, tabelas não retangulares e cabeçalhos mistos, PNG de até 1 MiB e 512 px por dimensão, até 8 recursos no catálogo. Limites exclusivamente experimentais; podem restringir conteúdo válido no editor, exigindo revisão antes de integração. Snapshot reduzido de laboratório, não contrato definitivo de domínio. Nenhuma dependência produtiva alterada. Teste de socket não equivale a isolamento de rede por processo. PDF comum, não PDF/A. Pendentes: inspeção final em CI, fontes/licenças, limites de páginas/tempo, concorrência, paridade de schema, segurança de recursos reais e homologação dos motores. T02 bloqueada.
