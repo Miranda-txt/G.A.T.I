@@ -611,5 +611,215 @@
         ]
       }
     }
+  },
+  {
+    "id": "alt_unicode_limit",
+    "accept": true,
+    "allowed_resource_ids": [
+      "a1c92077-aaaa-4f11-8b22-001122334455"
+    ],
+    "document": {
+      "schema_version": 2,
+      "classification": "EMPRESTIMO",
+      "layout": {
+        "paper": "A4",
+        "orientation": "portrait",
+        "margin_mm": 20
+      },
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Termo de empréstimo — informação sintética."
+              }
+            ]
+          },
+          {
+            "type": "patrimonialBlock"
+          },
+          {
+            "type": "resourceImage",
+            "attrs": {
+              "resourceId": "a1c92077-aaaa-4f11-8b22-001122334455",
+              "alt": "𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀",
+              "width": 240,
+              "height": 180
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "alt_unicode_over_limit",
+    "accept": false,
+    "allowed_resource_ids": [
+      "a1c92077-aaaa-4f11-8b22-001122334455"
+    ],
+    "document": {
+      "schema_version": 2,
+      "classification": "EMPRESTIMO",
+      "layout": {
+        "paper": "A4",
+        "orientation": "portrait",
+        "margin_mm": 20
+      },
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Termo de empréstimo — informação sintética."
+              }
+            ]
+          },
+          {
+            "type": "patrimonialBlock"
+          },
+          {
+            "type": "resourceImage",
+            "attrs": {
+              "resourceId": "a1c92077-aaaa-4f11-8b22-001122334455",
+              "alt": "𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀𐐀",
+              "width": 240,
+              "height": 180
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "alt_blank_nel",
+    "accept": false,
+    "allowed_resource_ids": [
+      "a1c92077-aaaa-4f11-8b22-001122334455"
+    ],
+    "document": {
+      "schema_version": 2,
+      "classification": "EMPRESTIMO",
+      "layout": {
+        "paper": "A4",
+        "orientation": "portrait",
+        "margin_mm": 20
+      },
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Termo de empréstimo — informação sintética."
+              }
+            ]
+          },
+          {
+            "type": "patrimonialBlock"
+          },
+          {
+            "type": "resourceImage",
+            "attrs": {
+              "resourceId": "a1c92077-aaaa-4f11-8b22-001122334455",
+              "alt": "",
+              "width": 240,
+              "height": 180
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "alt_blank_bom",
+    "accept": false,
+    "allowed_resource_ids": [
+      "a1c92077-aaaa-4f11-8b22-001122334455"
+    ],
+    "document": {
+      "schema_version": 2,
+      "classification": "EMPRESTIMO",
+      "layout": {
+        "paper": "A4",
+        "orientation": "portrait",
+        "margin_mm": 20
+      },
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Termo de empréstimo — informação sintética."
+              }
+            ]
+          },
+          {
+            "type": "patrimonialBlock"
+          },
+          {
+            "type": "resourceImage",
+            "attrs": {
+              "resourceId": "a1c92077-aaaa-4f11-8b22-001122334455",
+              "alt": "﻿",
+              "width": 240,
+              "height": 180
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "alt_unpaired_surrogate",
+    "accept": false,
+    "allowed_resource_ids": [
+      "a1c92077-aaaa-4f11-8b22-001122334455"
+    ],
+    "document": {
+      "schema_version": 2,
+      "classification": "EMPRESTIMO",
+      "layout": {
+        "paper": "A4",
+        "orientation": "portrait",
+        "margin_mm": 20
+      },
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Termo de empréstimo — informação sintética."
+              }
+            ]
+          },
+          {
+            "type": "patrimonialBlock"
+          },
+          {
+            "type": "resourceImage",
+            "attrs": {
+              "resourceId": "a1c92077-aaaa-4f11-8b22-001122334455",
+              "alt": "Texto\ud800",
+              "width": 240,
+              "height": 180
+            }
+          }
+        ]
+      }
+    }
   }
 ]
