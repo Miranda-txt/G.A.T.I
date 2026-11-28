@@ -23,3 +23,7 @@
 - Revisar os nomes dos tipos de tarefas e o contrato de chaves na integração com as tarefas consumidoras. Não persistir segredo em outbox.
 - Nenhum worker real configurado, nenhuma alteração em produção. Repositório público: somente dados sintéticos.
 - Preserve todos os commits anteriores e não faça force push.
+
+## Checkpoint posterior — 28/11/2026
+
+A base `346d2a1` passou nos dois CIs, com 421 testes aprovados, migration 0005 OK e sem drift. Incremento subsequente adiciona conferência do lease antes do despacho, quarentena de NOTIFICACAO com lease vencido e serviço administrativo `queue_snapshot`. Ver seção de reforço T02 no relatório. 33 testes de política aprovados localmente; os quatro novos testes PostgreSQL e o CI completo devem ser confirmados no HEAD antes de declarar a T02 concluída. Não iniciar consumidores reais fora das tarefas previstas; T05/T07/T10/T13 ainda devem prover idempotência de domínio, revalidação antes do efeito e reconciliação. UI de consulta administrativa prevista para T11. Flag off, sem deploy, merge ou runtime provisionado. O próximo passo é confirmar CI e resolver falhas, depois confrontar o gate T02 e prosseguir para T03 com os requisitos originais.

@@ -13,13 +13,22 @@ from uuid import UUID, uuid4
 
 from django.conf import settings
 from django.db import connection, transaction
-from django.db.models import Q
+from django.db.models import Count, Min, Q
 from django.utils import timezone
 
+from gati.apps.usuarios.permissions import authorize
 from gati.common.errors import Conflict
 
 from ..models import OutboxTask
-from .outbox_policy import KINDS, attempt_cap, aware_time, finish_values, lease_duration, validate_identity
+from .outbox_policy import (
+    KINDS,
+    attempt_cap,
+    aware_time,
+    finish_values,
+    lease_duration,
+    lease_is_current,
+    validate_identity,
+)
 
 logger = logging.getLogger(__name__)
 HANDLERS: dict[str, Callable[[OutboxTask], str]] = {}
@@ -85,7 +94,24 @@ def claim(now, lease_seconds, *, kinds=None):
     if not kinds:
         return None
     with transaction.atomic():
-        ready = Q(estado="PENDENTE", run_after__lte=now) | Q(estado="PROCESSANDO", lease_until__lte=now)
+        expired = Q(estado="PROCESSANDO", lease_until__lte=now)
+        # A crashed notification worker may already have submitted to SMTP.
+        # Quarantine rather than automatically repeating an ambiguous effect.
+        uncertain = list(
+            OutboxTask.objects.select_for_update(skip_locked=True)
+            .filter(expired, kind="NOTIFICACAO", kind__in=kinds)
+            .order_by("lease_until", "id")
+            .values_list("pk", flat=True)[:100]
+        )
+        if uncertain:
+            OutboxTask.objects.filter(pk__in=uncertain).update(
+                estado="FALHA",
+                lease_id=None,
+                lease_until=None,
+                error_code="OUTCOME_UNCERTAIN",
+                updated_at=now,
+            )
+        ready = Q(estado="PENDENTE", run_after__lte=now) | (expired & ~Q(kind="NOTIFICACAO"))
         exhausted = list(
             OutboxTask.objects.select_for_update(skip_locked=True)
             .filter(ready, kind__in=kinds, attempts__gte=cap)
@@ -121,12 +147,8 @@ def finish(task_id, lease_id, outcome, *, now=None, clock=Clock.now):
     with transaction.atomic():
         task = OutboxTask.objects.select_for_update().filter(pk=task_id).first()
         current = aware_time(clock() if now is None else now)
-        if (
-            task is None
-            or task.estado != "PROCESSANDO"
-            or task.lease_id != lease_id
-            or task.lease_until is None
-            or task.lease_until <= current
+        if task is None or not lease_is_current(
+            task.estado, task.lease_id, task.lease_until, lease_id, current
         ):
             raise Conflict("Lease ausente, expirado ou substituido")
         task.estado, task.error_code, task.run_after = finish_values(
@@ -158,8 +180,17 @@ def run_one(now, *, handlers=None, clock=Clock.now):
     if task is None:
         return False
     task_id, lease_id, kind = task.pk, task.lease_id, task.kind
+    # Recheck ownership with the fresh clock before dispatch; this is not an
+    # external-effect fence. The domain handler must still revalidate its state.
+    with transaction.atomic():
+        current = OutboxTask.objects.select_for_update().filter(pk=task_id).first()
+        if current is None or not lease_is_current(
+            current.estado, current.lease_id, current.lease_until, lease_id, clock()
+        ):
+            logger.warning("term_outbox_lease_lost_before_dispatch task_id=%s", task_id)
+            return True
     try:
-        outcome = handlers[kind](task)
+        outcome = handlers[kind](current)
     except Exception:  # External outcomes may be ambiguous; do not retry or leak exception text.
         outcome = "UNCERTAIN"
     if outcome not in ("SUCCESS", "RETRY", "UNCERTAIN"):
@@ -171,3 +202,28 @@ def run_one(now, *, handlers=None, clock=Clock.now):
     except Conflict:
         logger.warning("term_outbox_lease_lost task_id=%s", task_id)
     return True
+
+
+def queue_snapshot(user, now, *, failure_limit=50, before_id=None):
+    """Admin-only read-only operational snapshot, including while V2 is disabled."""
+    authorize(user, admin=True)
+    aware_time(now)
+    if type(failure_limit) is not int or not 1 <= failure_limit <= 100:
+        raise ValueError("limite de falhas invalido")
+    if before_id is not None and (type(before_id) is not int or before_id <= 0):
+        raise ValueError("cursor invalido")
+    tasks = OutboxTask.objects.all()
+    oldest = tasks.filter(estado="PENDENTE", run_after__lte=now).aggregate(oldest=Min("run_after"))["oldest"]
+    counts = list(tasks.values("kind", "estado").annotate(total=Count("id")).order_by("kind", "estado"))
+    failures = tasks.filter(estado="FALHA")
+    if before_id is not None:
+        failures = failures.filter(id__lt=before_id)
+    failure_rows = failures.order_by("-id").values("id", "kind", "attempts", "error_code", "updated_at")
+    return {
+        "observed_at": now,
+        "enabled": enabled(),
+        "counts": counts,
+        "oldest_ready_seconds": int((now - oldest).total_seconds()) if oldest is not None else None,
+        "expired_leases": tasks.filter(estado="PROCESSANDO", lease_until__lte=now).count(),
+        "failures": list(failure_rows[:failure_limit]),
+    }

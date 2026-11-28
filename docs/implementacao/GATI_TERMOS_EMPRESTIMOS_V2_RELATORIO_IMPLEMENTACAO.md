@@ -67,3 +67,22 @@ Nenhum critério CA-TERM-01–28 é declarado concluído por este incremento iso
 - [Núcleo Patrimonial #46181267407](https://github.com/Miranda-txt/G.A.T.I/actions/runs/46181267407): RED no commit `1421eb6`, exclusivamente na etapa executada `ruff format --check`, com 1 arquivo a reformatar e 208 já formatados. O diagnóstico indica a quebra de linha da chamada `BigAutoField` na migration 0005. Ruff check e verificações anteriores aprovados; etapas Django, migrations, Pytest, cobertura e demais ensaios foram puladas, portanto não há evidência funcional desse run.
 - [Segurança #46181267450](https://github.com/Miranda-txt/G.A.T.I/actions/runs/46181267450): GREEN.
 - Correção: aplicar exatamente o diff emitido pelo Ruff na migration, sem alterar argumentos, operações, constraints, testes, dependências ou workflows. Comparação textual inversa confirma que não há outras alterações no código. Validação oficial de formatação e integração pendente de novo CI; não declarar T02 concluída. Sem merge, deploy ou ativação da feature flag.
+
+## T02 — reforço de confiabilidade e consulta administrativa — 28/11/2026
+
+Baseline `346d2a1`: [Núcleo Patrimonial GREEN](https://github.com/Miranda-txt/G.A.T.I/actions/runs/46182666266), [Segurança GREEN](https://github.com/Miranda-txt/G.A.T.I/actions/runs/46182666225); 421 aprovados, 2 ignorados, 1 aviso, 209 arquivos formatados, migration 0005 aplicada e ausência de drift de migrations. Os 36 testes da fundação estão incluídos nos 421.
+
+### Incremento
+
+- Lease conferido sob lock e relógio atualizado antes do despacho e da conclusão; handler continua fora de transação longa. Não é fencing de SMTP/R2: o handler deve revalidar o estado de negócio e a posse do lease imediatamente antes dos efeitos externos, e usar idempotência/reconciliação.
+- NOTIFICACAO com lease expirado é colocada em FALHA/OUTCOME_UNCERTAIN sem replay automático; processamento pode ter ocorrido antes da interrupção. Retry explicitamente seguro continua permitido. Lote de quarentena limitado a 100 por claim, sem incluir tipos fora do filtro. Outros tipos recuperáveis exigirão handlers idempotentes homologados.
+- `queue_snapshot(user, now, failure_limit=50, before_id=None)`: consulta somente leitura, autorização funcional de Admin existente, inclusive com flag desabilitada. Contagens por tipo/estado, idade da tarefa pronta mais antiga, leases expirados e paginação descendente por ID de falhas (máximo 100). Não retorna resource_id, dedupe_key, lease_id nem texto de exceção. Métricas são observações não atômicas, não SLO nem alerta automático. UI/HTTP ficam para T11; reenvio autorizado e reconciliação para T10/T13.
+- Sem alterações de schema, dependências, workflows, APIs públicas ou infraestrutura. Flag permanece off e registro produtivo de handlers vazio.
+
+### Evidência
+
+- RED local: 6 falhas pela ausência de `lease_is_current`, 27 aprovados. GREEN local: 33/33 testes de política (`python -m pytest -q -c /dev/null backend/tests/test_term_v2_outbox_policy.py`). Compileall e git diff --check aprovados na cópia parcial. Quatro novos testes PostgreSQL escritos (quarentena, despacho vencido, RBAC/snapshot, retry explícito fora de transação); teste existente de conclusão tardia ajustado para distinguir os dois momentos do relógio. Não se afirma RED/GREEN desses testes: coleta local bloqueada por ausência de Django. CI novo pendente; Ruff oficial indisponível localmente. Quatro blobs de código/testes conferidos por SHA Git contra cópia local. Revisão própria sem revisor independente.
+
+### Ruling
+
+Preferir falha conservadora ao replay automático de SMTP: pode exigir reconciliação manual de uma tarefa que não chegou a enviar; reduz duplicação de envio cujo resultado é desconhecido. Consulta administrativa é contrato interno, não uma tela completa. T02 permanece em validação até CI novo; T01 e gates externos continuam abertos; nenhuma autorização de produção presumida.

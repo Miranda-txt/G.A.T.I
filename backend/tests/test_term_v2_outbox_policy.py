@@ -90,3 +90,25 @@ def test_retry_is_exponential_bounded_and_sanitized():
 def test_invalid_outcomes_are_rejected(attempts, outcome, cap, jitter):
     with pytest.raises(ValueError):
         policy().finish_values(attempts, outcome, NOW, cap, jitter)
+
+
+@pytest.mark.parametrize(
+    "state,actual,deadline,expected,now,want",
+    [
+        ("PROCESSANDO", EVENT, NOW + timedelta(seconds=1), EVENT, NOW, True),
+        ("PROCESSANDO", EVENT, NOW, EVENT, NOW, False),
+        ("PROCESSANDO", EVENT, NOW - timedelta(seconds=1), EVENT, NOW, False),
+        ("PROCESSANDO", EVENT, None, EVENT, NOW, False),
+        (
+            "PROCESSANDO",
+            "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+            NOW + timedelta(seconds=1),
+            EVENT,
+            NOW,
+            False,
+        ),
+        ("PENDENTE", EVENT, NOW + timedelta(seconds=1), EVENT, NOW, False),
+    ],
+)
+def test_current_lease_requires_matching_live_owner(state, actual, deadline, expected, now, want):
+    assert policy().lease_is_current(state, UUID(actual), deadline, UUID(expected), now) is want

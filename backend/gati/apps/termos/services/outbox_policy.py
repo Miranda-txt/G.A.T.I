@@ -77,3 +77,14 @@ def finish_values(attempts, outcome, now, max_attempts, jitter_seconds):
         return "FALHA", "HANDLER_FAILED", now
     delay = min(3600, 5 * 2 ** (attempts - 1) + jitter_seconds)
     return "PENDENTE", "HANDLER_FAILED", now + timedelta(seconds=delay)
+
+
+def lease_is_current(state, actual_lease, deadline, expected_lease, now):
+    aware_time(now)
+    return (
+        state == "PROCESSANDO"
+        and type(expected_lease) is UUID
+        and actual_lease == expected_lease
+        and deadline is not None
+        and aware_time(deadline) > now
+    )

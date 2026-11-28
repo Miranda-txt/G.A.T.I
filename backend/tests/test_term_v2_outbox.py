@@ -7,6 +7,8 @@ from threading import Barrier
 from uuid import uuid4
 
 import pytest
+from django.contrib.auth.models import Group
+from django.core.exceptions import PermissionDenied
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.db import connection, connections, transaction
@@ -15,6 +17,7 @@ from django.utils import timezone
 from gati.apps.termos.models import OutboxTask
 from gati.apps.termos.services import outbox
 from gati.apps.termos.services.outbox_policy import dedupe_key
+from gati.apps.usuarios.models import UsuarioTI
 from gati.common.errors import Conflict
 
 pytestmark = pytest.mark.django_db(transaction=True)
@@ -134,10 +137,15 @@ def test_finish_rechecks_current_time():
     now = timezone.now()
     task = schedule(now)
 
-    def finish_late(_):
+    calls = []
+    moments = iter([now, now + timedelta(seconds=31)])
+
+    def finish_late(claimed):
+        calls.append(claimed.pk)
         return "SUCCESS"
 
-    assert outbox.run_one(now, handlers={"EMISSAO": finish_late}, clock=lambda: now + timedelta(seconds=31))
+    assert outbox.run_one(now, handlers={"EMISSAO": finish_late}, clock=lambda: next(moments))
+    assert calls == [task.pk]
     task.refresh_from_db()
     assert task.estado == "PROCESSANDO"
     assert outbox.claim(now + timedelta(seconds=31), 10).pk == task.pk
@@ -160,3 +168,81 @@ def test_disabled_by_default_or_without_handlers(settings):
     settings.GATI_TERMO_V2_ENABLED = True
     with pytest.raises(CommandError):
         call_command("processar_tarefas_termos", once=True)
+
+
+def test_expired_notification_lease_is_not_replayed():
+    now = timezone.now()
+    task = schedule(now, kind="NOTIFICACAO")
+    first = outbox.claim(now, 10)
+    assert first.pk == task.pk
+    assert outbox.claim(now + timedelta(seconds=10), 10) is None
+    task.refresh_from_db()
+    assert task.estado == "FALHA"
+    assert task.error_code == "OUTCOME_UNCERTAIN"
+    assert task.attempts == 1
+    assert task.lease_id is None and task.lease_until is None
+    with pytest.raises(Conflict):
+        outbox.finish(task.pk, first.lease_id, "SUCCESS", now=now + timedelta(seconds=10))
+
+
+def test_worker_does_not_dispatch_after_lease_expires():
+    now = timezone.now()
+    task = schedule(now)
+    calls = []
+
+    def handler(claimed):
+        calls.append(claimed.pk)
+        return "SUCCESS"
+
+    assert outbox.run_one(now, handlers={"EMISSAO": handler}, clock=lambda: now + timedelta(seconds=30))
+    assert calls == []
+    task.refresh_from_db()
+    assert task.estado == "PROCESSANDO"
+    assert outbox.claim(now + timedelta(seconds=30), 10).pk == task.pk
+
+
+def test_admin_queue_snapshot_without_sensitive_fields(settings):
+    now = timezone.now()
+    admin = UsuarioTI.objects.create_user(username="admin-outbox", email="admin-outbox@example.invalid")
+    operator = UsuarioTI.objects.create_user(username="oper-outbox", email="oper-outbox@example.invalid")
+    admin.groups.add(Group.objects.get_or_create(name="Administrador")[0])
+    operator.groups.add(Group.objects.get_or_create(name="Operador")[0])
+    first = schedule(now - timedelta(seconds=60))
+    failed = schedule(now, kind="NOTIFICACAO")
+    lease = outbox.claim(now, 10, kinds=("NOTIFICACAO",))
+    outbox.finish(lease.pk, lease.lease_id, "UNCERTAIN", now=now)
+    settings.GATI_TERMO_V2_ENABLED = False
+    with pytest.raises(PermissionDenied):
+        outbox.queue_snapshot(operator, now)
+    snapshot = outbox.queue_snapshot(admin, now)
+    assert snapshot["enabled"] is False
+    assert snapshot["counts"] == [
+        {"kind": "EMISSAO", "estado": "PENDENTE", "total": 1},
+        {"kind": "NOTIFICACAO", "estado": "FALHA", "total": 1},
+    ]
+    assert snapshot["oldest_ready_seconds"] == 60
+    assert snapshot["expired_leases"] == 0
+    assert snapshot["failures"][0]["id"] == failed.pk
+    assert set(snapshot["failures"][0]) == {"id", "kind", "attempts", "error_code", "updated_at"}
+    assert first.dedupe_key not in str(snapshot)
+    assert failed.dedupe_key not in str(snapshot)
+    assert outbox.queue_snapshot(admin, now, before_id=failed.pk)["failures"] == []
+    with pytest.raises(ValueError):
+        outbox.queue_snapshot(admin, now, failure_limit=101)
+
+
+def test_explicit_notification_retry_runs_handler_outside_transaction():
+    now = timezone.now()
+    task = schedule(now, kind="NOTIFICACAO")
+
+    def handler(_):
+        assert not connection.in_atomic_block
+        return "RETRY"
+
+    assert outbox.run_one(now, handlers={"NOTIFICACAO": handler}, clock=lambda: now)
+    task.refresh_from_db()
+    assert task.estado == "PENDENTE"
+    assert task.run_after == now + timedelta(seconds=5)
+    assert outbox.claim(now, 10) is None
+    retry = outbox.claim(task.run_after, 10)
+    assert retry.pk == task.pk and retry.attempts == 2
