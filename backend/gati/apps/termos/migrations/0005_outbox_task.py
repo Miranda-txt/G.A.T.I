@@ -11,7 +11,9 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID"),
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
                 ),
                 ("kind", models.CharField(max_length=40)),
                 ("resource_id", models.CharField(max_length=36)),

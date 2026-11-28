@@ -61,3 +61,9 @@
 | T14 — Homologação integrada | Pendente |
 
 Nenhum critério CA-TERM-01–28 é declarado concluído por este incremento isolado. T02 contribui para CA-TERM-08/12/13/14/25, mas faltam os fluxos consumidores e testes integrados. Nenhum dado real, credencial, serviço externo, deploy ou merge foi utilizado.
+
+## Correção do CI da fundação T02 — 28/11/2026
+
+- [Núcleo Patrimonial #46181267407](https://github.com/Miranda-txt/G.A.T.I/actions/runs/46181267407): RED no commit `1421eb6`, exclusivamente na etapa executada `ruff format --check`, com 1 arquivo a reformatar e 208 já formatados. O diagnóstico indica a quebra de linha da chamada `BigAutoField` na migration 0005. Ruff check e verificações anteriores aprovados; etapas Django, migrations, Pytest, cobertura e demais ensaios foram puladas, portanto não há evidência funcional desse run.
+- [Segurança #46181267450](https://github.com/Miranda-txt/G.A.T.I/actions/runs/46181267450): GREEN.
+- Correção: aplicar exatamente o diff emitido pelo Ruff na migration, sem alterar argumentos, operações, constraints, testes, dependências ou workflows. Comparação textual inversa confirma que não há outras alterações no código. Validação oficial de formatação e integração pendente de novo CI; não declarar T02 concluída. Sem merge, deploy ou ativação da feature flag.
