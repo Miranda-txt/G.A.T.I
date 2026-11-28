@@ -135,3 +135,10 @@ X_FRAME_OPTIONS = "DENY"
 SECURE_CONTENT_TYPE_NOSNIFF = True
 # Mantém Origin/Referer nos formulários internos sem enviar referência a outros sites.
 SECURE_REFERRER_POLICY = "same-origin"
+
+# Termos V2: desabilitado por padrao ate a homologacao e liberacao explicita.
+GATI_TERMO_V2_ENABLED = os.environ.get("GATI_TERMO_V2_ENABLED", "0") == "1"
+GATI_TERM_OUTBOX_MAX_ATTEMPTS = int(os.environ.get("GATI_TERM_OUTBOX_MAX_ATTEMPTS", "3"))
+GATI_TERM_OUTBOX_LEASE_SECONDS = int(os.environ.get("GATI_TERM_OUTBOX_LEASE_SECONDS", "30"))
+GATI_TERM_OUTBOX_JITTER_SECONDS = int(os.environ.get("GATI_TERM_OUTBOX_JITTER_SECONDS", "5"))
+GATI_TERM_OUTBOX_POLL_SECONDS = int(os.environ.get("GATI_TERM_OUTBOX_POLL_SECONDS", "2"))
